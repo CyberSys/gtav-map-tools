@@ -309,7 +309,7 @@ namespace MapTools.Data
                     {
                         selected = query.Single();
                         if (results > 1)
-                            Console.WriteLine("WARNING: Found duplicated CBaseArchetypeDef");
+                            Console.WriteLine("WARNING: Found duplicated CBaseArchetypeDef: "+selected.name);
                     }
                 }
 
