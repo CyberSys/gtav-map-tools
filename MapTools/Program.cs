@@ -4,6 +4,8 @@ using MapTools.Data;
 using MapTools.Types;
 using System.Xml.Linq;
 using System.IO;
+using System.Numerics;
+using System.Globalization;
 
 namespace MapTools
 {
@@ -105,6 +107,20 @@ namespace MapTools
                     Console.WriteLine("Missing CBaseArchetypeDef: " + name);
             }
             return merged;
+        }
+
+        public static Vector3 ReadVector3()
+        {
+            Vector3 offset = new Vector3();
+            Console.WriteLine("For the decimal separator use the character '" + CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator + "'");
+            Console.WriteLine("Insert the offset:");
+            Console.WriteLine("X:");
+            offset.X = float.Parse(Console.ReadLine());
+            Console.WriteLine("Y:");
+            offset.Y = float.Parse(Console.ReadLine());
+            Console.WriteLine("Z:");
+            offset.Z = float.Parse(Console.ReadLine());
+            return offset;
         }
     }
 }

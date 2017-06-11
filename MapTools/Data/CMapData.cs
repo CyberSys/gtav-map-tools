@@ -273,12 +273,24 @@ namespace MapTools.Data
                 entity.position += offset;
         }
 
-        public void MoveAndRotateEntities(string entityname,Vector3 positionOffset, Quaternion rotationOffset)
+        //USES XYZ ROTATION IN DEGREES
+        public void MoveAndRotateEntitiesByName(string entityname, Vector3 positionOffset, Vector3 rotationOffset)
         {
-            /*
-            float[] angle = { (float)Math.PI * rotation[1] / 180, (float)Math.PI * rotation[0] / 180, (float)Math.PI * rotation[2] / 180 };
-            Quaternion quat2 = Quaternion.CreateFromYawPitchRoll(angle[1], angle[0], angle[2]);*/
+            Vector3 radians = rotationOffset * (float)Math.PI / 180;
+            Quaternion quaternionOffset = Quaternion.CreateFromYawPitchRoll(radians.Y, radians.X, radians.Z);
 
+            foreach (CEntityDef entity in entities)
+            {
+                if (entity.archetypeName == entityname)
+                {
+                    entity.position += positionOffset;
+                    entity.rotation = Quaternion.Multiply(entity.rotation, quaternionOffset);
+                }
+            }
+        }
+
+        public void MoveAndRotateEntitiesByName(string entityname,Vector3 positionOffset, Quaternion rotationOffset)
+        {
             foreach (CEntityDef entity in entities)
             {
                 if(entity.archetypeName == entityname)
