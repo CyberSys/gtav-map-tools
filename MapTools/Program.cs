@@ -19,7 +19,8 @@ namespace MapTools
                 Console.WriteLine("If you don't specify a directory as args[1], the current one will be used.\n");
                 Console.WriteLine("extents\nCalculates again the extents of all the .ymap.xml \n");
                 Console.WriteLine("merge\nMerges all the .ytyp.xml and all the .ymap.xml \n");
-                Console.WriteLine("move\nMoves all the entities of all the .ymap.xml by a given offset\n");
+                Console.WriteLine("move\nMoves all the entities of all the .ymap.xml by a given offset.\n");
+                Console.WriteLine("editByName\nMoves and rotates entities of all the .ymap.xml matching the archetypeName.\n");
                 args = Console.ReadLine().Split();
             }
             if (args.Length != 0)
@@ -107,6 +108,30 @@ namespace MapTools
                             Console.WriteLine("Remember to update their extents.");
                         }
                         break;
+                    case "editByName":
+                        files = dir.GetFiles("*.ymap.xml");
+                        if (files.Length == 0)
+                            Console.WriteLine("No .ymap.xml file found.");
+                        else
+                        {
+                            Console.WriteLine("Insert archetypeName of the entities to edit:");
+                            string matchingName = Console.ReadLine();
+                            Console.WriteLine("Insert the position offset:");
+                            Vector3 positionOffset = ReadVector3();
+                            Console.WriteLine("Insert the rotation offset (in degrees):");
+                            Vector3 rotationOffset = ReadVector3();
+                            foreach (FileInfo file in files)
+                            {
+                                Console.WriteLine("Found " + file.Name);
+                                Ymap current = new Ymap(XDocument.Load(file.Name));
+                                current.CMapData.MoveAndRotateEntitiesByName(matchingName,positionOffset,rotationOffset);
+                                XDocument ymapDoc = current.WriteXML();
+                                ymapDoc.Save(file.Name);
+                                Console.WriteLine("Moved entities of " + file.Name);
+                            }
+                            Console.WriteLine("Remember to update their extents.");
+                        }
+                        break;
                     default:
                         Console.WriteLine(args[0] + " isn't a valid command.");
                         break;
@@ -152,7 +177,6 @@ namespace MapTools
         {
             Vector3 offset = new Vector3();
             Console.WriteLine("For the decimal separator use the character '" + CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator + "'");
-            Console.WriteLine("Insert the offset:");
             Console.WriteLine("X:");
             offset.X = float.Parse(Console.ReadLine());
             Console.WriteLine("Y:");
