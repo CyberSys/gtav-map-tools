@@ -304,9 +304,9 @@ namespace MapTools.Data
         }
 
         //UPDATES THE EXTENTS OF A CMAPDATA AND RETURNS NAMES OF THE MISSING ARCHETYPES TO WARN ABOUT INACCURATE CALCULATION
-        public List<string> UpdateExtents(HashSet<CBaseArchetypeDef> archetypes)
+        public HashSet<string> UpdateExtents(HashSet<CBaseArchetypeDef> archetypes)
         {
-            List<string> missing = new List<string>();
+            HashSet<string> missing = new HashSet<string>();
             Vector3 entMin = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
             Vector3 entMax = new Vector3(float.MinValue, float.MinValue, float.MinValue);
             Vector3 strMin = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
