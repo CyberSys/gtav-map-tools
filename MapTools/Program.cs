@@ -45,7 +45,6 @@ namespace MapTools
                             archetypeList = merged.CMapTypes.archetypes;
                         }
 
-
                         Console.WriteLine("YMAP MERGE");
                         files = dir.GetFiles("*.ymap.xml");
                         if (files.Length == 0)

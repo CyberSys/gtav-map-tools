@@ -72,6 +72,8 @@ namespace MapTools.Data
                 {
                     if (ent.Attribute("type").Value == "CEntityDef")
                         entities.Add(new CEntityDef(ent));
+                    else
+                        Console.WriteLine("Skipped unsupported entity: " + ent.Attribute("type").Value);
                 }
             }
             //MISSING CODE :DDDDDDDDDD

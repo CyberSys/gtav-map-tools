@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 
@@ -27,6 +28,8 @@ namespace MapTools.Types
                 {
                     if (arc.Attribute("type").Value == "CBaseArchetypeDef")
                         archetypes.Add(new CBaseArchetypeDef(arc));
+                    else
+                        Console.WriteLine("Skipped unsupported archetype: " + arc.Attribute("type").Value);
                 }
             }
             name = node.Element("name").Value;
