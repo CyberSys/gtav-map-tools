@@ -22,7 +22,7 @@ namespace MapTools.Data
         public object containerLods { get; set; }
         public object boxOccluders { get; set; }
         public object occludeModels { get; set; }
-        public object physicsDictionaries { get; set; }
+        public HashSet<string> physicsDictionaries { get; set; }
         public instancedData instancedData;
         public object carGenerators { get; set; }
         public LODLightsSOA LODLightsSOA;
@@ -42,6 +42,7 @@ namespace MapTools.Data
             nfi.NumberDecimalSeparator = ".";
 
             entities = new HashSet<CEntityDef>();
+            physicsDictionaries = new HashSet<string>();
             name = node.Element("name").Value;
             parent = node.Element("parent").Value;
             flags = uint.Parse(node.Element("flags").Attribute("value").Value);
@@ -74,6 +75,15 @@ namespace MapTools.Data
                         entities.Add(new CEntityDef(ent));
                     else
                         Console.WriteLine("Skipped unsupported entity: " + ent.Attribute("type").Value);
+                }
+            }
+
+            if (node.Element("physicsDictionaries").Elements() != null && node.Element("physicsDictionaries").Elements().Count() > 0)
+            {
+                foreach (XElement phDict in node.Element("physicsDictionaries").Elements())
+                {
+                    if (phDict.Name == "Item")
+                        physicsDictionaries.Add(phDict.Value);
                 }
             }
             //MISSING CODE :DDDDDDDDDD
@@ -166,6 +176,12 @@ namespace MapTools.Data
             //physicsDictionaries
             XElement physicsDictionariesField = new XElement("physicsDictionaries");
             CMapDataField.Add(physicsDictionariesField);
+
+            if (physicsDictionaries != null && physicsDictionaries.Count > 0)
+            {
+                foreach (string phDict in physicsDictionaries)
+                    physicsDictionariesField.Add(new XElement("Item",phDict));
+            }
 
             //instancedData
             XElement instancedDataField = new XElement("instancedData");
@@ -269,6 +285,21 @@ namespace MapTools.Data
             block.time = DateTime.UtcNow.ToString();
         }
 
+        public void UpdatelodDist(Dictionary<string, CBaseArchetypeDef> archetypes)
+        {
+            if (archetypes == null || archetypes.Count < 0)
+                return;
+
+            foreach(CEntityDef ent in entities)
+            {
+                CBaseArchetypeDef arc = null;
+                archetypes.TryGetValue(ent.archetypeName, out arc);
+
+                if(arc != null)
+                    ent.lodDist = 100 + (1.5f * arc.lodDist);
+            }
+        }
+
         public void MoveEntities(Vector3 offset)
         {
             foreach(CEntityDef entity in entities)
@@ -304,7 +335,7 @@ namespace MapTools.Data
         }
 
         //UPDATES THE EXTENTS OF A CMAPDATA AND RETURNS NAMES OF THE MISSING ARCHETYPES TO WARN ABOUT INACCURATE CALCULATION
-        public HashSet<string> UpdateExtents(HashSet<CBaseArchetypeDef> archetypes)
+        public HashSet<string> UpdateExtents(Dictionary<string,CBaseArchetypeDef> archetypes)
         {
             HashSet<string> missing = new HashSet<string>();
             Vector3 entMin = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
@@ -317,14 +348,15 @@ namespace MapTools.Data
                 CBaseArchetypeDef selected = null;
                 if(archetypes != null && archetypes.Count > 0)
                 {
-                    IEnumerable<CBaseArchetypeDef> query = from arch in archetypes where arch.name == entity.archetypeName select arch;
+                    /*IEnumerable<CBaseArchetypeDef> query = from arch in archetypes where arch.name == entity.archetypeName select arch;
                     int results = query.Count();
                     if (results > 0)
                     {
                         selected = query.Single();
                         if (results > 1)
                             Console.WriteLine("WARNING: Found duplicated CBaseArchetypeDef: "+selected.name);
-                    }
+                    }*/
+                    archetypes.TryGetValue(entity.archetypeName,out selected);
                 }
 
                 if (selected != null)

@@ -8,26 +8,29 @@ namespace MapTools.Types
     public class CMapTypes
     {
         public object extensions { get; set; } //UNKNOWN
-        public HashSet<CBaseArchetypeDef> archetypes { get; set; }
+        public Dictionary<string,CBaseArchetypeDef> archetypes { get; set; }
         public string name { get; set; }
         public object dependencies { get; set; } //UNKNOWN
         public object compositeEntityTypes { get; set; } //UNKNOWN
 
         public CMapTypes(string filename)
         {
-            archetypes = new HashSet<CBaseArchetypeDef>();
+            archetypes = new Dictionary<string, CBaseArchetypeDef>();
             name = filename;
         }
 
         public CMapTypes(XElement node)
         {
-            archetypes = new HashSet<CBaseArchetypeDef>();
+            archetypes = new Dictionary<string, CBaseArchetypeDef>();
             if (node.Element("archetypes").Elements() != null && node.Element("archetypes").Elements().Count() > 0)
             {
                 foreach (XElement arc in node.Element("archetypes").Elements())
                 {
                     if (arc.Attribute("type").Value == "CBaseArchetypeDef")
-                        archetypes.Add(new CBaseArchetypeDef(arc));
+                    {
+                        CBaseArchetypeDef a = new CBaseArchetypeDef(arc);
+                        archetypes.Add(a.name, a);
+                    }  
                     else
                         Console.WriteLine("Skipped unsupported archetype: " + arc.Attribute("type").Value);
                 }
@@ -52,8 +55,8 @@ namespace MapTools.Types
 
             if (archetypes != null && archetypes.Count > 0)
             {
-                foreach (CBaseArchetypeDef archetype in archetypes)
-                    archetypesField.Add(archetype.WriteXML());
+                foreach (KeyValuePair<string,CBaseArchetypeDef> archetype in archetypes)
+                    archetypesField.Add(archetype.Value.WriteXML());
             }
 
             //name

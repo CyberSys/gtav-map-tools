@@ -31,7 +31,7 @@ namespace MapTools
                 else
                     dir = new DirectoryInfo(Directory.GetCurrentDirectory());
                 FileInfo[] files = null;
-                HashSet<CBaseArchetypeDef> archetypeList = null;
+                Dictionary<string,CBaseArchetypeDef> archetypeList = null;
                 switch (args[0])
                 {
                     case "merge":
@@ -83,6 +83,8 @@ namespace MapTools
                                 Console.WriteLine("Found " + file.Name);
                                 Ymap current = new Ymap(XDocument.Load(file.Name));
                                 current.UpdateExtents(archetypeList);
+                                current.CMapData.UpdatelodDist(archetypeList);
+                                current.CMapData.UpdateBlock();
                                 XDocument ymapDoc = current.WriteXML();
                                 ymapDoc.Save(file.Name);
                                 Console.WriteLine("Updated extents for " + file.Name);
@@ -137,6 +139,7 @@ namespace MapTools
                         break;
                 }
             }
+            Console.WriteLine("Press any key to continue...");
             Console.ReadKey();
             Environment.Exit(0);
         }
@@ -148,10 +151,12 @@ namespace MapTools
             {
                 Console.WriteLine("Found " + file.Name);
                 Ytyp current = new Ytyp(XDocument.Load(file.Name));
-                foreach (CBaseArchetypeDef archetype in current.CMapTypes.archetypes)
+                foreach (KeyValuePair<string,CBaseArchetypeDef> archetype in current.CMapTypes.archetypes)
                 {
-                    if (!merged.CMapTypes.archetypes.Add(archetype))
-                        Console.WriteLine("Skipped duplicated CBaseArchetypeDef: " + archetype.name);
+                    if (!merged.CMapTypes.archetypes.ContainsKey(archetype.Key))
+                        merged.CMapTypes.archetypes.Add(archetype.Key, archetype.Value);
+                    else
+                        Console.WriteLine("Skipped duplicated CBaseArchetypeDef: " + archetype.Key);
                 }
             }
             return merged;
