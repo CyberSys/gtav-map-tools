@@ -307,8 +307,9 @@ namespace MapTools.Data
         }
 
         //USES XYZ ROTATION IN DEGREES
-        public void MoveAndRotateEntitiesByName(string entityname, Vector3 positionOffset, Vector3 rotationOffset)
+        public int MoveAndRotateEntitiesByName(string entityname, Vector3 positionOffset, Vector3 rotationOffset)
         {
+            int i = 0;
             Vector3 radians = rotationOffset * (float)Math.PI / 180;
             Quaternion quaternionOffset = Quaternion.CreateFromYawPitchRoll(radians.Y, radians.X, radians.Z);
 
@@ -318,20 +319,25 @@ namespace MapTools.Data
                 {
                     entity.position += positionOffset;
                     entity.rotation = Quaternion.Multiply(entity.rotation, quaternionOffset);
+                    i++;
                 }
             }
+            return i;
         }
 
-        public void MoveAndRotateEntitiesByName(string entityname,Vector3 positionOffset, Quaternion rotationOffset)
+        public int MoveAndRotateEntitiesByName(string entityname,Vector3 positionOffset, Quaternion rotationOffset)
         {
+            int i = 0;
             foreach (CEntityDef entity in entities)
             {
                 if(entity.archetypeName == entityname)
                 {
                     entity.position += positionOffset;
                     entity.rotation = Quaternion.Multiply(entity.rotation, rotationOffset);
+                    i++;
                 }
             }
+            return i;
         }
 
         //UPDATES THE EXTENTS OF A CMAPDATA AND RETURNS NAMES OF THE MISSING ARCHETYPES TO WARN ABOUT INACCURATE CALCULATION

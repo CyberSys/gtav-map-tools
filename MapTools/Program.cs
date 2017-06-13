@@ -36,7 +36,8 @@ namespace MapTools
                 Dictionary<string,CBaseArchetypeDef> archetypeList = null;
                 switch (args[0])
                 {
-                    case "merge":                        
+                    case "merge":
+                        Console.WriteLine("### MERGE YTYP ###");
                         files = dir.GetFiles("*.ytyp.xml");
                         if (files.Length == 0)
                             Console.WriteLine("No .ytyp.xml file found.");
@@ -46,23 +47,24 @@ namespace MapTools
                             XDocument ytyp_new = merged.WriteXML();
                             ytyp_new.Save("merged.ytyp.xml");
                             Console.WriteLine("Exported merged.ytyp.xml");
-                            archetypeList = merged.CMapTypes.archetypes;
                         }
-
+                        Console.WriteLine("");
+                        Console.WriteLine("### MERGE YMAP ###");
                         files = dir.GetFiles("*.ymap.xml");
                         if (files.Length == 0)
                             Console.WriteLine("No .ymap.xml file found.");
                         else
                         {
                             Ymap merged = MergeYMAP(files);
-                            merged.UpdateExtents(archetypeList);
                             XDocument ymap_new = merged.WriteXML();
                             ymap_new.Save("merged.ymap.xml");
                             Console.WriteLine("Exported merged.ymap.xml");
                         }
-                        
+                        Console.WriteLine("");
+
                         break;
                     case "extents":
+                        Console.WriteLine("### CALCULATE EXTENTS ###");
                         Console.WriteLine("Collecting archetypes...");
                         files = dir.GetFiles("*.ytyp.xml");
                         if (files.Length == 0)
@@ -72,7 +74,9 @@ namespace MapTools
                             Ytyp merged = MergeYTYP(files);
                             archetypeList = merged.CMapTypes.archetypes;
                         }
-                        Console.WriteLine("Scanning .ymap.xml to update...");
+                        Console.WriteLine("");
+
+                        Console.WriteLine("Collecting .ymap.xml to update...");
                         files = dir.GetFiles("*.ymap.xml");
                         if (files.Length == 0)
                             Console.WriteLine("No .ymap.xml file found.");
@@ -86,6 +90,7 @@ namespace MapTools
                                 XDocument ymapDoc = current.WriteXML();
                                 ymapDoc.Save(file.Name);
                                 Console.WriteLine("Updated extents for " + file.Name);
+                                Console.WriteLine("");
                             }
                         }
                         break;
@@ -130,9 +135,8 @@ namespace MapTools
                                 current.CMapData.MoveEntities(offset);
                                 XDocument ymapDoc = current.WriteXML();
                                 ymapDoc.Save(file.Name);
-                                Console.WriteLine("Moved entities of " + file.Name);
+                                Console.WriteLine("Moved all the entities of " + file.Name);
                             }
-                            Console.WriteLine("Remember to update their extents.");
                         }
                         break;
                     case "editByName":
@@ -151,12 +155,11 @@ namespace MapTools
                             {
                                 Console.WriteLine("Found " + file.Name);
                                 Ymap current = new Ymap(XDocument.Load(file.Name));
-                                current.CMapData.MoveAndRotateEntitiesByName(matchingName,positionOffset,rotationOffset);
+                                int i = current.CMapData.MoveAndRotateEntitiesByName(matchingName,positionOffset,rotationOffset);
                                 XDocument ymapDoc = current.WriteXML();
                                 ymapDoc.Save(file.Name);
-                                Console.WriteLine("Moved entities of " + file.Name);
+                                Console.WriteLine("Edited "+ i + " entities of " + file.Name);
                             }
-                            Console.WriteLine("Remember to update their extents.");
                         }
                         break;
                     case "guid":
@@ -175,6 +178,7 @@ namespace MapTools
                                         ent.Element("guid").Attribute("value").Value = rnd.Next().ToString();
                                 }
                                 doc.Save(file.Name);
+                                Console.WriteLine("Updated guids for " + file.Name);
                             }
                         }
                         break;

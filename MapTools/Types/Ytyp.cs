@@ -44,7 +44,7 @@ namespace MapTools.Types
                         if (!merged.CMapTypes.archetypes.ContainsKey(archetype.Key))
                             merged.CMapTypes.archetypes.Add(archetype.Key, archetype.Value);
                         else
-                            Console.WriteLine("MERGE YTYP: Skipped duplicated CBaseArchetypeDef " + archetype.Key);
+                            Console.WriteLine("Skipped duplicated CBaseArchetypeDef " + archetype.Key);
                     }
                 }
             }
