@@ -1,4 +1,6 @@
-﻿using System.Xml.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Xml.Linq;
 
 namespace MapTools.Types
 {
@@ -26,6 +28,27 @@ namespace MapTools.Types
         public Ytyp(XDocument document)
         {
             CMapTypes = new CMapTypes(document.Element("CMapTypes"));
+        }
+
+        public static Ytyp Merge(List<Ytyp> list)
+        {
+            if(list == null || list.Count < 1)
+                return null;
+            Ytyp merged = new Ytyp("merged");
+            foreach (Ytyp current in list)
+            {
+                if(current.CMapTypes.archetypes != null && current.CMapTypes.archetypes.Count > 0)
+                {
+                    foreach (KeyValuePair<string, CBaseArchetypeDef> archetype in current.CMapTypes.archetypes)
+                    {
+                        if (!merged.CMapTypes.archetypes.ContainsKey(archetype.Key))
+                            merged.CMapTypes.archetypes.Add(archetype.Key, archetype.Value);
+                        else
+                            Console.WriteLine("MERGE YTYP: Skipped duplicated CBaseArchetypeDef " + archetype.Key);
+                    }
+                }
+            }
+            return merged;
         }
     }
 }

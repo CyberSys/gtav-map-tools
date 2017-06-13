@@ -42,5 +42,39 @@ namespace MapTools.Data
             }
             return missing;
         }
+
+        public void Normalize(Dictionary<string, CBaseArchetypeDef> archetypeList)
+        {
+            CMapData.UpdatelodDist(archetypeList);
+            CMapData.UpdateBlock("GTADrifting","Neos7","GTADrifting");
+            CMapData.flags = 0;
+            CMapData.contentFlags = 1;
+            foreach (CEntityDef ent in CMapData.entities)
+            {
+                ent.flags = 0;
+            }
+            CMapData.UpdateExtents(archetypeList);
+        }
+
+        public static Ymap Merge(List<Ymap> list)
+        {
+            if (list == null || list.Count < 1)
+                return null;
+            Ymap merged = new Ymap("merged");
+            foreach (Ymap current in list)
+            {
+                if (current.CMapData.entities != null && current.CMapData.entities.Count > 0)
+                {
+                    foreach (CEntityDef entity in current.CMapData.entities)
+                    {
+                        if (!merged.CMapData.entities.Contains(entity))
+                            merged.CMapData.entities.Add(entity);
+                        else
+                            Console.WriteLine("MERGE YMAP: Skipped duplicated CEntityDef " + entity.guid);
+                    }
+                }
+            }
+            return merged;
+        }
     }
 }

@@ -18,7 +18,7 @@ namespace MapTools.Data
         public Vector3 streamingExtentsMax { get; set; }
         public Vector3 entitiesExtentsMin { get; set; }
         public Vector3 entitiesExtentsMax { get; set; }
-        public HashSet<CEntityDef> entities { get; set; }
+        public List<CEntityDef> entities { get; set; }
         public object containerLods { get; set; }
         public object boxOccluders { get; set; }
         public object occludeModels { get; set; }
@@ -32,8 +32,8 @@ namespace MapTools.Data
         public CMapData(string filename)
         {
             name = filename;
-            entities = new HashSet<CEntityDef>();
-            UpdateBlock();
+            entities = new List<CEntityDef>();
+            UpdateBlock("GTADrifting","Neos7","GTADrifting");
         }
 
         public CMapData(XElement node)
@@ -41,7 +41,7 @@ namespace MapTools.Data
             NumberFormatInfo nfi = new NumberFormatInfo();
             nfi.NumberDecimalSeparator = ".";
 
-            entities = new HashSet<CEntityDef>();
+            entities = new List<CEntityDef>();
             physicsDictionaries = new HashSet<string>();
             name = node.Element("name").Value;
             parent = node.Element("parent").Value;
@@ -277,11 +277,11 @@ namespace MapTools.Data
             return CMapDataField;
         }
 
-        public void UpdateBlock()
+        public void UpdateBlock(string name,string exportedby,string owner)
         {
-            block.name = "GTADrifting";
-            block.exportedBy = "Neos7";
-            block.owner = "GTADrifting";
+            block.name = name;
+            block.exportedBy = exportedby;
+            block.owner = owner;
             block.time = DateTime.UtcNow.ToString();
         }
 
@@ -296,7 +296,7 @@ namespace MapTools.Data
                 archetypes.TryGetValue(ent.archetypeName, out arc);
 
                 if(arc != null)
-                    ent.lodDist = 100 + (1.5f * arc.lodDist);
+                    ent.lodDist = 100 + (1.5f * arc.bsRadius);
             }
         }
 
@@ -347,17 +347,7 @@ namespace MapTools.Data
             {
                 CBaseArchetypeDef selected = null;
                 if(archetypes != null && archetypes.Count > 0)
-                {
-                    /*IEnumerable<CBaseArchetypeDef> query = from arch in archetypes where arch.name == entity.archetypeName select arch;
-                    int results = query.Count();
-                    if (results > 0)
-                    {
-                        selected = query.Single();
-                        if (results > 1)
-                            Console.WriteLine("WARNING: Found duplicated CBaseArchetypeDef: "+selected.name);
-                    }*/
                     archetypes.TryGetValue(entity.archetypeName,out selected);
-                }
 
                 if (selected != null)
                 {
