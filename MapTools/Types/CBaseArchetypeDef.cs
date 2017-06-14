@@ -156,13 +156,13 @@ namespace MapTools.Types
                 );
             bsRadius = float.Parse(node.Element("bsRadius").Attribute("value").Value, nfi);
             hdTextureDist = float.Parse(node.Element("hdTextureDist").Attribute("value").Value, nfi);
-            name = node.Element("name").Value;
+            name = node.Element("name").Value.ToLower(); //SOME YTYP CONTAINS ARCHETYPES WITH UPPERCASE -.-
             textureDictionary = node.Element("textureDictionary").Value;
             clipDictionary = node.Element("clipDictionary").Value;
             drawableDictionary = node.Element("drawableDictionary").Value;
             physicsDictionary = node.Element("physicsDictionary").Value;
             assetType = node.Element("assetType").Value;
-            assetName = node.Element("assetName").Value;
+            assetName = node.Element("assetName").Value.ToLower(); //SOME YTYP CONTAINS ARCHETYPES WITH UPPERCASE -.-
             extensions = node.Element("extensions");
         }
     }

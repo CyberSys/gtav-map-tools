@@ -46,12 +46,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Types\CBaseArchetypeDef.cs" />
-    <Compile Include="Data\CEntityDef.cs" />
-    <Compile Include="Data\CMapData.cs" />
+    <Compile Include="Map\CEntityDef.cs" />
+    <Compile Include="Map\CMapData.cs" />
     <Compile Include="Types\CMapTypes.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Data\Ymap.cs" />
+    <Compile Include="Map\Ymap.cs" />
     <Compile Include="Types\Ytyp.cs" />
   </ItemGroup>
   <ItemGroup>

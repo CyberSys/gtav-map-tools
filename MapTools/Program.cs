@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using MapTools.Data;
+using MapTools.Map;
 using MapTools.Types;
 using System.Xml.Linq;
 using System.IO;
@@ -23,6 +23,7 @@ namespace MapTools
                 Console.WriteLine("move\nMoves all the entities of all the .ymap.xml by a given offset.\n");
                 Console.WriteLine("editByName\nMoves and rotates entities of all the .ymap.xml matching the archetypeName.\n");
                 Console.WriteLine("guid\nGenerates new guid for ymap entities.\n");
+                Console.WriteLine("reset\nResets flags and lodDist.\n");
                 args = Console.ReadLine().Split();
             }
             if (args.Length != 0)
@@ -94,13 +95,26 @@ namespace MapTools
                             }
                         }
                         break;
-                    case "normalize":
+                    case "reset":
                         Console.WriteLine("Collecting archetypes...");
                         files = dir.GetFiles("*.ytyp.xml");
                         if (files.Length == 0)
                             Console.WriteLine("No .ytyp.xml file found.");
                         else
                         {
+                            foreach (FileInfo file in files)
+                            {
+                                Ytyp current = new Ytyp(XDocument.Load(file.Name));
+                                current.CMapTypes.UpdatelodDist();
+                                foreach (CBaseArchetypeDef arc in current.CMapTypes.archetypes.Values)
+                                {
+                                    arc.flags = 0;
+                                    arc.specialAttribute = 0;
+                                }
+                                XDocument ytypDoc = current.WriteXML();
+                                ytypDoc.Save(file.Name);
+                                Console.WriteLine("Resetted " + file.Name);
+                            }
                             Ytyp merged = MergeYTYP(files);
                             archetypeList = merged.CMapTypes.archetypes;
                         }
@@ -114,10 +128,20 @@ namespace MapTools
                             {
                                 Console.WriteLine("Found " + file.Name);
                                 Ymap current = new Ymap(XDocument.Load(file.Name));
-                                current.Normalize(archetypeList);
+
+                                current.CMapData.UpdatelodDist(archetypeList);
+                                current.CMapData.UpdateBlock("GTADrifting", "Neos7", "GTADrifting");
+                                current.CMapData.flags = 0;
+                                current.CMapData.contentFlags = 1;
+                                foreach (CEntityDef ent in current.CMapData.entities)
+                                {
+                                    ent.flags = 0;
+                                    ent.childLodDist = 0;
+                                }
+
                                 XDocument ymapDoc = current.WriteXML();
                                 ymapDoc.Save(file.Name);
-                                Console.WriteLine("Updated extents for " + file.Name);
+                                Console.WriteLine("Resetted " + file.Name);
                             }
                         }
                         break;

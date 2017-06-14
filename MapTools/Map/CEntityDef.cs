@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Numerics;
 using System.Xml.Linq;
 
-namespace MapTools.Data
+namespace MapTools.Map
 {
     public class CEntityDef : IEquatable<CEntityDef>
     {

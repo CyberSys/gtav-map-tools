@@ -40,6 +40,15 @@ namespace MapTools.Types
             compositeEntityTypes = node.Element("compositeEntityTypes");
         }
 
+        public void UpdatelodDist()
+        {
+            foreach (CBaseArchetypeDef arc in archetypes.Values)
+            {
+                arc.lodDist = 100 + (1.5f * arc.bsRadius);
+                arc.hdTextureDist = 100 + arc.bsRadius;
+            }
+        }
+
         public XElement WriteXML()
         {
             //CMapTypes

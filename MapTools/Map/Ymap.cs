@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Xml.Linq;
 
-namespace MapTools.Data
+namespace MapTools.Map
 {
     public class Ymap
     {
@@ -41,19 +41,6 @@ namespace MapTools.Data
                     Console.WriteLine("Missing CBaseArchetypeDef: " + name);
             }
             return missing;
-        }
-
-        public void Normalize(Dictionary<string, CBaseArchetypeDef> archetypeList)
-        {
-            CMapData.UpdatelodDist(archetypeList);
-            CMapData.UpdateBlock("GTADrifting","Neos7","GTADrifting");
-            CMapData.flags = 0;
-            CMapData.contentFlags = 1;
-            foreach (CEntityDef ent in CMapData.entities)
-            {
-                ent.flags = 0;
-            }
-            CMapData.UpdateExtents(archetypeList);
         }
 
         public static Ymap Merge(List<Ymap> list)
