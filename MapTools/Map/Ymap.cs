@@ -36,7 +36,6 @@ namespace MapTools.Map
             HashSet<string> missing = CMapData.UpdateExtents(archetypeList);
             if (missing != null && missing.Count > 0)
             {
-                //Console.WriteLine("WARNING: Some CBaseArchetypeDef are missing, extents might not be accurate.");
                 foreach (string name in missing)
                     Console.WriteLine("Missing CBaseArchetypeDef: " + name);
             }

@@ -38,33 +38,30 @@ namespace MapTools.Map
 
         public CMapData(XElement node)
         {
-            NumberFormatInfo nfi = new NumberFormatInfo();
-            nfi.NumberDecimalSeparator = ".";
-
             entities = new List<CEntityDef>();
             physicsDictionaries = new HashSet<string>();
             name = node.Element("name").Value;
             parent = node.Element("parent").Value;
             flags = uint.Parse(node.Element("flags").Attribute("value").Value);
             streamingExtentsMin = new Vector3(
-                float.Parse(node.Element("streamingExtentsMin").Attribute("x").Value, nfi),
-                float.Parse(node.Element("streamingExtentsMin").Attribute("y").Value, nfi),
-                float.Parse(node.Element("streamingExtentsMin").Attribute("z").Value, nfi)
+                float.Parse(node.Element("streamingExtentsMin").Attribute("x").Value),
+                float.Parse(node.Element("streamingExtentsMin").Attribute("y").Value),
+                float.Parse(node.Element("streamingExtentsMin").Attribute("z").Value)
                 );
             streamingExtentsMax = new Vector3(
-                float.Parse(node.Element("streamingExtentsMax").Attribute("x").Value, nfi),
-                float.Parse(node.Element("streamingExtentsMax").Attribute("y").Value, nfi),
-                float.Parse(node.Element("streamingExtentsMax").Attribute("z").Value, nfi)
+                float.Parse(node.Element("streamingExtentsMax").Attribute("x").Value),
+                float.Parse(node.Element("streamingExtentsMax").Attribute("y").Value),
+                float.Parse(node.Element("streamingExtentsMax").Attribute("z").Value)
                 );
             entitiesExtentsMin = new Vector3(
-                float.Parse(node.Element("entitiesExtentsMin").Attribute("x").Value, nfi),
-                float.Parse(node.Element("entitiesExtentsMin").Attribute("y").Value, nfi),
-                float.Parse(node.Element("entitiesExtentsMin").Attribute("z").Value, nfi)
+                float.Parse(node.Element("entitiesExtentsMin").Attribute("x").Value),
+                float.Parse(node.Element("entitiesExtentsMin").Attribute("y").Value),
+                float.Parse(node.Element("entitiesExtentsMin").Attribute("z").Value)
                 );
             entitiesExtentsMax = new Vector3(
-                float.Parse(node.Element("entitiesExtentsMax").Attribute("x").Value, nfi),
-                float.Parse(node.Element("entitiesExtentsMax").Attribute("y").Value, nfi),
-                float.Parse(node.Element("entitiesExtentsMax").Attribute("z").Value, nfi)
+                float.Parse(node.Element("entitiesExtentsMax").Attribute("x").Value),
+                float.Parse(node.Element("entitiesExtentsMax").Attribute("y").Value),
+                float.Parse(node.Element("entitiesExtentsMax").Attribute("z").Value)
                 );
 
             if (node.Element("entities").Elements() != null && node.Element("entities").Elements().Count() > 0)
@@ -96,185 +93,182 @@ namespace MapTools.Map
 
         public XElement WriteXML()
         {
-            NumberFormatInfo nfi = new NumberFormatInfo();
-            nfi.NumberDecimalSeparator = ".";
-
             //CMapData
-            XElement CMapDataField = new XElement("CMapData");
+            XElement CMapDataNode = new XElement("CMapData");
 
             //name
-            XElement nameField = new XElement("name");
-            nameField.Value = name;
-            CMapDataField.Add(nameField);
+            XElement nameNode = new XElement("name");
+            nameNode.Value = name;
+            CMapDataNode.Add(nameNode);
 
             //parent
-            XElement parentField = new XElement("parent");
-            CMapDataField.Add(parentField);
+            XElement parentNode = new XElement("parent");
+            CMapDataNode.Add(parentNode);
 
             //flags
-            XElement flagsField = new XElement("flags", new XAttribute("value", flags.ToString()));
-            CMapDataField.Add(flagsField);
+            XElement flagsNode = new XElement("flags", new XAttribute("value", flags.ToString()));
+            CMapDataNode.Add(flagsNode);
 
             //contentFlags
-            XElement contentFlagsField = new XElement("contentFlags", new XAttribute("value", contentFlags.ToString()));
-            CMapDataField.Add(contentFlagsField);
+            XElement contentFlagsNode = new XElement("contentFlags", new XAttribute("value", contentFlags.ToString()));
+            CMapDataNode.Add(contentFlagsNode);
 
             //streamingExtentsMin
-            XElement streamingExtentsMinField = new XElement("streamingExtentsMin",
-                new XAttribute("x", streamingExtentsMin.X.ToString(nfi)),
-                new XAttribute("y", streamingExtentsMin.Y.ToString(nfi)),
-                new XAttribute("z", streamingExtentsMin.Z.ToString(nfi))
+            XElement streamingExtentsMinNode = new XElement("streamingExtentsMin",
+                new XAttribute("x", streamingExtentsMin.X.ToString()),
+                new XAttribute("y", streamingExtentsMin.Y.ToString()),
+                new XAttribute("z", streamingExtentsMin.Z.ToString())
                 );
-            CMapDataField.Add(streamingExtentsMinField);
+            CMapDataNode.Add(streamingExtentsMinNode);
 
             //streamingExtentsMax
-            XElement streamingExtentsMaxField = new XElement("streamingExtentsMax",
-                new XAttribute("x", streamingExtentsMax.X.ToString(nfi)),
-                new XAttribute("y", streamingExtentsMax.Y.ToString(nfi)),
-                new XAttribute("z", streamingExtentsMax.Z.ToString(nfi))
+            XElement streamingExtentsMaxNode = new XElement("streamingExtentsMax",
+                new XAttribute("x", streamingExtentsMax.X.ToString()),
+                new XAttribute("y", streamingExtentsMax.Y.ToString()),
+                new XAttribute("z", streamingExtentsMax.Z.ToString())
                 );
-            CMapDataField.Add(streamingExtentsMaxField);
+            CMapDataNode.Add(streamingExtentsMaxNode);
 
             //entitiesExtentsMin
-            XElement entitiesExtentsMinField = new XElement("entitiesExtentsMin",
-                new XAttribute("x", entitiesExtentsMin.X.ToString(nfi)),
-                new XAttribute("y", entitiesExtentsMin.Y.ToString(nfi)),
-                new XAttribute("z", entitiesExtentsMin.Z.ToString(nfi))
+            XElement entitiesExtentsMinNode = new XElement("entitiesExtentsMin",
+                new XAttribute("x", entitiesExtentsMin.X.ToString()),
+                new XAttribute("y", entitiesExtentsMin.Y.ToString()),
+                new XAttribute("z", entitiesExtentsMin.Z.ToString())
                 );
-            CMapDataField.Add(entitiesExtentsMinField);
+            CMapDataNode.Add(entitiesExtentsMinNode);
 
             //entitiesExtentsMax
-            XElement entitiesExtentsMaxField = new XElement("entitiesExtentsMax",
-                new XAttribute("x", entitiesExtentsMax.X.ToString(nfi)),
-                new XAttribute("y", entitiesExtentsMax.Y.ToString(nfi)),
-                new XAttribute("z", entitiesExtentsMax.Z.ToString(nfi))
+            XElement entitiesExtentsMaxNode = new XElement("entitiesExtentsMax",
+                new XAttribute("x", entitiesExtentsMax.X.ToString()),
+                new XAttribute("y", entitiesExtentsMax.Y.ToString()),
+                new XAttribute("z", entitiesExtentsMax.Z.ToString())
                 );
-            CMapDataField.Add(entitiesExtentsMaxField);
+            CMapDataNode.Add(entitiesExtentsMaxNode);
 
             //entities
-            XElement entitiesField = new XElement("entities");
-            CMapDataField.Add(entitiesField);
+            XElement entitiesNode = new XElement("entities");
+            CMapDataNode.Add(entitiesNode);
 
             if (entities != null && entities.Count > 0)
             {
                 foreach (CEntityDef entity in entities)
-                    entitiesField.Add(entity.WriteXML());
+                    entitiesNode.Add(entity.WriteXML());
             }
 
             //containerLods
-            XElement containerLodsField = new XElement("containerLods");
-            CMapDataField.Add(containerLodsField);
+            XElement containerLodsNode = new XElement("containerLods");
+            CMapDataNode.Add(containerLodsNode);
 
             //boxOccluders
-            XElement boxOccludersField = new XElement("boxOccluders");
-            CMapDataField.Add(boxOccludersField);
+            XElement boxOccludersNode = new XElement("boxOccluders");
+            CMapDataNode.Add(boxOccludersNode);
 
             //occludeModels
-            XElement occludeModelsField = new XElement("occludeModels");
-            CMapDataField.Add(occludeModelsField);
+            XElement occludeModelsNode = new XElement("occludeModels");
+            CMapDataNode.Add(occludeModelsNode);
 
             //physicsDictionaries
-            XElement physicsDictionariesField = new XElement("physicsDictionaries");
-            CMapDataField.Add(physicsDictionariesField);
+            XElement physicsDictionariesNode = new XElement("physicsDictionaries");
+            CMapDataNode.Add(physicsDictionariesNode);
 
             if (physicsDictionaries != null && physicsDictionaries.Count > 0)
             {
                 foreach (string phDict in physicsDictionaries)
-                    physicsDictionariesField.Add(new XElement("Item",phDict));
+                    physicsDictionariesNode.Add(new XElement("Item",phDict));
             }
 
             //instancedData
-            XElement instancedDataField = new XElement("instancedData");
-            CMapDataField.Add(instancedDataField);
+            XElement instancedDataNode = new XElement("instancedData");
+            CMapDataNode.Add(instancedDataNode);
             //ImapLink
-            XElement ImapLinkField = new XElement("ImapLink");
-            instancedDataField.Add(ImapLinkField);
+            XElement ImapLinkNode = new XElement("ImapLink");
+            instancedDataNode.Add(ImapLinkNode);
             //PropInstanceList
-            XElement PropInstanceListField = new XElement("PropInstanceList");
-            instancedDataField.Add(PropInstanceListField);
+            XElement PropInstanceListNode = new XElement("PropInstanceList");
+            instancedDataNode.Add(PropInstanceListNode);
             //GrassInstanceList
-            XElement GrassInstanceListField = new XElement("GrassInstanceList");
-            instancedDataField.Add(GrassInstanceListField);
+            XElement GrassInstanceListNode = new XElement("GrassInstanceList");
+            instancedDataNode.Add(GrassInstanceListNode);
 
             //timeCycleModifiers
-            XElement timeCycleModifiersField = new XElement("timeCycleModifiers");
-            CMapDataField.Add(timeCycleModifiersField);
+            XElement timeCycleModifiersNode = new XElement("timeCycleModifiers");
+            CMapDataNode.Add(timeCycleModifiersNode);
 
             //carGenerators
-            XElement carGeneratorsField = new XElement("carGenerators");
-            CMapDataField.Add(carGeneratorsField);
+            XElement carGeneratorsNode = new XElement("carGenerators");
+            CMapDataNode.Add(carGeneratorsNode);
 
             //LODLightsSOA
-            XElement LODLightsSOAField = new XElement("LODLightsSOA");
-            CMapDataField.Add(LODLightsSOAField);
+            XElement LODLightsSOANode = new XElement("LODLightsSOA");
+            CMapDataNode.Add(LODLightsSOANode);
             //direction
-            XElement directionField = new XElement("direction");
-            LODLightsSOAField.Add(directionField);
+            XElement directionNode = new XElement("direction");
+            LODLightsSOANode.Add(directionNode);
             //falloff
-            XElement falloffField = new XElement("falloff");
-            LODLightsSOAField.Add(falloffField);
+            XElement falloffNode = new XElement("falloff");
+            LODLightsSOANode.Add(falloffNode);
             //falloffExponent
-            XElement falloffExponentField = new XElement("falloffExponent");
-            LODLightsSOAField.Add(falloffExponentField);
+            XElement falloffExponentNode = new XElement("falloffExponent");
+            LODLightsSOANode.Add(falloffExponentNode);
             //timeAndStateFlags
-            XElement timeAndStateFlagsField = new XElement("timeAndStateFlags");
-            LODLightsSOAField.Add(timeAndStateFlagsField);
+            XElement timeAndStateFlagsNode = new XElement("timeAndStateFlags");
+            LODLightsSOANode.Add(timeAndStateFlagsNode);
             //hash
-            XElement hashField = new XElement("hash");
-            LODLightsSOAField.Add(hashField);
+            XElement hashNode = new XElement("hash");
+            LODLightsSOANode.Add(hashNode);
             //coneInnerAngle
-            XElement coneInnerAngleField = new XElement("coneInnerAngle");
-            LODLightsSOAField.Add(coneInnerAngleField);
+            XElement coneInnerAngleNode = new XElement("coneInnerAngle");
+            LODLightsSOANode.Add(coneInnerAngleNode);
             //coneOuterAngleOrCapExt
-            XElement coneOuterAngleOrCapExtField = new XElement("coneOuterAngleOrCapExt");
-            LODLightsSOAField.Add(coneOuterAngleOrCapExtField);
+            XElement coneOuterAngleOrCapExtNode = new XElement("coneOuterAngleOrCapExt");
+            LODLightsSOANode.Add(coneOuterAngleOrCapExtNode);
             //coronaIntensity
-            XElement coronaIntensityField = new XElement("coronaIntensity");
-            LODLightsSOAField.Add(coronaIntensityField);
+            XElement coronaIntensityNode = new XElement("coronaIntensity");
+            LODLightsSOANode.Add(coronaIntensityNode);
 
             //DistantLODLightsSOA
-            XElement DistantLODLightsSOAField = new XElement("DistantLODLightsSOA");
-            CMapDataField.Add(DistantLODLightsSOAField);
+            XElement DistantLODLightsSOANode = new XElement("DistantLODLightsSOA");
+            CMapDataNode.Add(DistantLODLightsSOANode);
             //position
-            XElement positionField = new XElement("position");
-            DistantLODLightsSOAField.Add(positionField);
+            XElement positionNode = new XElement("position");
+            DistantLODLightsSOANode.Add(positionNode);
             //RGBI
-            XElement RGBIField = new XElement("RGBI");
-            DistantLODLightsSOAField.Add(RGBIField);
+            XElement RGBINode = new XElement("RGBI");
+            DistantLODLightsSOANode.Add(RGBINode);
             //numStreetLights
-            XElement numStreetLightsField = new XElement("numStreetLights", new XAttribute("value", 0));
-            DistantLODLightsSOAField.Add(numStreetLightsField);
+            XElement numStreetLightsNode = new XElement("numStreetLights", new XAttribute("value", 0));
+            DistantLODLightsSOANode.Add(numStreetLightsNode);
             //category
-            XElement categoryField = new XElement("category", new XAttribute("value", 0));
-            DistantLODLightsSOAField.Add(categoryField);
+            XElement categoryNode = new XElement("category", new XAttribute("value", 0));
+            DistantLODLightsSOANode.Add(categoryNode);
 
             //block
-            XElement blockField = new XElement("block");
-            CMapDataField.Add(blockField);
+            XElement blockNode = new XElement("block");
+            CMapDataNode.Add(blockNode);
             //version
-            XElement versionField = new XElement("version", new XAttribute("value", 0));
-            blockField.Add(versionField);
+            XElement versionNode = new XElement("version", new XAttribute("value", 0));
+            blockNode.Add(versionNode);
             //flags
-            XElement blockflagsField = new XElement("flags", new XAttribute("value", 0));
-            blockField.Add(blockflagsField);
+            XElement blockflagsNode = new XElement("flags", new XAttribute("value", 0));
+            blockNode.Add(blockflagsNode);
             //name
-            XElement blocknameField = new XElement("name");
-            blocknameField.Value = block.name;
-            blockField.Add(blocknameField);
+            XElement blocknameNode = new XElement("name");
+            blocknameNode.Value = block.name;
+            blockNode.Add(blocknameNode);
             //exportedBy
-            XElement exportedByField = new XElement("exportedBy");
-            exportedByField.Value = block.exportedBy;
-            blockField.Add(exportedByField);
+            XElement exportedByNode = new XElement("exportedBy");
+            exportedByNode.Value = block.exportedBy;
+            blockNode.Add(exportedByNode);
             //owner
-            XElement ownerField = new XElement("owner");
-            ownerField.Value = block.owner;
-            blockField.Add(ownerField);
+            XElement ownerNode = new XElement("owner");
+            ownerNode.Value = block.owner;
+            blockNode.Add(ownerNode);
             //time
-            XElement timeField = new XElement("time");
-            timeField.Value = block.time;
-            blockField.Add(timeField);
+            XElement timeNode = new XElement("time");
+            timeNode.Value = block.time;
+            blockNode.Add(timeNode);
 
-            return CMapDataField;
+            return CMapDataNode;
         }
 
         public void UpdateBlock(string name,string exportedby,string owner)

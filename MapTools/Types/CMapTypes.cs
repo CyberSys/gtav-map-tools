@@ -52,36 +52,36 @@ namespace MapTools.Types
         public XElement WriteXML()
         {
             //CMapTypes
-            XElement CMapTypesField = new XElement("CMapTypes");
+            XElement CMapTypesNode = new XElement("CMapTypes");
 
             //extensions
-            XElement extensionsField = new XElement("extensions");
-            CMapTypesField.Add(extensionsField);
+            XElement extensionsNode = new XElement("extensions");
+            CMapTypesNode.Add(extensionsNode);
 
             //archetypes
-            XElement archetypesField = new XElement("archetypes");
-            CMapTypesField.Add(archetypesField);
+            XElement archetypesNode = new XElement("archetypes");
+            CMapTypesNode.Add(archetypesNode);
 
             if (archetypes != null && archetypes.Count > 0)
             {
                 foreach (KeyValuePair<string,CBaseArchetypeDef> archetype in archetypes)
-                    archetypesField.Add(archetype.Value.WriteXML());
+                    archetypesNode.Add(archetype.Value.WriteXML());
             }
 
             //name
-            XElement nameField = new XElement("name");
-            nameField.Value = name;
-            CMapTypesField.Add(nameField);
+            XElement nameNode = new XElement("name");
+            nameNode.Value = name;
+            CMapTypesNode.Add(nameNode);
 
             //dependencies
-            XElement dependenciesField = new XElement("dependencies");
-            CMapTypesField.Add(dependenciesField);
+            XElement dependenciesNode = new XElement("dependencies");
+            CMapTypesNode.Add(dependenciesNode);
 
             //compositeEntityTypes
-            XElement compositeEntityTypesField = new XElement("compositeEntityTypes");
-            CMapTypesField.Add(compositeEntityTypesField);
+            XElement compositeEntityTypesNode = new XElement("compositeEntityTypes");
+            CMapTypesNode.Add(compositeEntityTypesNode);
 
-            return CMapTypesField;
+            return CMapTypesNode;
         }
     }
 }

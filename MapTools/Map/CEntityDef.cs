@@ -37,119 +37,113 @@ namespace MapTools.Map
 
         public XElement WriteXML()
         {
-            NumberFormatInfo nfi = new NumberFormatInfo();
-            nfi.NumberDecimalSeparator = ".";
-
             //CEntityDef
-            XElement CEntityDefField = new XElement("Item", new XAttribute("type", "CEntityDef"));
+            XElement CEntityDefNode = new XElement("Item", new XAttribute("type", "CEntityDef"));
 
             //archetypeName
-            XElement archetypeNameField = new XElement("archetypeName");
-            archetypeNameField.Value = archetypeName;
-            CEntityDefField.Add(archetypeNameField);
+            XElement archetypeNameNode = new XElement("archetypeName");
+            archetypeNameNode.Value = archetypeName;
+            CEntityDefNode.Add(archetypeNameNode);
 
             //flags
-            XElement flagsField = new XElement("flags", new XAttribute("value", flags.ToString()));
-            CEntityDefField.Add(flagsField);
+            XElement flagsNode = new XElement("flags", new XAttribute("value", flags.ToString()));
+            CEntityDefNode.Add(flagsNode);
 
             //guid
-            XElement guidField = new XElement("guid", new XAttribute("value", guid.ToString()));
-            CEntityDefField.Add(guidField);
+            XElement guidNode = new XElement("guid", new XAttribute("value", guid.ToString()));
+            CEntityDefNode.Add(guidNode);
 
             //position
-            XElement positionField = new XElement("position",
-                new XAttribute("x", position.X.ToString(nfi)),
-                new XAttribute("y", position.Y.ToString(nfi)),
-                new XAttribute("z", position.Z.ToString(nfi))
+            XElement positionNode = new XElement("position",
+                new XAttribute("x", position.X.ToString()),
+                new XAttribute("y", position.Y.ToString()),
+                new XAttribute("z", position.Z.ToString())
                 );
-            CEntityDefField.Add(positionField);
+            CEntityDefNode.Add(positionNode);
 
             //rotation
-            XElement rotationField = new XElement("rotation",
-                new XAttribute("x", rotation.X.ToString(nfi)),
-                new XAttribute("y", rotation.Y.ToString(nfi)),
-                new XAttribute("z", rotation.Z.ToString(nfi)),
-                new XAttribute("w", rotation.W.ToString(nfi))
+            XElement rotationNode = new XElement("rotation",
+                new XAttribute("x", rotation.X.ToString()),
+                new XAttribute("y", rotation.Y.ToString()),
+                new XAttribute("z", rotation.Z.ToString()),
+                new XAttribute("w", rotation.W.ToString())
                 );
-            CEntityDefField.Add(rotationField);
+            CEntityDefNode.Add(rotationNode);
 
             //scaleXY
-            XElement scaleXYField = new XElement("scaleXY", new XAttribute("value", scaleXY.ToString(nfi)));
-            CEntityDefField.Add(scaleXYField);
+            XElement scaleXYNode = new XElement("scaleXY", new XAttribute("value", scaleXY.ToString()));
+            CEntityDefNode.Add(scaleXYNode);
 
             //scaleZ
-            XElement scaleZField = new XElement("scaleZ", new XAttribute("value", scaleZ.ToString(nfi)));
-            CEntityDefField.Add(scaleZField);
+            XElement scaleZNode = new XElement("scaleZ", new XAttribute("value", scaleZ.ToString()));
+            CEntityDefNode.Add(scaleZNode);
 
             //parentIndex
-            XElement parentIndexField = new XElement("parentIndex", new XAttribute("value", parentIndex.ToString()));
-            CEntityDefField.Add(parentIndexField);
+            XElement parentIndexNode = new XElement("parentIndex", new XAttribute("value", parentIndex.ToString()));
+            CEntityDefNode.Add(parentIndexNode);
 
             //lodDist
-            XElement lodDistField = new XElement("lodDist", new XAttribute("value", lodDist.ToString(nfi)));
-            CEntityDefField.Add(lodDistField);
+            XElement lodDistNode = new XElement("lodDist", new XAttribute("value", lodDist.ToString()));
+            CEntityDefNode.Add(lodDistNode);
 
             //childLodDist
-            XElement childLodDistField = new XElement("childLodDist", new XAttribute("value", childLodDist.ToString(nfi)));
-            CEntityDefField.Add(childLodDistField);
+            XElement childLodDistNode = new XElement("childLodDist", new XAttribute("value", childLodDist.ToString()));
+            CEntityDefNode.Add(childLodDistNode);
 
             //lodLevel
-            XElement lodLevelField = new XElement("lodLevel");
-            lodLevelField.Value = lodLevel;
-            CEntityDefField.Add(lodLevelField);
+            XElement lodLevelNode = new XElement("lodLevel");
+            lodLevelNode.Value = lodLevel;
+            CEntityDefNode.Add(lodLevelNode);
 
             //numChildren
-            XElement numChildrenField = new XElement("numChildren", new XAttribute("value", numChildren.ToString()));
-            CEntityDefField.Add(numChildrenField);
+            XElement numChildrenNode = new XElement("numChildren", new XAttribute("value", numChildren.ToString()));
+            CEntityDefNode.Add(numChildrenNode);
 
             //priorityLevel
-            XElement priorityLevelField = new XElement("priorityLevel");
-            priorityLevelField.Value = priorityLevel;
-            CEntityDefField.Add(priorityLevelField);
+            XElement priorityLevelNode = new XElement("priorityLevel");
+            priorityLevelNode.Value = priorityLevel;
+            CEntityDefNode.Add(priorityLevelNode);
 
             //extensions
-            XElement extensionsField = new XElement("extensions");
-            CEntityDefField.Add(extensionsField);
+            XElement extensionsNode = new XElement("extensions");
+            CEntityDefNode.Add(extensionsNode);
 
             //ambientOcclusionMultiplier
-            XElement ambientOcclusionMultiplierField = new XElement("ambientOcclusionMultiplier", new XAttribute("value", ambientOcclusionMultiplier.ToString()));
-            CEntityDefField.Add(ambientOcclusionMultiplierField);
+            XElement ambientOcclusionMultiplierNode = new XElement("ambientOcclusionMultiplier", new XAttribute("value", ambientOcclusionMultiplier.ToString()));
+            CEntityDefNode.Add(ambientOcclusionMultiplierNode);
 
             //artificialAmbientOcclusion
-            XElement artificialAmbientOcclusionField = new XElement("artificialAmbientOcclusion", new XAttribute("value", artificialAmbientOcclusion.ToString()));
-            CEntityDefField.Add(artificialAmbientOcclusionField);
+            XElement artificialAmbientOcclusionNode = new XElement("artificialAmbientOcclusion", new XAttribute("value", artificialAmbientOcclusion.ToString()));
+            CEntityDefNode.Add(artificialAmbientOcclusionNode);
 
             //tintValue
-            XElement tintValueField = new XElement("tintValue", new XAttribute("value", tintValue.ToString()));
-            CEntityDefField.Add(tintValueField);
+            XElement tintValueNode = new XElement("tintValue", new XAttribute("value", tintValue.ToString()));
+            CEntityDefNode.Add(tintValueNode);
 
-            return CEntityDefField;
+            return CEntityDefNode;
         }
 
         public CEntityDef(XElement node)
         {
-            NumberFormatInfo nfi = new NumberFormatInfo();
-            nfi.NumberDecimalSeparator = ".";
-
             archetypeName = node.Element("archetypeName").Value;
             flags = uint.Parse(node.Element("flags").Attribute("value").Value);
             guid = uint.Parse(node.Element("guid").Attribute("value").Value);
             position = new Vector3(
-                float.Parse(node.Element("position").Attribute("x").Value, nfi),
-                float.Parse(node.Element("position").Attribute("y").Value, nfi),
-                float.Parse(node.Element("position").Attribute("z").Value, nfi)
+                float.Parse(node.Element("position").Attribute("x").Value),
+                float.Parse(node.Element("position").Attribute("y").Value),
+                float.Parse(node.Element("position").Attribute("z").Value)
                 );
             rotation = new Quaternion(
-                float.Parse(node.Element("rotation").Attribute("x").Value, nfi),
-                float.Parse(node.Element("rotation").Attribute("y").Value, nfi),
-                float.Parse(node.Element("rotation").Attribute("z").Value, nfi),
-                float.Parse(node.Element("rotation").Attribute("w").Value, nfi)
+                float.Parse(node.Element("rotation").Attribute("x").Value),
+                float.Parse(node.Element("rotation").Attribute("y").Value),
+                float.Parse(node.Element("rotation").Attribute("z").Value),
+                float.Parse(node.Element("rotation").Attribute("w").Value)
                 );
-            scaleXY = float.Parse(node.Element("scaleXY").Attribute("value").Value, nfi);
-            scaleZ = float.Parse(node.Element("scaleZ").Attribute("value").Value, nfi);
+            scaleXY = float.Parse(node.Element("scaleXY").Attribute("value").Value);
+            scaleZ = float.Parse(node.Element("scaleZ").Attribute("value").Value);
             parentIndex = int.Parse(node.Element("parentIndex").Attribute("value").Value);
-            lodDist = float.Parse(node.Element("lodDist").Attribute("value").Value, nfi);
-            childLodDist = float.Parse(node.Element("childLodDist").Attribute("value").Value, nfi);
+            lodDist = float.Parse(node.Element("lodDist").Attribute("value").Value);
+            childLodDist = float.Parse(node.Element("childLodDist").Attribute("value").Value);
             lodLevel = node.Element("lodLevel").Value;
             numChildren = uint.Parse(node.Element("numChildren").Attribute("value").Value);
             priorityLevel = node.Element("priorityLevel").Value;

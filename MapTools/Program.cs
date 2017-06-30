@@ -6,6 +6,7 @@ using System.Xml.Linq;
 using System.IO;
 using System.Numerics;
 using System.Globalization;
+using System.Threading;
 
 namespace MapTools
 {
@@ -13,11 +14,10 @@ namespace MapTools
     {
         static void Main(string[] args)
         {
-            //Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
             if (args.Length == 0)
             {
                 Console.WriteLine("------------------------\nGTA V MapTools by Neos7\n------------------------\n");
-                //Console.WriteLine("If you don't specify a directory as args[1], the current one will be used.\n");
                 Console.WriteLine("extents\nCalculates again the extents of all the .ymap.xml \n");
                 Console.WriteLine("merge\nMerges all the .ytyp.xml and all the .ymap.xml \n");
                 Console.WriteLine("move\nMoves all the entities of all the .ymap.xml by a given offset.\n");
@@ -29,9 +29,6 @@ namespace MapTools
             if (args.Length != 0)
             {
                 DirectoryInfo dir = null;
-                /*if (args.Length > 1)
-                    dir = new DirectoryInfo(args[1]);
-                else*/
                     dir = new DirectoryInfo(Directory.GetCurrentDirectory());
                 FileInfo[] files = null;
                 Dictionary<string,CBaseArchetypeDef> archetypeList = null;
@@ -211,8 +208,8 @@ namespace MapTools
                         break;
                 }
             }
-            Console.WriteLine("Press any key to continue...");
-            Console.ReadKey();
+            /*Console.WriteLine("Press any key to continue...");
+            Console.ReadKey();*/
             Environment.Exit(0);
         }
 
@@ -249,6 +246,18 @@ namespace MapTools
             Console.WriteLine("Z:");
             offset.Z = float.Parse(Console.ReadLine());
             return offset;
+        }
+
+        public static Dictionary<string, CBaseArchetypeDef> CollectArchetypes(DirectoryInfo dir)
+        {
+            Dictionary<string, CBaseArchetypeDef> archetypes = new Dictionary<string, CBaseArchetypeDef>();
+            FileInfo[] files = dir.GetFiles("*.ytyp.xml");
+            if (files.Length != 0)
+            { 
+                Ytyp merged = MergeYTYP(files);
+                archetypes = merged.CMapTypes.archetypes;
+            }
+            return archetypes;
         }
     }
 }
