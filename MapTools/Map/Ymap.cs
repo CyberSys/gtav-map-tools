@@ -31,17 +31,6 @@ namespace MapTools.Map
             CMapData = new CMapData(document.Element("CMapData"));
         }
 
-        public HashSet<string> UpdateExtents(Dictionary<string,CBaseArchetypeDef> archetypeList)
-        {
-            HashSet<string> missing = CMapData.UpdateExtents(archetypeList);
-            if (missing != null && missing.Count > 0)
-            {
-                foreach (string name in missing)
-                    Console.WriteLine("Missing CBaseArchetypeDef: " + name);
-            }
-            return missing;
-        }
-
         public static Ymap Merge(List<Ymap> list)
         {
             if (list == null || list.Count < 1)

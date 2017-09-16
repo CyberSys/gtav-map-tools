@@ -86,7 +86,12 @@ namespace MapTools
                             {
                                 Console.WriteLine("Found " + file.Name);
                                 Ymap current = new Ymap(XDocument.Load(file.Name));
-                                current.UpdateExtents(archetypeList);
+                                HashSet<string> missing = current.CMapData.UpdateExtents(archetypeList);
+                                if (missing != null && missing.Count > 0)
+                                {
+                                    foreach (string name in missing)
+                                        Console.WriteLine("Missing CBaseArchetypeDef: " + name);
+                                }
                                 XDocument ymapDoc = current.WriteXML();
                                 ymapDoc.Save(file.Name);
                                 Console.WriteLine("Updated extents for " + file.Name);
