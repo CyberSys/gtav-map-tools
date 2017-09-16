@@ -24,6 +24,7 @@ namespace MapTools
                 Console.WriteLine("editByName\nMoves and rotates entities of all the .ymap.xml matching the archetypeName.\n");
                 Console.WriteLine("guid\nGenerates new guid for ymap entities.\n");
                 Console.WriteLine("reset\nResets flags and lodDist.\n");
+                Console.WriteLine("ytdcheck\nReturns the list of missing .ytd foreach ytyp.\n");
                 args = Console.ReadLine().Split();
             }
             if (args.Length != 0)
@@ -203,6 +204,19 @@ namespace MapTools
                             }
                         }
                         break;
+                    case "ytdcheck":
+                        files = dir.GetFiles("*.ytyp.xml");
+                        if (files.Length == 0)
+                            Console.WriteLine("No .ytyp.xml file found.");
+                        else
+                        {
+                            List<string> list = new List<string>();
+                            FileInfo[] ytdlist = dir.GetFiles("*.ytd");
+                            foreach (FileInfo ytd in ytdlist)
+                                list.Add(Path.GetFileNameWithoutExtension(ytd.Name));
+                            CheckMissingYTD(files,list);
+                        }
+                        break;
                     default:
                         Console.WriteLine(args[0] + " isn't a valid command.");
                         break;
@@ -258,6 +272,24 @@ namespace MapTools
                 archetypes = merged.CMapTypes.archetypes;
             }
             return archetypes;
+        }
+
+        public static void CheckMissingYTD(FileInfo[] ytypfiles,List<string> ytdlist)
+        {
+            foreach (FileInfo file in ytypfiles)
+            {
+                Console.WriteLine("CHECKING " + file.Name );
+                Ytyp current = new Ytyp(XDocument.Load(file.Name));
+                List<string> missing = new List<string>();
+                foreach (string entry in current.CMapTypes.textureDictionaryList())
+                {
+                    if (!ytdlist.Contains(entry))
+                        missing.Add(entry);
+                }
+                foreach (string missingytd in missing)
+                    Console.WriteLine("Missing " + missingytd + ".ytd");
+                Console.WriteLine("");
+            }
         }
     }
 }

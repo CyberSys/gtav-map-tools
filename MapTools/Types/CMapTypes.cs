@@ -49,6 +49,17 @@ namespace MapTools.Types
             }
         }
 
+        public List<string> textureDictionaryList()
+        {
+            List<string> txdList = new List<string>();
+            foreach (CBaseArchetypeDef archetype in archetypes.Values)
+            {
+                if (!txdList.Contains(archetype.textureDictionary))
+                    txdList.Add(archetype.textureDictionary);
+            }
+            return txdList;
+        }
+
         public XElement WriteXML()
         {
             //CMapTypes
