@@ -398,8 +398,31 @@ namespace MapTools.Map
             entitiesExtentsMin = entMin;
             return missing;
         }
-    }
 
+        //SPLITS THE ENTITIES IN A GRID ACCORDING TO THEIR POSITION
+        public List<List<CEntityDef>> GridSplit(int block_size)
+        {
+            List<List<CEntityDef>> grid = new List<List<CEntityDef>>();
+            int size = 8192;
+            int numblocks = (size / block_size) + 1;
+
+            for (int x = -numblocks; x <= numblocks; x++)
+            {
+                for (int y = -numblocks; y <= numblocks; y++)
+                {
+                    IEnumerable<CEntityDef> result = (from entity in entities
+                                                  where entity.position.X < ((x + 1) * block_size)
+                                                  where entity.position.X >= (x * block_size)
+                                                  where entity.position.Y < ((y + 1) * block_size)
+                                                  where entity.position.Y >= (y * block_size)
+                                                  select entity);
+                    if (result.Count() > 0)
+                        grid.Add(result.ToList());
+                }
+            }
+            return grid;
+        }
+    }
 
     public struct block
     {

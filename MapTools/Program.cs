@@ -25,6 +25,7 @@ namespace MapTools
                 Console.WriteLine("guid\nGenerates new guid for ymap entities.\n");
                 Console.WriteLine("reset\nResets flags and lodDist.\n");
                 Console.WriteLine("ytdcheck\nReturns the list of missing .ytd foreach ytyp.\n");
+                Console.WriteLine("grid\nDivides all the .ymap.xml files into blocks of a given size.\n");
                 args = Console.ReadLine().Split();
             }
             if (args.Length != 0)
@@ -215,6 +216,33 @@ namespace MapTools
                             foreach (FileInfo ytd in ytdlist)
                                 list.Add(Path.GetFileNameWithoutExtension(ytd.Name));
                             CheckMissingYTD(files,list);
+                        }
+                        break;
+                    case "grid":
+                        files = dir.GetFiles("*.ymap.xml");
+                        if (files.Length == 0)
+                            Console.WriteLine("No .ymap.xml file found.");
+                        else
+                        {
+                            Console.WriteLine("Insert the size of the blocks:");
+                            int blocksize = int.Parse(Console.ReadLine());
+                            foreach (FileInfo file in files)
+                            {
+                                int k = 1;
+                                Console.WriteLine("Found " + file.Name);
+                                Ymap current = new Ymap(XDocument.Load(file.Name));
+                                List<List<CEntityDef>> grid = current.CMapData.GridSplit(blocksize);
+                                foreach(List<CEntityDef> block in grid)
+                                {
+                                    Ymap tmp = current;
+                                    tmp.CMapData.entities = block;
+
+                                    XDocument ymapDoc = tmp.WriteXML();
+                                    ymapDoc.Save(file.Name.Split('.')[0] + "_" + k.ToString("00") + ".ymap.xml");
+                                    k++;
+                                }
+                                Console.WriteLine(file.Name + " splitted in " + (k-1) + " blocks.");
+                            }
                         }
                         break;
                     default:
