@@ -458,6 +458,35 @@ namespace MapTools.Map
     {
         public object ImapLink { get; set; }
         public object PropInstanceList { get; set; }
-        public object GrassInstanceList { get; set; }
+        public List<GrassInstance> GrassInstanceList { get; set; }
+    }
+
+    public class GrassInstance
+    {
+        public BatchAABB BatchAABB { get; set; }
+        public Vector3 ScaleRange { get; set; }
+        public string archetypeName { get; set; }
+        public float lodDist { get; set; }
+        public float LodFadeStartDist { get; set; }
+        public float LodInstFadeRange { get; set; }
+        public float OrientToTerrain { get; set; }
+        public List<Instance> InstanceList { get; set; }
+    }
+
+    public struct Instance
+    {
+        public ushort[] Position { get; set; }
+        public int NormalX { get; set; }
+        public int NormalY { get; set; }
+        public int[] Color { get; set; }
+        public int Scale { get; set; }
+        public int Ao { get; set; }
+        public int[] Pad { get; set; }
+    }
+
+    public struct BatchAABB
+    {
+        public Vector4 min { get; set; }
+        public Vector4 max { get; set; }
     }
 }
