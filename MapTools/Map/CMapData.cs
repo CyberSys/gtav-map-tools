@@ -84,6 +84,7 @@ namespace MapTools.Map
                 }
             }
             //MISSING CODE :DDDDDDDDDD
+            instancedData = new instancedData(node.Element("instancedData"));
             block = new block(node.Element("block"));
         }
 
@@ -466,6 +467,15 @@ namespace MapTools.Map
         public object PropInstanceList { get; set; }
         public List<GrassInstance> GrassInstanceList { get; set; }
 
+        public instancedData(XElement node)
+        {
+            ImapLink = null;
+            PropInstanceList = null;
+            GrassInstanceList = new List<GrassInstance>();
+            foreach (XElement item in node.Element("GrassInstanceList").Elements())
+                GrassInstanceList.Add(new GrassInstance(item));
+        }
+
         public XElement WriteXML()
         {
             //instancedData
@@ -484,9 +494,7 @@ namespace MapTools.Map
             if (GrassInstanceList != null && GrassInstanceList.Count > 0)
             {
                 foreach (GrassInstance GrassInstanceItem in GrassInstanceList)
-                {
                     GrassInstanceListNode.Add(GrassInstanceItem.WriteXML());
-                }
             }
 
             return instancedDataNode;
@@ -533,8 +541,42 @@ namespace MapTools.Map
 
         public XElement WriteXML()
         {
+            //Item
             XElement ItemNode = new XElement("Item");
-            // 
+
+            //BatchAABB
+            XElement BatchAABBNode = new XElement("BatchAABB");
+            XElement minNode = new XElement("min",
+                new XAttribute("x", BatchAABB.min.X.ToString()),
+                new XAttribute("y", BatchAABB.min.Y.ToString()),
+                new XAttribute("z", BatchAABB.min.Z.ToString()),
+                new XAttribute("w", BatchAABB.min.W.ToString())
+                );
+            BatchAABBNode.Add(minNode);
+            XElement maxNode = new XElement("max",
+                new XAttribute("x", BatchAABB.max.X.ToString()),
+                new XAttribute("y", BatchAABB.max.Y.ToString()),
+                new XAttribute("z", BatchAABB.max.Z.ToString()),
+                new XAttribute("w", BatchAABB.max.W.ToString())
+                );
+            BatchAABBNode.Add(maxNode);
+            ItemNode.Add(BatchAABBNode);
+
+            //ScaleRange
+            XElement ScaleRangeNode = new XElement("ScaleRange",
+                new XAttribute("x", ScaleRange.X.ToString()),
+                new XAttribute("y", ScaleRange.Y.ToString()),
+                new XAttribute("z", ScaleRange.Z.ToString())
+                );
+            ItemNode.Add(ScaleRangeNode);
+
+            //archetypeName
+            XElement archetypeNameNode = new XElement("archetypeName");
+            archetypeNameNode.Value = archetypeName;
+            ItemNode.Add(archetypeNameNode);
+
+            // TO BE CONTINUED 
+
             return ItemNode;
         }
     }
