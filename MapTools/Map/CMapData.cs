@@ -174,25 +174,8 @@ namespace MapTools.Map
             }
 
             //instancedData
-            XElement instancedDataNode = new XElement("instancedData");
+            XElement instancedDataNode = instancedData.WriteXML();
             CMapDataNode.Add(instancedDataNode);
-            //ImapLink
-            XElement ImapLinkNode = new XElement("ImapLink");
-            instancedDataNode.Add(ImapLinkNode);
-            //PropInstanceList
-            XElement PropInstanceListNode = new XElement("PropInstanceList");
-            instancedDataNode.Add(PropInstanceListNode);
-            //GrassInstanceList
-            XElement GrassInstanceListNode = new XElement("GrassInstanceList");
-            instancedDataNode.Add(GrassInstanceListNode);
-
-            if (instancedData.GrassInstanceList != null && instancedData.GrassInstanceList.Count > 0)
-            {
-                foreach (GrassInstance gi in instancedData.GrassInstanceList)
-                {
-                    //
-                }
-            }
 
             //timeCycleModifiers
             XElement timeCycleModifiersNode = new XElement("timeCycleModifiers");
@@ -482,6 +465,32 @@ namespace MapTools.Map
         public object ImapLink { get; set; }
         public object PropInstanceList { get; set; }
         public List<GrassInstance> GrassInstanceList { get; set; }
+
+        public XElement WriteXML()
+        {
+            //instancedData
+            XElement instancedDataNode = new XElement("instancedData");
+
+            //ImapLink
+            XElement ImapLinkNode = new XElement("ImapLink");
+            instancedDataNode.Add(ImapLinkNode);
+            //PropInstanceList
+            XElement PropInstanceListNode = new XElement("PropInstanceList");
+            instancedDataNode.Add(PropInstanceListNode);
+            //GrassInstanceList
+            XElement GrassInstanceListNode = new XElement("GrassInstanceList");
+            instancedDataNode.Add(GrassInstanceListNode);
+
+            if (GrassInstanceList != null && GrassInstanceList.Count > 0)
+            {
+                foreach (GrassInstance GrassInstanceItem in GrassInstanceList)
+                {
+                    GrassInstanceListNode.Add(GrassInstanceItem.WriteXML());
+                }
+            }
+
+            return instancedDataNode;
+        }
     }
 
     public class GrassInstance
@@ -520,6 +529,13 @@ namespace MapTools.Map
             InstanceList = new List<Instance>();
             foreach (XElement item in node.Element("InstanceList").Elements())
                 InstanceList.Add(new Instance(item));
+        }
+
+        public XElement WriteXML()
+        {
+            XElement ItemNode = new XElement("Item");
+            // 
+            return ItemNode;
         }
     }
 
