@@ -39,11 +39,10 @@ namespace MapTools.Map
 
         public CMapData(XElement node)
         {
-            entities = new List<CEntityDef>();
-            physicsDictionaries = new HashSet<string>();
             name = node.Element("name").Value;
             parent = node.Element("parent").Value;
             flags = uint.Parse(node.Element("flags").Attribute("value").Value);
+            contentFlags = uint.Parse(node.Element("contentFlags").Attribute("value").Value);
             streamingExtentsMin = new Vector3(
                 float.Parse(node.Element("streamingExtentsMin").Attribute("x").Value),
                 float.Parse(node.Element("streamingExtentsMin").Attribute("y").Value),
@@ -65,6 +64,7 @@ namespace MapTools.Map
                 float.Parse(node.Element("entitiesExtentsMax").Attribute("z").Value)
                 );
 
+            entities = new List<CEntityDef>();
             if (node.Element("entities").Elements() != null && node.Element("entities").Elements().Count() > 0)
             {
                 foreach (XElement ent in node.Element("entities").Elements())
@@ -76,6 +76,11 @@ namespace MapTools.Map
                 }
             }
 
+            //containerLods
+            //boxOccluders
+            //occludeModels
+
+            physicsDictionaries = new HashSet<string>();
             if (node.Element("physicsDictionaries").Elements() != null && node.Element("physicsDictionaries").Elements().Count() > 0)
             {
                 foreach (XElement phDict in node.Element("physicsDictionaries").Elements())
@@ -84,8 +89,13 @@ namespace MapTools.Map
                         physicsDictionaries.Add(phDict.Value);
                 }
             }
-            //MISSING CODE :DDDDDDDDDD
+
             instancedData = new instancedData(node.Element("instancedData"));
+
+            //carGenerators
+            //LODLightsSOA
+            //DistantLODLightsSOA
+
             block = new block(node.Element("block"));
         }
 
@@ -404,12 +414,12 @@ namespace MapTools.Map
 
         public block(XElement node)
         {
-            version = uint.Parse(node.Element("block").Element("version").Attribute("value").Value);
-            flags = uint.Parse(node.Element("block").Element("flags").Attribute("value").Value);
-            name = node.Element("block").Element("name").Value;
-            exportedBy = node.Element("block").Element("exportedBy").Value;
-            owner = node.Element("block").Element("owner").Value;
-            time = node.Element("block").Element("time").Value;
+            version = uint.Parse(node.Element("version").Attribute("value").Value);
+            flags = uint.Parse(node.Element("flags").Attribute("value").Value);
+            name = node.Element("name").Value;
+            exportedBy = node.Element("exportedBy").Value;
+            owner = node.Element("owner").Value;
+            time = node.Element("time").Value;
         }
 
         public XElement WriteXML()
@@ -621,21 +631,21 @@ namespace MapTools.Map
         public Instance(XElement node)
         {
             Position = new ushort[3] {
-                ushort.Parse(node.Element("Position").Value.Split()[0]),
-                ushort.Parse(node.Element("Position").Value.Split()[1]),
-                ushort.Parse(node.Element("Position").Value.Split()[2])};
+                ushort.Parse(node.Element("Position").Value.Split('\n')[1]),
+                ushort.Parse(node.Element("Position").Value.Split('\n')[2]),
+                ushort.Parse(node.Element("Position").Value.Split('\n')[3])};
             NormalX = int.Parse(node.Element("NormalX").Attribute("value").Value);
             NormalY = int.Parse(node.Element("NormalY").Attribute("value").Value);
             Color = new int[3] {
-                int.Parse(node.Element("Color").Value.Split()[0]),
-                int.Parse(node.Element("Color").Value.Split()[1]),
-                int.Parse(node.Element("Color").Value.Split()[2])};
+                int.Parse(node.Element("Color").Value.Split('\n')[1]),
+                int.Parse(node.Element("Color").Value.Split('\n')[2]),
+                int.Parse(node.Element("Color").Value.Split('\n')[3])};
             Scale = int.Parse(node.Element("Scale").Attribute("value").Value); ;
             Ao = int.Parse(node.Element("Ao").Attribute("value").Value); ;
             Pad = new int[3] {
-                int.Parse(node.Element("Pad").Value.Split()[0]),
-                int.Parse(node.Element("Pad").Value.Split()[1]),
-                int.Parse(node.Element("Pad").Value.Split()[2])};
+                int.Parse(node.Element("Pad").Value.Split('\n')[1]),
+                int.Parse(node.Element("Pad").Value.Split('\n')[2]),
+                int.Parse(node.Element("Pad").Value.Split('\n')[3])};
         }
 
         public XElement WriteXML()
@@ -645,7 +655,7 @@ namespace MapTools.Map
 
             //Position
             XElement PositionNode = new XElement("Position",new XAttribute("content","short_array"));
-            PositionNode.Value = Position.ToArray().ToString();
+            PositionNode.Value = ("\n              " + Position[0]+ "\n              " + Position[1] + "\n              " + Position[2] + "\n            ");
             ItemNode.Add(PositionNode);
 
             //NormalX
@@ -658,7 +668,7 @@ namespace MapTools.Map
 
             //Color
             XElement ColorNode = new XElement("Color", new XAttribute("content", "char_array"));
-            ColorNode.Value = Color.ToArray().ToString();
+            ColorNode.Value = ("\n              " + Color[0] + "\n              " + Color[1] + "\n              " + Color[2] + "\n            ");
             ItemNode.Add(ColorNode);
 
             //Scale
@@ -671,7 +681,7 @@ namespace MapTools.Map
 
             //Pad
             XElement PadNode = new XElement("Pad", new XAttribute("content", "char_array"));
-            PadNode.Value = Pad.ToArray().ToString();
+            PadNode.Value = ("\n              " + Pad[0] + "\n              " + Pad[1] + "\n              " + Pad[2] + "\n            ");
             ItemNode.Add(PadNode);
 
             return ItemNode;

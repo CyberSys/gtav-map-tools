@@ -250,6 +250,21 @@ namespace MapTools
                             }
                         }
                         break;
+                    case "test":
+                        files = dir.GetFiles("*.ymap.xml");
+                        if (files.Length == 0)
+                            Console.WriteLine("No .ymap.xml file found.");
+                        else
+                        {
+                            foreach (FileInfo file in files)
+                            {
+                                
+                                Ymap current = new Ymap(XDocument.Load(file.Name));
+                                XDocument test = current.WriteXML();
+                                test.Save(file.Name);
+                            }
+                        }
+                        break;
                     default:
                         Console.WriteLine(args[0] + " isn't a valid command.");
                         break;
