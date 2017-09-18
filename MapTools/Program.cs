@@ -134,7 +134,7 @@ namespace MapTools
                                 Ymap current = new Ymap(XDocument.Load(file.Name));
 
                                 current.CMapData.UpdatelodDist(archetypeList);
-                                current.CMapData.UpdateBlock("GTADrifting", "Neos7", "GTADrifting");
+                                current.CMapData.block = new block(0,0,"GTADrifting", "Neos7", "GTADrifting");
                                 current.CMapData.flags = 0;
                                 current.CMapData.contentFlags = 1;
                                 foreach (CEntityDef ent in current.CMapData.entities)

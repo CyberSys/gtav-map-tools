@@ -33,7 +33,8 @@ namespace MapTools.Map
         {
             name = filename;
             entities = new List<CEntityDef>();
-            UpdateBlock("GTADrifting","Neos7","GTADrifting");
+            physicsDictionaries = new HashSet<string>();
+            block = new block(0,0,"GTADrifting","Neos7","GTADrifting");
         }
 
         public CMapData(XElement node)
@@ -237,14 +238,6 @@ namespace MapTools.Map
             return CMapDataNode;
         }
 
-        public void UpdateBlock(string name,string exportedby,string owner)
-        {
-            block.name = name;
-            block.exportedBy = exportedby;
-            block.owner = owner;
-            block.time = DateTime.UtcNow.ToString();
-        }
-
         public void UpdatelodDist(Dictionary<string, CBaseArchetypeDef> archetypes)
         {
             if (archetypes == null || archetypes.Count < 0)
@@ -398,6 +391,16 @@ namespace MapTools.Map
         public string exportedBy { get; set; }
         public string owner { get; set; }
         public string time { get; set; }
+
+        public block(uint blockversion, uint blockflags, string blockname, string blockexportedby, string blockowner)
+        {
+            version = blockversion;
+            flags = blockflags;
+            name = blockname;
+            exportedBy = blockexportedby;
+            owner = blockowner;
+            time = DateTime.UtcNow.ToString();
+        }
 
         public block(XElement node)
         {
@@ -575,8 +578,32 @@ namespace MapTools.Map
             archetypeNameNode.Value = archetypeName;
             ItemNode.Add(archetypeNameNode);
 
-            // TO BE CONTINUED 
+            //lodDist
+            XElement lodDistNode = new XElement("lodDist", new XAttribute("value", lodDist));
+            ItemNode.Add(lodDistNode);
 
+            //LodFadeStartDist
+            XElement LodFadeStartDistNode = new XElement("LodFadeStartDist", new XAttribute("value", LodFadeStartDist));
+            ItemNode.Add(LodFadeStartDistNode);
+
+            //LodInstFadeRange
+            XElement LodInstFadeRangeNode = new XElement("LodInstFadeRange", new XAttribute("value", LodInstFadeRange));
+            ItemNode.Add(LodInstFadeRangeNode);
+
+            //OrientToTerrain
+            XElement OrientToTerrainNode = new XElement("OrientToTerrain", new XAttribute("value", OrientToTerrain));
+            ItemNode.Add(OrientToTerrainNode);
+
+            //InstanceList
+            XElement InstanceListNode = new XElement("InstanceList");
+            ItemNode.Add(InstanceListNode);
+
+            if(InstanceList != null && InstanceList.Count > 0)
+            {
+                foreach (Instance item in InstanceList)
+                    InstanceListNode.Add(item.WriteXML());
+            }
+            
             return ItemNode;
         }
     }
@@ -610,6 +637,45 @@ namespace MapTools.Map
                 int.Parse(node.Element("Pad").Value.Split()[1]),
                 int.Parse(node.Element("Pad").Value.Split()[2])};
         }
+
+        public XElement WriteXML()
+        {
+            //Item
+            XElement ItemNode = new XElement("Item");
+
+            //Position
+            XElement PositionNode = new XElement("Position",new XAttribute("content","short_array"));
+            PositionNode.Value = Position.ToArray().ToString();
+            ItemNode.Add(PositionNode);
+
+            //NormalX
+            XElement NormalXNode = new XElement("NormalX", new XAttribute("value", NormalX));
+            ItemNode.Add(NormalXNode);
+
+            //NormalY
+            XElement NormalYNode = new XElement("NormalY", new XAttribute("value", NormalY));
+            ItemNode.Add(NormalYNode);
+
+            //Color
+            XElement ColorNode = new XElement("Color", new XAttribute("content", "char_array"));
+            ColorNode.Value = Color.ToArray().ToString();
+            ItemNode.Add(ColorNode);
+
+            //Scale
+            XElement ScaleNode = new XElement("Scale", new XAttribute("value", Scale));
+            ItemNode.Add(ScaleNode);
+
+            //Ao
+            XElement AoNode = new XElement("Ao", new XAttribute("value", Ao));
+            ItemNode.Add(AoNode);
+
+            //Pad
+            XElement PadNode = new XElement("Pad", new XAttribute("content", "char_array"));
+            PadNode.Value = Pad.ToArray().ToString();
+            ItemNode.Add(PadNode);
+
+            return ItemNode;
+        }
     }
 
     public struct BatchAABB
@@ -617,10 +683,10 @@ namespace MapTools.Map
         public Vector4 min { get; set; }
         public Vector4 max { get; set; }
 
-        public BatchAABB(Vector4 a,Vector4 b)
+        public BatchAABB(Vector4 batchmin,Vector4 batchmax)
         {
-            min = a;
-            max = b;
+            min = batchmin;
+            max = batchmax;
         }
     }
 }
