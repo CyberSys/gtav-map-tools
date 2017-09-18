@@ -190,6 +190,14 @@ namespace MapTools.Map
             XElement GrassInstanceListNode = new XElement("GrassInstanceList");
             instancedDataNode.Add(GrassInstanceListNode);
 
+            if (instancedData.GrassInstanceList != null && instancedData.GrassInstanceList.Count > 0)
+            {
+                foreach (GrassInstance gi in instancedData.GrassInstanceList)
+                {
+                    //
+                }
+            }
+
             //timeCycleModifiers
             XElement timeCycleModifiersNode = new XElement("timeCycleModifiers");
             CMapDataNode.Add(timeCycleModifiersNode);
@@ -471,6 +479,33 @@ namespace MapTools.Map
         public float LodInstFadeRange { get; set; }
         public float OrientToTerrain { get; set; }
         public List<Instance> InstanceList { get; set; }
+
+        public GrassInstance(XElement node)
+        {
+            BatchAABB = new BatchAABB(
+                new Vector4(
+                    float.Parse(node.Element("BatchAABB").Element("min").Attribute("x").Value),
+                    float.Parse(node.Element("BatchAABB").Element("min").Attribute("y").Value),
+                    float.Parse(node.Element("BatchAABB").Element("min").Attribute("z").Value),
+                    float.Parse(node.Element("BatchAABB").Element("min").Attribute("w").Value)),
+                new Vector4(
+                    float.Parse(node.Element("BatchAABB").Element("max").Attribute("x").Value),
+                    float.Parse(node.Element("BatchAABB").Element("max").Attribute("y").Value),
+                    float.Parse(node.Element("BatchAABB").Element("max").Attribute("z").Value),
+                    float.Parse(node.Element("BatchAABB").Element("max").Attribute("w").Value)));
+            ScaleRange = new Vector3(
+                float.Parse(node.Element("ScaleRange").Attribute("x").Value),
+                float.Parse(node.Element("ScaleRange").Attribute("y").Value),
+                float.Parse(node.Element("ScaleRange").Attribute("z").Value));
+            archetypeName = node.Element("archetypeName").Value;
+            lodDist = float.Parse(node.Element("lodDist").Attribute("value").Value);
+            LodFadeStartDist = float.Parse(node.Element("LodFadeStartDist").Attribute("value").Value);
+            LodInstFadeRange = float.Parse(node.Element("LodInstFadeRange").Attribute("value").Value);
+            OrientToTerrain = float.Parse(node.Element("OrientToTerrain").Attribute("value").Value);
+            InstanceList = new List<Instance>();
+            foreach (XElement item in node.Element("InstanceList").Elements())
+                InstanceList.Add(new Instance(item));
+        }
     }
 
     public struct Instance
@@ -482,11 +517,37 @@ namespace MapTools.Map
         public int Scale { get; set; }
         public int Ao { get; set; }
         public int[] Pad { get; set; }
+
+        public Instance(XElement node)
+        {
+            Position = new ushort[3] {
+                ushort.Parse(node.Element("Position").Value.Split()[0]),
+                ushort.Parse(node.Element("Position").Value.Split()[1]),
+                ushort.Parse(node.Element("Position").Value.Split()[2])};
+            NormalX = int.Parse(node.Element("NormalX").Attribute("value").Value);
+            NormalY = int.Parse(node.Element("NormalY").Attribute("value").Value);
+            Color = new int[3] {
+                int.Parse(node.Element("Color").Value.Split()[0]),
+                int.Parse(node.Element("Color").Value.Split()[1]),
+                int.Parse(node.Element("Color").Value.Split()[2])};
+            Scale = int.Parse(node.Element("Scale").Attribute("value").Value); ;
+            Ao = int.Parse(node.Element("Ao").Attribute("value").Value); ;
+            Pad = new int[3] {
+                int.Parse(node.Element("Pad").Value.Split()[0]),
+                int.Parse(node.Element("Pad").Value.Split()[1]),
+                int.Parse(node.Element("Pad").Value.Split()[2])};
+        }
     }
 
     public struct BatchAABB
     {
         public Vector4 min { get; set; }
         public Vector4 max { get; set; }
+
+        public BatchAABB(Vector4 a,Vector4 b)
+        {
+            min = a;
+            max = b;
+        }
     }
 }
