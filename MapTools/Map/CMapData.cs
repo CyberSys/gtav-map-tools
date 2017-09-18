@@ -34,6 +34,8 @@ namespace MapTools.Map
             name = filename;
             entities = new List<CEntityDef>();
             physicsDictionaries = new HashSet<string>();
+            instancedData = new instancedData();
+            instancedData.GrassInstanceList = new List<GrassInstance>();
             block = new block(0,0,"GTADrifting","Neos7","GTADrifting");
         }
 
@@ -482,8 +484,8 @@ namespace MapTools.Map
 
         public instancedData(XElement node)
         {
-            ImapLink = null;
-            PropInstanceList = null;
+            ImapLink = null; //TEMP
+            PropInstanceList = null; //TEMP
             GrassInstanceList = new List<GrassInstance>();
             foreach (XElement item in node.Element("GrassInstanceList").Elements())
                 GrassInstanceList.Add(new GrassInstance(item));

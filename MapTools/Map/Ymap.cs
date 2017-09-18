@@ -48,6 +48,17 @@ namespace MapTools.Map
                             Console.WriteLine("Skipped duplicated CEntityDef " + entity.guid);
                     }
                 }
+
+                if (current.CMapData.instancedData.GrassInstanceList != null && current.CMapData.instancedData.GrassInstanceList.Count > 0)
+                {
+                    foreach (GrassInstance instance in current.CMapData.instancedData.GrassInstanceList)
+                    {
+                        if (!merged.CMapData.instancedData.GrassInstanceList.Contains(instance))
+                            merged.CMapData.instancedData.GrassInstanceList.Add(instance);
+                        else
+                            Console.WriteLine("Skipped duplicated GrassInstance Item " + instance.archetypeName);
+                    }
+                }
             }
             return merged;
         }
