@@ -84,11 +84,7 @@ namespace MapTools.Map
                 }
             }
             //MISSING CODE :DDDDDDDDDD
-
-            block.name = node.Element("block").Element("name").Value;
-            block.exportedBy = node.Element("block").Element("exportedBy").Value;
-            block.owner = node.Element("block").Element("owner").Value;
-            block.time = node.Element("block").Element("time").Value;
+            block = new block(node.Element("block"));
         }
 
         public XElement WriteXML()
@@ -251,30 +247,8 @@ namespace MapTools.Map
             DistantLODLightsSOANode.Add(categoryNode);
 
             //block
-            XElement blockNode = new XElement("block");
+            XElement blockNode = block.WriteXML();
             CMapDataNode.Add(blockNode);
-            //version
-            XElement versionNode = new XElement("version", new XAttribute("value", 0));
-            blockNode.Add(versionNode);
-            //flags
-            XElement blockflagsNode = new XElement("flags", new XAttribute("value", 0));
-            blockNode.Add(blockflagsNode);
-            //name
-            XElement blocknameNode = new XElement("name");
-            blocknameNode.Value = block.name;
-            blockNode.Add(blocknameNode);
-            //exportedBy
-            XElement exportedByNode = new XElement("exportedBy");
-            exportedByNode.Value = block.exportedBy;
-            blockNode.Add(exportedByNode);
-            //owner
-            XElement ownerNode = new XElement("owner");
-            ownerNode.Value = block.owner;
-            blockNode.Add(ownerNode);
-            //time
-            XElement timeNode = new XElement("time");
-            timeNode.Value = block.time;
-            blockNode.Add(timeNode);
 
             return CMapDataNode;
         }
@@ -440,6 +414,47 @@ namespace MapTools.Map
         public string exportedBy { get; set; }
         public string owner { get; set; }
         public string time { get; set; }
+
+        public block(XElement node)
+        {
+            version = uint.Parse(node.Element("block").Element("version").Attribute("value").Value);
+            flags = uint.Parse(node.Element("block").Element("flags").Attribute("value").Value);
+            name = node.Element("block").Element("name").Value;
+            exportedBy = node.Element("block").Element("exportedBy").Value;
+            owner = node.Element("block").Element("owner").Value;
+            time = node.Element("block").Element("time").Value;
+        }
+
+        public XElement WriteXML()
+        {
+            //block
+            XElement blockNode = new XElement("block");
+            
+            //version
+            XElement versionNode = new XElement("version", new XAttribute("value", 0));
+            blockNode.Add(versionNode);
+            //flags
+            XElement blockflagsNode = new XElement("flags", new XAttribute("value", 0));
+            blockNode.Add(blockflagsNode);
+            //name
+            XElement blocknameNode = new XElement("name");
+            blocknameNode.Value = name;
+            blockNode.Add(blocknameNode);
+            //exportedBy
+            XElement exportedByNode = new XElement("exportedBy");
+            exportedByNode.Value = exportedBy;
+            blockNode.Add(exportedByNode);
+            //owner
+            XElement ownerNode = new XElement("owner");
+            ownerNode.Value = owner;
+            blockNode.Add(ownerNode);
+            //time
+            XElement timeNode = new XElement("time");
+            timeNode.Value = time;
+            blockNode.Add(timeNode);
+
+            return blockNode;
+        }
     }
 
     public struct DistantLODLightsSOA
