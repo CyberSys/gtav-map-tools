@@ -314,55 +314,82 @@ namespace MapTools.Map
             Vector3 strMin = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
             Vector3 strMax = new Vector3(float.MinValue, float.MinValue, float.MinValue);
 
-            foreach (CEntityDef entity in entities)
+            if(entities != null)
             {
-                CBaseArchetypeDef selected = null;
-                if(archetypes != null && archetypes.Count > 0)
-                    archetypes.TryGetValue(entity.archetypeName,out selected);
-
-                if (selected != null)
+                foreach (CEntityDef entity in entities)
                 {
-                    Vector3 aabbmax = Vector3.Transform(selected.bbMax, entity.rotation);
-                    Vector3 aabbmin = Vector3.Transform(selected.bbMin, entity.rotation);
-                    Vector3 centroid = Vector3.Transform(selected.bsCentre, entity.rotation);
+                    CBaseArchetypeDef selected = null;
+                    if (archetypes != null && archetypes.Count > 0)
+                        archetypes.TryGetValue(entity.archetypeName, out selected);
 
-                    entMax.X = Math.Max(entMax.X, entity.position.X + aabbmax.X + centroid.X);
-                    entMax.Y = Math.Max(entMax.Y, entity.position.Y + aabbmax.Y + centroid.Y);
-                    entMax.Z = Math.Max(entMax.Z, entity.position.Z + aabbmax.Z + centroid.Z);
+                    if (selected != null)
+                    {
+                        Vector3 aabbmax = Vector3.Transform(selected.bbMax, entity.rotation);
+                        Vector3 aabbmin = Vector3.Transform(selected.bbMin, entity.rotation);
+                        Vector3 centroid = Vector3.Transform(selected.bsCentre, entity.rotation);
 
-                    entMin.X = Math.Min(entMin.X, entity.position.X + aabbmin.X + centroid.X);
-                    entMin.Y = Math.Min(entMin.Y, entity.position.Y + aabbmin.Y + centroid.Y);
-                    entMin.Z = Math.Min(entMin.Z, entity.position.Z + aabbmin.Z + centroid.Z);
+                        entMax.X = Math.Max(entMax.X, entity.position.X + aabbmax.X + centroid.X);
+                        entMax.Y = Math.Max(entMax.Y, entity.position.Y + aabbmax.Y + centroid.Y);
+                        entMax.Z = Math.Max(entMax.Z, entity.position.Z + aabbmax.Z + centroid.Z);
 
-                    strMax.X = Math.Max(strMax.X, entity.position.X + aabbmax.X + centroid.X + entity.lodDist);
-                    strMax.Y = Math.Max(strMax.Y, entity.position.Y + aabbmax.Y + centroid.Y + entity.lodDist);
-                    strMax.Z = Math.Max(strMax.Z, entity.position.Z + aabbmax.Z + centroid.Z + entity.lodDist);
+                        entMin.X = Math.Min(entMin.X, entity.position.X + aabbmin.X + centroid.X);
+                        entMin.Y = Math.Min(entMin.Y, entity.position.Y + aabbmin.Y + centroid.Y);
+                        entMin.Z = Math.Min(entMin.Z, entity.position.Z + aabbmin.Z + centroid.Z);
 
-                    strMin.X = Math.Min(strMin.X, entity.position.X + aabbmin.X + centroid.X - entity.lodDist);
-                    strMin.Y = Math.Min(strMin.Y, entity.position.Y + aabbmin.Y + centroid.Y - entity.lodDist);
-                    strMin.Z = Math.Min(strMin.Z, entity.position.Z + aabbmin.Z + centroid.Z - entity.lodDist);
-                }
-                else
-                {
-                    missing.Add(entity.archetypeName);
+                        strMax.X = Math.Max(strMax.X, entity.position.X + aabbmax.X + centroid.X + entity.lodDist);
+                        strMax.Y = Math.Max(strMax.Y, entity.position.Y + aabbmax.Y + centroid.Y + entity.lodDist);
+                        strMax.Z = Math.Max(strMax.Z, entity.position.Z + aabbmax.Z + centroid.Z + entity.lodDist);
 
-                    entMax.X = Math.Max(entMax.X, entity.position.X);
-                    entMax.Y = Math.Max(entMax.Y, entity.position.Y);
-                    entMax.Z = Math.Max(entMax.Z, entity.position.Z);
+                        strMin.X = Math.Min(strMin.X, entity.position.X + aabbmin.X + centroid.X - entity.lodDist);
+                        strMin.Y = Math.Min(strMin.Y, entity.position.Y + aabbmin.Y + centroid.Y - entity.lodDist);
+                        strMin.Z = Math.Min(strMin.Z, entity.position.Z + aabbmin.Z + centroid.Z - entity.lodDist);
+                    }
+                    else
+                    {
+                        missing.Add(entity.archetypeName);
 
-                    entMin.X = Math.Min(entMin.X, entity.position.X);
-                    entMin.Y = Math.Min(entMin.Y, entity.position.Y);
-                    entMin.Z = Math.Min(entMin.Z, entity.position.Z);
+                        entMax.X = Math.Max(entMax.X, entity.position.X);
+                        entMax.Y = Math.Max(entMax.Y, entity.position.Y);
+                        entMax.Z = Math.Max(entMax.Z, entity.position.Z);
 
-                    strMax.X = Math.Max(strMax.X, entity.position.X + entity.lodDist);
-                    strMax.Y = Math.Max(strMax.Y, entity.position.Y + entity.lodDist);
-                    strMax.Z = Math.Max(strMax.Z, entity.position.Z + entity.lodDist);
+                        entMin.X = Math.Min(entMin.X, entity.position.X);
+                        entMin.Y = Math.Min(entMin.Y, entity.position.Y);
+                        entMin.Z = Math.Min(entMin.Z, entity.position.Z);
 
-                    strMin.X = Math.Min(strMin.X, entity.position.X - entity.lodDist);
-                    strMin.Y = Math.Min(strMin.Y, entity.position.Y - entity.lodDist);
-                    strMin.Z = Math.Min(strMin.Z, entity.position.Z - entity.lodDist);
+                        strMax.X = Math.Max(strMax.X, entity.position.X + entity.lodDist);
+                        strMax.Y = Math.Max(strMax.Y, entity.position.Y + entity.lodDist);
+                        strMax.Z = Math.Max(strMax.Z, entity.position.Z + entity.lodDist);
+
+                        strMin.X = Math.Min(strMin.X, entity.position.X - entity.lodDist);
+                        strMin.Y = Math.Min(strMin.Y, entity.position.Y - entity.lodDist);
+                        strMin.Z = Math.Min(strMin.Z, entity.position.Z - entity.lodDist);
+                    }
                 }
             }
+
+            if (instancedData.GrassInstanceList != null)
+            {
+                foreach (GrassInstance item in instancedData.GrassInstanceList)
+                {
+
+                    entMax.X = Math.Max(entMax.X, item.BatchAABB.max.X);
+                    entMax.Y = Math.Max(entMax.Y, item.BatchAABB.max.Y);
+                    entMax.Z = Math.Max(entMax.Z, item.BatchAABB.max.Z);
+
+                    entMin.X = Math.Min(entMin.X, item.BatchAABB.min.X);
+                    entMin.Y = Math.Min(entMin.Y, item.BatchAABB.min.Y);
+                    entMin.Z = Math.Min(entMin.Z, item.BatchAABB.min.Z);
+
+                    strMax.X = Math.Max(strMax.X, item.BatchAABB.max.X + item.lodDist);
+                    strMax.Y = Math.Max(strMax.Y, item.BatchAABB.max.Y + item.lodDist);
+                    strMax.Z = Math.Max(strMax.Z, item.BatchAABB.max.Z + item.lodDist);
+
+                    strMin.X = Math.Min(strMin.X, item.BatchAABB.min.X - item.lodDist);
+                    strMin.Y = Math.Min(strMin.Y, item.BatchAABB.min.Y - item.lodDist);
+                    strMin.Z = Math.Min(strMin.Z, item.BatchAABB.min.Z - item.lodDist);
+                }
+            }
+
             streamingExtentsMax = strMax;
             streamingExtentsMin = strMin;
             entitiesExtentsMax = entMax;
