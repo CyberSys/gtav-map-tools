@@ -113,6 +113,7 @@ namespace MapTools.Map
 
             //parent
             XElement parentNode = new XElement("parent");
+            parentNode.Value = parent;
             CMapDataNode.Add(parentNode);
 
             //flags
@@ -338,11 +339,11 @@ namespace MapTools.Map
 
                         strMax.X = Math.Max(strMax.X, entity.position.X + aabbmax.X + centroid.X + entity.lodDist);
                         strMax.Y = Math.Max(strMax.Y, entity.position.Y + aabbmax.Y + centroid.Y + entity.lodDist);
-                        strMax.Z = Math.Max(strMax.Z, entity.position.Z + aabbmax.Z + centroid.Z + entity.lodDist - 100); //NOT SURE IT'S ADDED HERE TOO
+                        strMax.Z = Math.Max(strMax.Z, entity.position.Z + aabbmax.Z + centroid.Z + entity.lodDist);
 
                         strMin.X = Math.Min(strMin.X, entity.position.X + aabbmin.X + centroid.X - entity.lodDist);
                         strMin.Y = Math.Min(strMin.Y, entity.position.Y + aabbmin.Y + centroid.Y - entity.lodDist);
-                        strMin.Z = Math.Min(strMin.Z, entity.position.Z + aabbmin.Z + centroid.Z - entity.lodDist + 100); //NOT SURE IT'S ADDED HERE TOO
+                        strMin.Z = Math.Min(strMin.Z, entity.position.Z + aabbmin.Z + centroid.Z - entity.lodDist);
                     }
                     else
                     {
@@ -358,11 +359,11 @@ namespace MapTools.Map
 
                         strMax.X = Math.Max(strMax.X, entity.position.X + entity.lodDist);
                         strMax.Y = Math.Max(strMax.Y, entity.position.Y + entity.lodDist);
-                        strMax.Z = Math.Max(strMax.Z, entity.position.Z + entity.lodDist - 100); //NOT SURE IT'S ADDED HERE TOO
+                        strMax.Z = Math.Max(strMax.Z, entity.position.Z + entity.lodDist);
 
                         strMin.X = Math.Min(strMin.X, entity.position.X - entity.lodDist);
                         strMin.Y = Math.Min(strMin.Y, entity.position.Y - entity.lodDist);
-                        strMin.Z = Math.Min(strMin.Z, entity.position.Z - entity.lodDist + 100); //NOT SURE IT'S ADDED HERE TOO
+                        strMin.Z = Math.Min(strMin.Z, entity.position.Z - entity.lodDist);
                     }
                 }
             }
