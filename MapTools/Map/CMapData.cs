@@ -113,7 +113,8 @@ namespace MapTools.Map
 
             //parent
             XElement parentNode = new XElement("parent");
-            parentNode.Value = parent;
+            if(parent != null)
+                parentNode.Value = parent;
             CMapDataNode.Add(parentNode);
 
             //flags
