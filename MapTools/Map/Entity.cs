@@ -133,7 +133,7 @@ namespace MapTools.Map
 
         public CEntityDef(XElement node)
         {
-            archetypeName = node.Element("archetypeName").Value;
+            archetypeName = node.Element("archetypeName").Value.ToLower();
             flags = uint.Parse(node.Element("flags").Attribute("value").Value);
             guid = uint.Parse(node.Element("guid").Attribute("value").Value);
             position = new Vector3(
