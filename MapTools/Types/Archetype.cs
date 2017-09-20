@@ -5,7 +5,16 @@ using System.Xml.Linq;
 
 namespace MapTools.Types
 {
-    public class CBaseArchetypeDef : IEquatable<CBaseArchetypeDef>
+    public enum ArchetypeTypes
+    {
+        CBaseArchetypeDef,
+        CTimeArchetypeDef,
+        CMloArchetypeDef
+    }
+
+    public interface Archetype { }
+
+    public class CBaseArchetypeDef : Archetype, IEquatable<CBaseArchetypeDef>
     {
         public float lodDist { get; set; }
         public uint flags { get; set; }

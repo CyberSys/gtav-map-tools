@@ -338,11 +338,11 @@ namespace MapTools.Map
 
                         strMax.X = Math.Max(strMax.X, entity.position.X + aabbmax.X + centroid.X + entity.lodDist);
                         strMax.Y = Math.Max(strMax.Y, entity.position.Y + aabbmax.Y + centroid.Y + entity.lodDist);
-                        strMax.Z = Math.Max(strMax.Z, entity.position.Z + aabbmax.Z + centroid.Z + entity.lodDist);
+                        strMax.Z = Math.Max(strMax.Z, entity.position.Z + aabbmax.Z + centroid.Z + entity.lodDist - 100); //NOT SURE IT'S ADDED HERE TOO
 
                         strMin.X = Math.Min(strMin.X, entity.position.X + aabbmin.X + centroid.X - entity.lodDist);
                         strMin.Y = Math.Min(strMin.Y, entity.position.Y + aabbmin.Y + centroid.Y - entity.lodDist);
-                        strMin.Z = Math.Min(strMin.Z, entity.position.Z + aabbmin.Z + centroid.Z - entity.lodDist);
+                        strMin.Z = Math.Min(strMin.Z, entity.position.Z + aabbmin.Z + centroid.Z - entity.lodDist + 100); //NOT SURE IT'S ADDED HERE TOO
                     }
                     else
                     {
@@ -358,11 +358,11 @@ namespace MapTools.Map
 
                         strMax.X = Math.Max(strMax.X, entity.position.X + entity.lodDist);
                         strMax.Y = Math.Max(strMax.Y, entity.position.Y + entity.lodDist);
-                        strMax.Z = Math.Max(strMax.Z, entity.position.Z + entity.lodDist);
+                        strMax.Z = Math.Max(strMax.Z, entity.position.Z + entity.lodDist - 100); //NOT SURE IT'S ADDED HERE TOO
 
                         strMin.X = Math.Min(strMin.X, entity.position.X - entity.lodDist);
                         strMin.Y = Math.Min(strMin.Y, entity.position.Y - entity.lodDist);
-                        strMin.Z = Math.Min(strMin.Z, entity.position.Z - entity.lodDist);
+                        strMin.Z = Math.Min(strMin.Z, entity.position.Z - entity.lodDist + 100); //NOT SURE IT'S ADDED HERE TOO
                     }
                 }
             }
@@ -382,11 +382,11 @@ namespace MapTools.Map
 
                     strMax.X = Math.Max(strMax.X, item.BatchAABB.max.X + item.lodDist);
                     strMax.Y = Math.Max(strMax.Y, item.BatchAABB.max.Y + item.lodDist);
-                    strMax.Z = Math.Max(strMax.Z, item.BatchAABB.max.Z + item.lodDist);
+                    strMax.Z = Math.Max(strMax.Z, item.BatchAABB.max.Z + item.lodDist - 100); //IDK WHY
 
                     strMin.X = Math.Min(strMin.X, item.BatchAABB.min.X - item.lodDist);
                     strMin.Y = Math.Min(strMin.Y, item.BatchAABB.min.Y - item.lodDist);
-                    strMin.Z = Math.Min(strMin.Z, item.BatchAABB.min.Z - item.lodDist);
+                    strMin.Z = Math.Min(strMin.Z, item.BatchAABB.min.Z - item.lodDist + 100); //IDK WHY
                 }
             }
 

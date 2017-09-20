@@ -5,7 +5,15 @@ using System.Xml.Linq;
 
 namespace MapTools.Map
 {
-    public class CEntityDef : IEquatable<CEntityDef>
+    public enum EntityTypes
+    {
+        CEntityDef,
+        CMloInstanceDef
+    }
+
+    public interface Entity { }
+
+    public class CEntityDef : Entity, IEquatable<CEntityDef>
     {
         public string archetypeName { get; set; }
         public uint flags { get; set; }

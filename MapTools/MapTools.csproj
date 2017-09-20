@@ -45,8 +45,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Types\CBaseArchetypeDef.cs" />
-    <Compile Include="Map\CEntityDef.cs" />
+    <Compile Include="Types\Archetype.cs" />
+    <Compile Include="Map\Entity.cs" />
     <Compile Include="Map\CMapData.cs" />
     <Compile Include="Types\CMapTypes.cs" />
     <Compile Include="Program.cs" />
