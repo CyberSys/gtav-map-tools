@@ -24,7 +24,7 @@ namespace MapTools.Map
         public object occludeModels { get; set; }
         public HashSet<string> physicsDictionaries { get; set; }
         public instancedData instancedData;
-        public object carGenerators { get; set; }
+        public List<carGenerator> carGenerators { get; set; }
         public LODLightsSOA LODLightsSOA;
         public DistantLODLightsSOA DistantLODLightsSOA;
         public block block;
@@ -854,10 +854,26 @@ namespace MapTools.Map
         public Vector4 min { get; set; }
         public Vector4 max { get; set; }
 
-        public BatchAABB(Vector4 batchmin,Vector4 batchmax)
+        public BatchAABB(Vector4 batchmin, Vector4 batchmax)
         {
             min = batchmin;
             max = batchmax;
         }
+    }
+
+    public struct carGenerator
+    {
+        public Vector3 position { get; set; }
+        public float orientX { get; set; }
+        public float orientY { get; set; }
+        public float perpendicularLength { get; set; }
+        public string carModel { get; set; }
+        public int flags { get; set; }
+        public int bodyColorRemap1 { get; set; }
+        public int bodyColorRemap2 { get; set; }
+        public int bodyColorRemap3 { get; set; }
+        public int bodyColorRemap4 { get; set; }
+        public object popGroup { get; set; }
+        public int livery { get; set; }
     }
 }

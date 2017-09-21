@@ -261,17 +261,31 @@ namespace MapTools
                         }
                         break;
                     case "test":
-                        files = dir.GetFiles("*.ymap.xml");
+                        files = dir.GetFiles("*.ymap");
                         if (files.Length == 0)
-                            Console.WriteLine("No .ymap.xml file found.");
+                            Console.WriteLine("No .ymap file found.");
                         else
                         {
                             foreach (FileInfo file in files)
                             {
-                                
-                                Ymap current = new Ymap(XDocument.Load(file.Name));
-                                XDocument test = current.WriteXML();
-                                test.Save(file.Name);
+                                byte[] data = File.ReadAllBytes(file.Name);
+                                uint rsc7 = BitConverter.ToUInt32(data, 0);
+                                if (rsc7 == 0x37435352)
+                                {
+                                    int version = BitConverter.ToInt32(data, 4);
+                                    uint SystemFlags = BitConverter.ToUInt32(data, 8);
+                                    uint GraphicsFlags = BitConverter.ToUInt32(data, 12);
+                                    if (data.Length > 16)
+                                    {
+                                        int newlen = data.Length - 16; //trim the header from the data passed to the next step.
+                                        byte[] newdata = new byte[newlen];
+                                        Buffer.BlockCopy(data, 16, newdata, 0, newlen);
+                                        data = newdata;
+                                    }
+                                }
+                                data = ResourceBuilder.Decompress(data);
+                                foreach(byte b in data)
+                                    Console.WriteLine(b.ToString());
                             }
                         }
                         break;
