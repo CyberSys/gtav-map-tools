@@ -196,14 +196,24 @@ namespace MapTools
                             Console.WriteLine("No .ymap.xml file found.");
                         else
                         {
-                            foreach(FileInfo file in files)
+                            Random rnd = new Random();
+                            HashSet<int> guidlist = new HashSet<int>();
+                            foreach (FileInfo file in files)
                             {
                                 XDocument doc = XDocument.Load(file.Name);
                                 if(doc.Element("CMapData").Element("entities").Elements() != null)
                                 {
-                                    Random rnd = new Random();
                                     foreach (XElement ent in doc.Element("CMapData").Element("entities").Elements())
-                                        ent.Element("guid").Attribute("value").Value = rnd.Next().ToString();
+                                    {
+                                        int guid = rnd.Next();
+                                        if (!guidlist.Contains(guid))
+                                        {
+                                            guidlist.Add(guid);
+                                            ent.Element("guid").Attribute("value").Value = guid.ToString();
+                                        }
+                                            
+                                    }
+
                                 }
                                 doc.Save(file.Name);
                                 Console.WriteLine("Updated guids for " + file.Name);
