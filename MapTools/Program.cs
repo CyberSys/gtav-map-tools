@@ -268,24 +268,7 @@ namespace MapTools
                         {
                             foreach (FileInfo file in files)
                             {
-                                byte[] data = File.ReadAllBytes(file.Name);
-                                uint rsc7 = BitConverter.ToUInt32(data, 0);
-                                if (rsc7 == 0x37435352)
-                                {
-                                    int version = BitConverter.ToInt32(data, 4);
-                                    uint SystemFlags = BitConverter.ToUInt32(data, 8);
-                                    uint GraphicsFlags = BitConverter.ToUInt32(data, 12);
-                                    if (data.Length > 16)
-                                    {
-                                        int newlen = data.Length - 16; //trim the header from the data passed to the next step.
-                                        byte[] newdata = new byte[newlen];
-                                        Buffer.BlockCopy(data, 16, newdata, 0, newlen);
-                                        data = newdata;
-                                    }
-                                }
-                                data = ResourceBuilder.Decompress(data);
-                                foreach(byte b in data)
-                                    Console.WriteLine(b.ToString());
+                                
                             }
                         }
                         break;
