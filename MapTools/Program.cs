@@ -178,7 +178,7 @@ namespace MapTools
             {
                 for(int i = 0; i < ymapfiles.Length; i++)
                 {
-                    HashSet<string> missing = ymapfiles[i].CMapData.UpdateExtents(merged.CMapTypes.archetypes);
+                    HashSet<string> missing = ymapfiles[i].CMapData.UpdateExtents(archetypeList);
                     if (missing != null && missing.Count > 0)
                     {
                         foreach (string name in missing)
