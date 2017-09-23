@@ -26,6 +26,7 @@ namespace MapTools
                 Console.WriteLine("reset\nResets flags and lodDist.\n");
                 Console.WriteLine("missingytd\nReturns the list of missing .ytd foreach ytyp.\n");
                 Console.WriteLine("grid\nDivides all the .ymap.xml files into blocks of a given size.\n");
+                Console.WriteLine("overlapping\nRemoves all the overlapping entities in each .ymap.xml rounding their position by a given precision.\n");
                 args = Console.ReadLine().Split();
             }
             if (args.Length != 0)
@@ -59,6 +60,9 @@ namespace MapTools
                         break;
                     case "grid":
                         Grid(ymapfiles);
+                        break;
+                    case "overlapping":
+                        DeleteOverlappingEntities(ymapfiles);
                         break;
                     case "test":
                         Dictionary<string, List<byte[]>> colours = CollectGrassInstanceColours(ymapfiles);
@@ -329,21 +333,52 @@ namespace MapTools
             }
         }
 
-        public static Dictionary<string,List<byte[]>> CollectGrassInstanceColours(Ymap[] ymaps)
+        public static Dictionary<string,List<byte[]>> CollectGrassInstanceColours(Ymap[] ymapfiles)
         {
             Dictionary<string, List<byte[]>> colours = new Dictionary<string, List<byte[]>>();
-            for(int i = 0; i < ymaps.Length; i++)
+            if (ymapfiles != null && ymapfiles.Length != 0)
             {
-                foreach (GrassInstance batch in ymaps[i].CMapData.instancedData.GrassInstanceList)
-                    foreach (Instance instance in batch.InstanceList)
-                    {
-                        if (colours.ContainsKey(batch.archetypeName))
-                            colours[batch.archetypeName].Add(instance.Color);
-                        else
-                            colours.Add(batch.archetypeName, new List<byte[]>() { instance.Color });
-                    }
+                for (int i = 0; i < ymapfiles.Length; i++)
+                {
+                    foreach (GrassInstance batch in ymapfiles[i].CMapData.instancedData.GrassInstanceList)
+                        foreach (Instance instance in batch.InstanceList)
+                        {
+                            if (colours.ContainsKey(batch.archetypeName))
+                                colours[batch.archetypeName].Add(instance.Color);
+                            else
+                                colours.Add(batch.archetypeName, new List<byte[]>() { instance.Color });
+                        }
+                }
             }
             return colours;
+        }
+
+        public static void DeleteOverlappingEntities(Ymap[] ymapfiles)
+        {
+            if (ymapfiles != null && ymapfiles.Length != 0)
+            {
+                Console.WriteLine("Insert the number of decimals to round positions and detect duplicates:");
+                int precision = int.Parse(Console.ReadLine());
+
+                for (int i = 0; i < ymapfiles.Length; i++)
+                {
+                    List<CEntityDef> entities_new = new List<CEntityDef>();
+                    HashSet<KeyValuePair<string, Vector3>> newlist = new HashSet<KeyValuePair<string, Vector3>>();
+                    foreach (CEntityDef entity in ymapfiles[i].CMapData.entities)
+                    {
+                        Vector3 position = entity.position;
+                        position.X = (float)Math.Round((double)position.X, precision);
+                        position.Y = (float)Math.Round((double)position.Y, precision);
+                        position.Z = (float)Math.Round((double)position.Z, precision);
+                        KeyValuePair<string, Vector3> tmp = new KeyValuePair<string, Vector3>(entity.archetypeName, position);
+                        if (!newlist.Contains(tmp))
+                        {
+                            newlist.Add(tmp);
+                            entities_new.Add(entity);
+                        }
+                    }
+                }
+            }
         }
     }
 }
