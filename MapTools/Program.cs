@@ -30,8 +30,10 @@ namespace MapTools
             }
             if (args.Length != 0)
             {
-                DirectoryInfo dir = null;
-                    dir = new DirectoryInfo(Directory.GetCurrentDirectory());
+                DirectoryInfo dir = new DirectoryInfo(Directory.GetCurrentDirectory());
+                Ymap[] ymaps = CollectYmaps(dir);
+                Ytyp[] ytyps = CollectYytps(dir);
+
                 FileInfo[] files = null;
                 Dictionary<string,CBaseArchetypeDef> archetypeList = null;
                 switch (args[0])
@@ -261,14 +263,21 @@ namespace MapTools
                         }
                         break;
                     case "test":
-                        files = dir.GetFiles("*.ymap");
+                        files = dir.GetFiles("*.ymap.xml");
                         if (files.Length == 0)
-                            Console.WriteLine("No .ymap file found.");
+                            Console.WriteLine("No .ymap.xml file found.");
                         else
                         {
-                            foreach (FileInfo file in files)
+                            Ymap[] ymaps = new Ymap[files.Length];
+                            for (int i = 0; i < files.Length; i++)
+                                ymaps[i] = new Ymap(XDocument.Load(files[i].Name));
+                            Dictionary<string, List<byte[]>> colours = CollectGrassInstanceColours(ymaps);
+
+                            foreach(KeyValuePair<string, List<byte[]>> entry in colours)
                             {
-                                
+                                Console.WriteLine("COLORS FOR: "+entry.Key);
+                                foreach (byte[] rgb in entry.Value)
+                                    Console.WriteLine(rgb[0] + ", " + rgb[1] + ", " + rgb[2]);
                             }
                         }
                         break;
@@ -280,6 +289,36 @@ namespace MapTools
             /*Console.WriteLine("Press any key to continue...");
             Console.ReadKey();*/
             Environment.Exit(0);
+        }
+
+        public static Ymap[] CollectYmaps(DirectoryInfo dir)
+        {
+            Ymap[] ymaps = null;
+            FileInfo[] files = dir.GetFiles("*.ymap.xml");
+            if (files.Length == 0)
+                Console.WriteLine("No .ymap.xml file found.");
+            else
+            {
+                ymaps = new Ymap[files.Length];
+                for (int i = 0; i < files.Length; i++)
+                    ymaps[i] = new Ymap(XDocument.Load(files[i].Name));
+            }
+            return ymaps;
+        }
+
+        public static Ytyp[] CollectYytps(DirectoryInfo dir)
+        {
+            Ytyp[] ytyps = null;
+            FileInfo[] files = dir.GetFiles("*.ytyp.xml");
+            if (files.Length == 0)
+                Console.WriteLine("No .ytyp.xml file found.");
+            else
+            {
+                ytyps = new Ytyp[files.Length];
+                for (int i = 0; i < files.Length; i++)
+                    ytyps[i] = new Ytyp(XDocument.Load(files[i].Name));
+            }
+            return ytyps;
         }
 
         public static Ytyp MergeYTYP(FileInfo[] files)
@@ -345,6 +384,23 @@ namespace MapTools
                     Console.WriteLine("Missing " + missingytd + ".ytd");
                 Console.WriteLine("");
             }
+        }
+
+        public static Dictionary<string,List<byte[]>> CollectGrassInstanceColours(Ymap[] ymaps)
+        {
+            Dictionary<string, List<byte[]>> colours = new Dictionary<string, List<byte[]>>();
+            for(int i = 0; i < ymaps.Length; i++)
+            {
+                foreach (GrassInstance batch in ymaps[i].CMapData.instancedData.GrassInstanceList)
+                    foreach (Instance instance in batch.InstanceList)
+                    {
+                        if (colours.ContainsKey(batch.archetypeName))
+                            colours[batch.archetypeName].Add(instance.Color);
+                        else
+                            colours.Add(batch.archetypeName, new List<byte[]>() { instance.Color });
+                    }
+            }
+            return colours;
         }
     }
 }

@@ -703,7 +703,7 @@ namespace MapTools.Map
                 float.Parse(node.Element("ScaleRange").Attribute("x").Value),
                 float.Parse(node.Element("ScaleRange").Attribute("y").Value),
                 float.Parse(node.Element("ScaleRange").Attribute("z").Value));
-            archetypeName = node.Element("archetypeName").Value;
+            archetypeName = node.Element("archetypeName").Value.ToLower();
             lodDist = float.Parse(node.Element("lodDist").Attribute("value").Value);
             LodFadeStartDist = float.Parse(node.Element("LodFadeStartDist").Attribute("value").Value);
             LodInstFadeRange = float.Parse(node.Element("LodInstFadeRange").Attribute("value").Value);
@@ -782,12 +782,12 @@ namespace MapTools.Map
     public struct Instance
     {
         public ushort[] Position { get; set; }
-        public int NormalX { get; set; }
-        public int NormalY { get; set; }
-        public int[] Color { get; set; }
-        public int Scale { get; set; }
-        public int Ao { get; set; }
-        public int[] Pad { get; set; }
+        public byte NormalX { get; set; }
+        public byte NormalY { get; set; }
+        public byte[] Color { get; set; }
+        public byte Scale { get; set; }
+        public byte Ao { get; set; }
+        public byte[] Pad { get; set; }
 
         public Instance(XElement node)
         {
@@ -795,18 +795,18 @@ namespace MapTools.Map
                 ushort.Parse(node.Element("Position").Value.Split('\n')[1]),
                 ushort.Parse(node.Element("Position").Value.Split('\n')[2]),
                 ushort.Parse(node.Element("Position").Value.Split('\n')[3])};
-            NormalX = int.Parse(node.Element("NormalX").Attribute("value").Value);
-            NormalY = int.Parse(node.Element("NormalY").Attribute("value").Value);
-            Color = new int[3] {
-                int.Parse(node.Element("Color").Value.Split('\n')[1]),
-                int.Parse(node.Element("Color").Value.Split('\n')[2]),
-                int.Parse(node.Element("Color").Value.Split('\n')[3])};
-            Scale = int.Parse(node.Element("Scale").Attribute("value").Value); ;
-            Ao = int.Parse(node.Element("Ao").Attribute("value").Value); ;
-            Pad = new int[3] {
-                int.Parse(node.Element("Pad").Value.Split('\n')[1]),
-                int.Parse(node.Element("Pad").Value.Split('\n')[2]),
-                int.Parse(node.Element("Pad").Value.Split('\n')[3])};
+            NormalX = byte.Parse(node.Element("NormalX").Attribute("value").Value);
+            NormalY = byte.Parse(node.Element("NormalY").Attribute("value").Value);
+            Color = new byte[3] {
+                byte.Parse(node.Element("Color").Value.Split('\n')[1]),
+                byte.Parse(node.Element("Color").Value.Split('\n')[2]),
+                byte.Parse(node.Element("Color").Value.Split('\n')[3])};
+            Scale = byte.Parse(node.Element("Scale").Attribute("value").Value); ;
+            Ao = byte.Parse(node.Element("Ao").Attribute("value").Value); ;
+            Pad = new byte[3] {
+                byte.Parse(node.Element("Pad").Value.Split('\n')[1]),
+                byte.Parse(node.Element("Pad").Value.Split('\n')[2]),
+                byte.Parse(node.Element("Pad").Value.Split('\n')[3])};
         }
 
         public XElement WriteXML()
@@ -868,12 +868,12 @@ namespace MapTools.Map
         public float orientY { get; set; }
         public float perpendicularLength { get; set; }
         public string carModel { get; set; }
-        public int flags { get; set; }
+        public uint flags { get; set; }
         public int bodyColorRemap1 { get; set; }
         public int bodyColorRemap2 { get; set; }
         public int bodyColorRemap3 { get; set; }
         public int bodyColorRemap4 { get; set; }
         public object popGroup { get; set; }
-        public int livery { get; set; }
+        public sbyte livery { get; set; }
     }
 }
