@@ -7,11 +7,13 @@ namespace MapTools.Map
 {
     public class Ymap
     {
+        public string filename { get; set; }
         public CMapData CMapData { get; set; }
 
-        public Ymap(string filename)
+        public Ymap(string name)
         {
-            CMapData = new CMapData(filename);
+            filename = name;
+            CMapData = new CMapData(name);
         }
 
         public XDocument WriteXML()
@@ -26,14 +28,15 @@ namespace MapTools.Map
             return doc;
         }
 
-        public Ymap(XDocument document)
+        public Ymap(XDocument document, string name)
         {
+            filename = name;
             CMapData = new CMapData(document.Element("CMapData"));
         }
 
-        public static Ymap Merge(List<Ymap> list)
+        public static Ymap Merge(Ymap[] list)
         {
-            if (list == null || list.Count < 1)
+            if (list == null || list.Length < 1)
                 return null;
             Ymap merged = new Ymap("merged");
             foreach (Ymap current in list)

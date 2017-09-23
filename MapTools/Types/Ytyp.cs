@@ -6,10 +6,12 @@ namespace MapTools.Types
 {
     public class Ytyp
     {
+        public string filename { get; set; }
         public CMapTypes CMapTypes { get; set; }
 
-        public Ytyp(string filename)
+        public Ytyp(string name)
         {
+            filename = name;
             CMapTypes = new CMapTypes(filename);
         }
 
@@ -25,14 +27,15 @@ namespace MapTools.Types
             return doc;
         }
 
-        public Ytyp(XDocument document)
+        public Ytyp(XDocument document, string name)
         {
+            filename = name;
             CMapTypes = new CMapTypes(document.Element("CMapTypes"));
         }
 
-        public static Ytyp Merge(List<Ytyp> list)
+        public static Ytyp Merge(Ytyp[] list)
         {
-            if(list == null || list.Count < 1)
+            if(list == null || list.Length < 1)
                 return null;
             Ytyp merged = new Ytyp("merged");
             foreach (Ytyp current in list)

@@ -17,14 +17,14 @@ namespace MapTools
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
             if (args.Length == 0)
             {
-                Console.WriteLine("------------------------\nGTA V MapTools by Neos7\n------------------------\n");
+                Console.WriteLine("GTA V MapTools by Neos7\n");
                 Console.WriteLine("extents\nCalculates again the extents of all the .ymap.xml \n");
                 Console.WriteLine("merge\nMerges all the .ytyp.xml and all the .ymap.xml \n");
                 Console.WriteLine("move\nMoves all the entities of all the .ymap.xml by a given offset.\n");
                 Console.WriteLine("editByName\nMoves and rotates entities of all the .ymap.xml matching the archetypeName.\n");
                 Console.WriteLine("guid\nGenerates new guid for ymap entities.\n");
                 Console.WriteLine("reset\nResets flags and lodDist.\n");
-                Console.WriteLine("ytdcheck\nReturns the list of missing .ytd foreach ytyp.\n");
+                Console.WriteLine("missingytd\nReturns the list of missing .ytd foreach ytyp.\n");
                 Console.WriteLine("grid\nDivides all the .ymap.xml files into blocks of a given size.\n");
                 args = Console.ReadLine().Split();
             }
@@ -34,252 +34,41 @@ namespace MapTools
                 Ymap[] ymapfiles = CollectYmaps(dir);
                 Ytyp[] ytypfiles = CollectYytps(dir);
 
-                FileInfo[] files = null;
-                Dictionary<string,CBaseArchetypeDef> archetypeList = null;
                 switch (args[0])
                 {
                     case "merge":
-                        Console.WriteLine("### MERGE YTYP ###");
-                        files = dir.GetFiles("*.ytyp.xml");
-                        if (files.Length == 0)
-                            Console.WriteLine("No .ytyp.xml file found.");
-                        else
-                        {
-                            Ytyp merged = MergeYTYP(files);
-                            XDocument ytyp_new = merged.WriteXML();
-                            ytyp_new.Save("merged.ytyp.xml");
-                            Console.WriteLine("Exported merged.ytyp.xml");
-                        }
-                        Console.WriteLine("");
-                        Console.WriteLine("### MERGE YMAP ###");
-                        files = dir.GetFiles("*.ymap.xml");
-                        if (files.Length == 0)
-                            Console.WriteLine("No .ymap.xml file found.");
-                        else
-                        {
-                            Ymap merged = MergeYMAP(files);
-                            XDocument ymap_new = merged.WriteXML();
-                            ymap_new.Save("merged.ymap.xml");
-                            Console.WriteLine("Exported merged.ymap.xml");
-                        }
-                        Console.WriteLine("");
-
+                        Merge(ytypfiles,ymapfiles);
                         break;
                     case "extents":
-                        Console.WriteLine("### CALCULATE EXTENTS ###");
-                        Console.WriteLine("Collecting archetypes...");
-                        files = dir.GetFiles("*.ytyp.xml");
-                        if (files.Length == 0)
-                            Console.WriteLine("No .ytyp.xml file found.");
-                        else
-                        {
-                            Ytyp merged = MergeYTYP(files);
-                            archetypeList = merged.CMapTypes.archetypes;
-                        }
-                        Console.WriteLine("");
-
-                        Console.WriteLine("Collecting .ymap.xml to update...");
-                        files = dir.GetFiles("*.ymap.xml");
-                        if (files.Length == 0)
-                            Console.WriteLine("No .ymap.xml file found.");
-                        else
-                        {
-                            foreach (FileInfo file in files)
-                            {
-                                Console.WriteLine("Found " + file.Name);
-                                Ymap current = new Ymap(XDocument.Load(file.Name));
-                                HashSet<string> missing = current.CMapData.UpdateExtents(archetypeList);
-                                if (missing != null && missing.Count > 0)
-                                {
-                                    foreach (string name in missing)
-                                        Console.WriteLine("Missing CBaseArchetypeDef: " + name);
-                                }
-                                XDocument ymapDoc = current.WriteXML();
-                                ymapDoc.Save(file.Name);
-                                Console.WriteLine("Updated extents for " + file.Name);
-                                Console.WriteLine("");
-                            }
-                        }
+                        Extents(ytypfiles,ymapfiles);
                         break;
                     case "reset":
-                        Console.WriteLine("Collecting archetypes...");
-                        files = dir.GetFiles("*.ytyp.xml");
-                        if (files.Length == 0)
-                            Console.WriteLine("No .ytyp.xml file found.");
-                        else
-                        {
-                            foreach (FileInfo file in files)
-                            {
-                                Ytyp current = new Ytyp(XDocument.Load(file.Name));
-                                current.CMapTypes.UpdatelodDist();
-                                foreach (CBaseArchetypeDef arc in current.CMapTypes.archetypes.Values)
-                                {
-                                    arc.flags = 0;
-                                    arc.specialAttribute = 0;
-                                }
-                                XDocument ytypDoc = current.WriteXML();
-                                ytypDoc.Save(file.Name);
-                                Console.WriteLine("Resetted " + file.Name);
-                            }
-                            Ytyp merged = MergeYTYP(files);
-                            archetypeList = merged.CMapTypes.archetypes;
-                        }
-                        Console.WriteLine("Scanning .ymap.xml to update...");
-                        files = dir.GetFiles("*.ymap.xml");
-                        if (files.Length == 0)
-                            Console.WriteLine("No .ymap.xml file found.");
-                        else
-                        {
-                            foreach (FileInfo file in files)
-                            {
-                                Console.WriteLine("Found " + file.Name);
-                                Ymap current = new Ymap(XDocument.Load(file.Name));
-
-                                current.CMapData.UpdatelodDist(archetypeList);
-                                current.CMapData.block = new block(0,0,"GTADrifting", "Neos7", "GTADrifting");
-                                current.CMapData.flags = 0;
-                                current.CMapData.contentFlags = 1;
-                                foreach (CEntityDef ent in current.CMapData.entities)
-                                {
-                                    ent.flags = 0;
-                                    ent.childLodDist = 0;
-                                }
-
-                                XDocument ymapDoc = current.WriteXML();
-                                ymapDoc.Save(file.Name);
-                                Console.WriteLine("Resetted " + file.Name);
-                            }
-                        }
+                        Reset(ytypfiles,ymapfiles);
                         break;
                     case "move":
-                        files = dir.GetFiles("*.ymap.xml");
-                        if (files.Length == 0)
-                            Console.WriteLine("No .ymap.xml file found.");
-                        else
-                        {
-                            Vector3 offset = ReadVector3();
-                            foreach (FileInfo file in files)
-                            {
-                                Console.WriteLine("Found " + file.Name);
-                                Ymap current = new Ymap(XDocument.Load(file.Name));
-                                current.CMapData.MoveEntities(offset);
-                                XDocument ymapDoc = current.WriteXML();
-                                ymapDoc.Save(file.Name);
-                                Console.WriteLine("Moved all the entities of " + file.Name);
-                            }
-                        }
+                        Move(ymapfiles);
                         break;
                     case "editByName":
-                        files = dir.GetFiles("*.ymap.xml");
-                        if (files.Length == 0)
-                            Console.WriteLine("No .ymap.xml file found.");
-                        else
-                        {
-                            Console.WriteLine("Insert archetypeName of the entities to edit:");
-                            string matchingName = Console.ReadLine();
-                            Console.WriteLine("Insert the position offset:");
-                            Vector3 positionOffset = ReadVector3();
-                            Console.WriteLine("Insert the rotation offset (in degrees):");
-                            Vector3 rotationOffset = ReadVector3();
-                            foreach (FileInfo file in files)
-                            {
-                                Console.WriteLine("Found " + file.Name);
-                                Ymap current = new Ymap(XDocument.Load(file.Name));
-                                int i = current.CMapData.MoveAndRotateEntitiesByName(matchingName,positionOffset,rotationOffset);
-                                XDocument ymapDoc = current.WriteXML();
-                                ymapDoc.Save(file.Name);
-                                Console.WriteLine("Edited "+ i + " entities of " + file.Name);
-                            }
-                        }
+                        MoveRotateByName(ymapfiles);
                         break;
                     case "guid":
-                        files = dir.GetFiles("*.ymap.xml");
-                        if (files.Length == 0)
-                            Console.WriteLine("No .ymap.xml file found.");
-                        else
-                        {
-                            Random rnd = new Random();
-                            HashSet<int> guidlist = new HashSet<int>();
-                            foreach (FileInfo file in files)
-                            {
-                                XDocument doc = XDocument.Load(file.Name);
-                                if(doc.Element("CMapData").Element("entities").Elements() != null)
-                                {
-                                    foreach (XElement ent in doc.Element("CMapData").Element("entities").Elements())
-                                    {
-                                        int guid = rnd.Next();
-                                        if (!guidlist.Contains(guid))
-                                        {
-                                            guidlist.Add(guid);
-                                            ent.Element("guid").Attribute("value").Value = guid.ToString();
-                                        }
-                                            
-                                    }
-
-                                }
-                                doc.Save(file.Name);
-                                Console.WriteLine("Updated guids for " + file.Name);
-                            }
-                        }
+                        RandomGuid(dir);
                         break;
-                    case "ytdcheck":
-                        files = dir.GetFiles("*.ytyp.xml");
-                        if (files.Length == 0)
-                            Console.WriteLine("No .ytyp.xml file found.");
-                        else
-                        {
-                            List<string> list = new List<string>();
-                            FileInfo[] ytdlist = dir.GetFiles("*.ytd");
-                            foreach (FileInfo ytd in ytdlist)
-                                list.Add(Path.GetFileNameWithoutExtension(ytd.Name));
-                            CheckMissingYTD(files,list);
-                        }
+                    case "missingytd":
+                        MissingYtd(ytypfiles,dir);
                         break;
                     case "grid":
-                        files = dir.GetFiles("*.ymap.xml");
-                        if (files.Length == 0)
-                            Console.WriteLine("No .ymap.xml file found.");
-                        else
-                        {
-                            Console.WriteLine("Insert the size of the blocks:");
-                            int blocksize = int.Parse(Console.ReadLine());
-                            foreach (FileInfo file in files)
-                            {
-                                int k = 1;
-                                Console.WriteLine("Found " + file.Name);
-                                Ymap current = new Ymap(XDocument.Load(file.Name));
-                                List<List<CEntityDef>> grid = current.CMapData.GridSplit(blocksize);
-                                foreach(List<CEntityDef> block in grid)
-                                {
-                                    Ymap tmp = current;
-                                    tmp.CMapData.entities = block;
-
-                                    XDocument ymapDoc = tmp.WriteXML();
-                                    ymapDoc.Save(file.Name.Split('.')[0] + "_" + k.ToString("00") + ".ymap.xml");
-                                    k++;
-                                }
-                                Console.WriteLine(file.Name + " splitted in " + (k-1) + " blocks.");
-                            }
-                        }
+                        Grid(ymapfiles);
                         break;
                     case "test":
-                        files = dir.GetFiles("*.ymap.xml");
-                        if (files.Length == 0)
-                            Console.WriteLine("No .ymap.xml file found.");
-                        else
+                        Dictionary<string, List<byte[]>> colours = CollectGrassInstanceColours(ymapfiles);
+                        /*
+                        foreach (KeyValuePair<string, List<byte[]>> entry in colours)
                         {
-                            Ymap[] ymaps = new Ymap[files.Length];
-                            for (int i = 0; i < files.Length; i++)
-                                ymaps[i] = new Ymap(XDocument.Load(files[i].Name));
-                            Dictionary<string, List<byte[]>> colours = CollectGrassInstanceColours(ymaps);
-
-                            foreach(KeyValuePair<string, List<byte[]>> entry in colours)
-                            {
-                                Console.WriteLine("COLORS FOR: "+entry.Key);
-                                foreach (byte[] rgb in entry.Value)
-                                    Console.WriteLine(rgb[0] + ", " + rgb[1] + ", " + rgb[2]);
-                            }
-                        }
+                            Console.WriteLine("COLORS FOR: " + entry.Key);
+                            foreach (byte[] rgb in entry.Value)
+                                Console.WriteLine(rgb[0] + ", " + rgb[1] + ", " + rgb[2]);
+                        }*/
                         break;
                     default:
                         Console.WriteLine(args[0] + " isn't a valid command.");
@@ -289,6 +78,182 @@ namespace MapTools
             /*Console.WriteLine("Press any key to continue...");
             Console.ReadKey();*/
             Environment.Exit(0);
+        }
+
+        public static void Grid(Ymap[] ymapfiles)
+        {
+            if (ymapfiles != null && ymapfiles.Length != 0)
+            {
+                Console.WriteLine("Insert the size of the blocks:");
+                int blocksize = int.Parse(Console.ReadLine());
+                for (int i = 0; i < ymapfiles.Length; i++)
+                {
+                    int k = 1;
+                    List<List<CEntityDef>> grid = ymapfiles[i].CMapData.GridSplit(blocksize);
+                    foreach (List<CEntityDef> block in grid)
+                    {
+                        Ymap tmp = ymapfiles[i];
+                        tmp.CMapData.entities = block;
+
+                        XDocument ymapDoc = tmp.WriteXML();
+                        ymapDoc.Save(ymapfiles[i].filename.Split('.')[0] + "_" + k.ToString("00") + ".ymap.xml");
+                        k++;
+                    }
+                    Console.WriteLine(ymapfiles[i].filename + " splitted in " + (k - 1) + " blocks.");
+                }
+            }
+        } 
+
+        public static void Move(Ymap[] ymapfiles)
+        {
+            if (ymapfiles != null && ymapfiles.Length != 0)
+            {
+                Console.WriteLine("Insert the position offset:");
+                Vector3 offset = ReadVector3();
+                for (int i = 0; i < ymapfiles.Length; i++)
+                {
+                    ymapfiles[i].CMapData.MoveEntities(offset);
+                    XDocument ymapDoc = ymapfiles[i].WriteXML();
+                    ymapDoc.Save(ymapfiles[i].filename);
+                    Console.WriteLine("Moved all the entities of " + ymapfiles[i].filename);
+                }
+            }       
+        }
+
+        public static void MoveRotateByName(Ymap[] ymapfiles)
+        {
+            if (ymapfiles != null && ymapfiles.Length != 0)
+            {
+                Console.WriteLine("Insert archetypeName of the entities to edit:");
+                string matchingName = Console.ReadLine();
+                Console.WriteLine("Insert the position offset:");
+                Vector3 positionOffset = ReadVector3();
+                Console.WriteLine("Insert the rotation offset (in degrees):");
+                Vector3 rotationOffset = ReadVector3();
+                for (int i = 0; i < ymapfiles.Length; i++)
+                {
+                    int k = ymapfiles[i].CMapData.MoveAndRotateEntitiesByName(matchingName, positionOffset, rotationOffset);
+                    XDocument ymapDoc = ymapfiles[i].WriteXML();
+                    ymapDoc.Save(ymapfiles[i].filename);
+                    Console.WriteLine("Edited " + k + " entities of " + ymapfiles[i].filename);
+                }
+            }
+        }
+
+        public static void Merge(Ytyp[] ytypfiles, Ymap[] ymapfiles)
+        {
+            Ytyp merged_ytyp = Ytyp.Merge(ytypfiles);
+            XDocument ytyp_new = merged_ytyp.WriteXML();
+            ytyp_new.Save("merged.ytyp.xml");
+            Console.WriteLine("Exported merged.ytyp.xml");
+
+            Ymap merged_ymap = Ymap.Merge(ymapfiles);
+            XDocument ymap_new = merged_ymap.WriteXML();
+            ymap_new.Save("merged.ymap.xml");
+            Console.WriteLine("Exported merged.ymap.xml");
+        }
+
+        public static void Extents(Ytyp[] ytypfiles, Ymap[] ymapfiles)
+        {
+            Ytyp merged = null;
+            Dictionary<string, CBaseArchetypeDef> archetypeList = null;
+
+            if (ytypfiles != null && ytypfiles.Length != 0)
+            {
+                merged = Ytyp.Merge(ytypfiles);
+                archetypeList = merged.CMapTypes.archetypes;
+            }
+
+            if (ymapfiles != null && ymapfiles.Length != 0)
+            {
+                for(int i = 0; i < ymapfiles.Length; i++)
+                {
+                    HashSet<string> missing = ymapfiles[i].CMapData.UpdateExtents(merged.CMapTypes.archetypes);
+                    if (missing != null && missing.Count > 0)
+                    {
+                        foreach (string name in missing)
+                            Console.WriteLine("Missing CBaseArchetypeDef: " + name);
+                    }
+                    XDocument ymapDoc = ymapfiles[i].WriteXML();
+                    ymapDoc.Save(ymapfiles[i].filename);
+                    Console.WriteLine("Updated extents for " + ymapfiles[i].filename);
+                    Console.WriteLine("");
+                }
+            }
+        }
+
+        public static void Reset(Ytyp[] ytypfiles, Ymap[] ymapfiles)
+        {
+            Dictionary<string, CBaseArchetypeDef> archetypeList = null;
+
+            if (ytypfiles != null && ytypfiles.Length != 0)
+            {
+                for (int i = 0; i < ytypfiles.Length; i++)
+                {
+                    ytypfiles[i].CMapTypes.UpdatelodDist();
+                    foreach (CBaseArchetypeDef arc in ytypfiles[i].CMapTypes.archetypes.Values)
+                    {
+                        arc.flags = 0;
+                        arc.specialAttribute = 0;
+                    }
+
+                    XDocument ytypDoc = ytypfiles[i].WriteXML();
+                    ytypDoc.Save(ytypfiles[i].filename);
+                    Console.WriteLine("Resetted " + ytypfiles[i].filename);
+                }
+                Ytyp merged = Ytyp.Merge(ytypfiles);
+                archetypeList = merged.CMapTypes.archetypes;
+            }
+
+            if (ymapfiles != null && ymapfiles.Length != 0)
+            {
+                for (int i = 0; i < ymapfiles.Length; i++)
+                {
+                    ymapfiles[i].CMapData.UpdatelodDist(archetypeList);
+                    ymapfiles[i].CMapData.block = new block(0, 0, "GTADrifting", "Neos7", "GTADrifting");
+                    ymapfiles[i].CMapData.flags = 0;
+                    ymapfiles[i].CMapData.contentFlags = 1;
+                    foreach (CEntityDef ent in ymapfiles[i].CMapData.entities)
+                    {
+                        ent.flags = 0;
+                        ent.childLodDist = 0;
+                    }
+
+                    XDocument ymapDoc = ymapfiles[i].WriteXML();
+                    ymapDoc.Save(ymapfiles[i].filename);
+                    Console.WriteLine("Resetted " + (ymapfiles[i].filename));
+                }
+            }
+        }
+
+        public static void RandomGuid(DirectoryInfo dir)
+        {
+            FileInfo[] files = dir.GetFiles("*.ymap.xml");
+            if (files.Length == 0)
+                Console.WriteLine("No .ymap.xml file found.");
+            else
+            {
+                Random rnd = new Random();
+                HashSet<int> guidlist = new HashSet<int>();
+                foreach (FileInfo file in files)
+                {
+                    XDocument doc = XDocument.Load(file.Name);
+                    if (doc.Element("CMapData").Element("entities").Elements() != null)
+                    {
+                        foreach (XElement ent in doc.Element("CMapData").Element("entities").Elements())
+                        {
+                            int guid = rnd.Next();
+                            if (!guidlist.Contains(guid))
+                            {
+                                guidlist.Add(guid);
+                                ent.Element("guid").Attribute("value").Value = guid.ToString();
+                            }
+                        }
+                    }
+                    doc.Save(file.Name);
+                    Console.WriteLine("Updated guids for " + file.Name);
+                }
+            }
         }
 
         public static Ymap[] CollectYmaps(DirectoryInfo dir)
@@ -301,7 +266,7 @@ namespace MapTools
             {
                 ymaps = new Ymap[files.Length];
                 for (int i = 0; i < files.Length; i++)
-                    ymaps[i] = new Ymap(XDocument.Load(files[i].Name));
+                    ymaps[i] = new Ymap(XDocument.Load(files[i].Name), files[i].Name);
             }
             return ymaps;
         }
@@ -316,31 +281,9 @@ namespace MapTools
             {
                 ytyps = new Ytyp[files.Length];
                 for (int i = 0; i < files.Length; i++)
-                    ytyps[i] = new Ytyp(XDocument.Load(files[i].Name));
+                    ytyps[i] = new Ytyp(XDocument.Load(files[i].Name), files[i].Name);
             }
             return ytyps;
-        }
-
-        public static Ytyp MergeYTYP(FileInfo[] files)
-        {
-            List<Ytyp> list = new List<Ytyp>();
-            foreach (FileInfo file in files)
-            {
-                Console.WriteLine("Found " + file.Name);
-                list.Add(new Ytyp(XDocument.Load(file.Name)));
-            }
-            return Ytyp.Merge(list);
-        }
-
-        public static Ymap MergeYMAP(FileInfo[] files)
-        {
-            List<Ymap> list = new List<Ymap>();
-            foreach (FileInfo file in files)
-            {
-                Console.WriteLine("Found " + file.Name);
-                list.Add(new Ymap(XDocument.Load(file.Name)));
-            }
-            return Ymap.Merge(list);
         }
 
         public static Vector3 ReadVector3()
@@ -356,33 +299,27 @@ namespace MapTools
             return offset;
         }
 
-        public static Dictionary<string, CBaseArchetypeDef> CollectArchetypes(DirectoryInfo dir)
+        public static void MissingYtd(Ytyp[] ytypfiles, DirectoryInfo dir)
         {
-            Dictionary<string, CBaseArchetypeDef> archetypes = new Dictionary<string, CBaseArchetypeDef>();
-            FileInfo[] files = dir.GetFiles("*.ytyp.xml");
-            if (files.Length != 0)
-            { 
-                Ytyp merged = MergeYTYP(files);
-                archetypes = merged.CMapTypes.archetypes;
-            }
-            return archetypes;
-        }
+            FileInfo[] ytdfiles = dir.GetFiles(".ytd");
+            List<string> ytdlist = new List<string>();
+            foreach (FileInfo ytd in ytdfiles)
+                ytdlist.Add(Path.GetFileNameWithoutExtension(ytd.Name));
 
-        public static void CheckMissingYTD(FileInfo[] ytypfiles,List<string> ytdlist)
-        {
-            foreach (FileInfo file in ytypfiles)
+            if (ytypfiles != null && ytypfiles.Length != 0)
             {
-                Console.WriteLine("CHECKING " + file.Name );
-                Ytyp current = new Ytyp(XDocument.Load(file.Name));
-                List<string> missing = new List<string>();
-                foreach (string entry in current.CMapTypes.textureDictionaryList())
+                for (int i = 0; i < ytypfiles.Length; i++)
                 {
-                    if (!ytdlist.Contains(entry))
-                        missing.Add(entry);
+                    Console.WriteLine("Missing .ytd for " + ytypfiles[i].filename + ":");
+                    List<string> missing = new List<string>();
+                    foreach (string entry in ytypfiles[i].CMapTypes.textureDictionaryList())
+                    {
+                        if (!ytdlist.Contains(entry))
+                            missing.Add(entry);
+                    }
+                    foreach (string missingytd in missing)
+                        Console.WriteLine(missingytd + ".ytd");
                 }
-                foreach (string missingytd in missing)
-                    Console.WriteLine("Missing " + missingytd + ".ytd");
-                Console.WriteLine("");
             }
         }
 
