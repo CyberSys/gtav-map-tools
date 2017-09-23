@@ -362,21 +362,27 @@ namespace MapTools
 
                 for (int i = 0; i < ymapfiles.Length; i++)
                 {
+                    int k = 0;
                     List<CEntityDef> entities_new = new List<CEntityDef>();
                     HashSet<KeyValuePair<string, Vector3>> newlist = new HashSet<KeyValuePair<string, Vector3>>();
                     foreach (CEntityDef entity in ymapfiles[i].CMapData.entities)
                     {
                         Vector3 position = entity.position;
-                        position.X = (float)Math.Round((double)position.X, precision);
-                        position.Y = (float)Math.Round((double)position.Y, precision);
-                        position.Z = (float)Math.Round((double)position.Z, precision);
+                        position.X = (float)Math.Round(position.X, precision);
+                        position.Y = (float)Math.Round(position.Y, precision);
+                        position.Z = (float)Math.Round(position.Z, precision);
                         KeyValuePair<string, Vector3> tmp = new KeyValuePair<string, Vector3>(entity.archetypeName, position);
                         if (!newlist.Contains(tmp))
                         {
                             newlist.Add(tmp);
                             entities_new.Add(entity);
                         }
+                        else k++;
                     }
+                    ymapfiles[i].CMapData.entities = entities_new;
+                    XDocument ymapDoc = ymapfiles[i].WriteXML();
+                    ymapDoc.Save(ymapfiles[i].filename);
+                    Console.WriteLine("Deleted " + k + " entities in " + (ymapfiles[i].filename));
                 }
             }
         }
