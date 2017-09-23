@@ -31,8 +31,8 @@ namespace MapTools
             if (args.Length != 0)
             {
                 DirectoryInfo dir = new DirectoryInfo(Directory.GetCurrentDirectory());
-                Ymap[] ymaps = CollectYmaps(dir);
-                Ytyp[] ytyps = CollectYytps(dir);
+                Ymap[] ymapfiles = CollectYmaps(dir);
+                Ytyp[] ytypfiles = CollectYytps(dir);
 
                 FileInfo[] files = null;
                 Dictionary<string,CBaseArchetypeDef> archetypeList = null;
