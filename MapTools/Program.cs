@@ -33,7 +33,7 @@ namespace MapTools
                 DirectoryInfo dir = new DirectoryInfo(Directory.GetCurrentDirectory());
                 Ymap[] ymapfiles = CollectYmaps(dir);
                 Ytyp[] ytypfiles = CollectYytps(dir);
-
+                
                 switch (args[0])
                 {
                     case "merge":
@@ -142,15 +142,21 @@ namespace MapTools
 
         public static void Merge(Ytyp[] ytypfiles, Ymap[] ymapfiles)
         {
-            Ytyp merged_ytyp = Ytyp.Merge(ytypfiles);
-            XDocument ytyp_new = merged_ytyp.WriteXML();
-            ytyp_new.Save("merged.ytyp.xml");
-            Console.WriteLine("Exported merged.ytyp.xml");
+            if (ytypfiles != null && ytypfiles.Length != 0)
+            {
+                Ytyp merged_ytyp = Ytyp.Merge(ytypfiles);
+                XDocument ytyp_new = merged_ytyp.WriteXML();
+                ytyp_new.Save("merged.ytyp.xml");
+                Console.WriteLine("Exported merged.ytyp.xml");
+            }
 
-            Ymap merged_ymap = Ymap.Merge(ymapfiles);
-            XDocument ymap_new = merged_ymap.WriteXML();
-            ymap_new.Save("merged.ymap.xml");
-            Console.WriteLine("Exported merged.ymap.xml");
+            if (ymapfiles != null && ymapfiles.Length != 0)
+            {
+                Ymap merged_ymap = Ymap.Merge(ymapfiles);
+                XDocument ymap_new = merged_ymap.WriteXML();
+                ymap_new.Save("merged.ymap.xml");
+                Console.WriteLine("Exported merged.ymap.xml");
+            }      
         }
 
         public static void Extents(Ytyp[] ytypfiles, Ymap[] ymapfiles)
