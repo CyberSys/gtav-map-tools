@@ -541,13 +541,46 @@ namespace MapTools.Map
                 for (int y = -numblocks; y <= numblocks; y++)
                 {
                     IEnumerable<CEntityDef> result = (from entity in entities
-                                                  where entity.position.X < ((x + 1) * block_size)
-                                                  where entity.position.X >= (x * block_size)
-                                                  where entity.position.Y < ((y + 1) * block_size)
-                                                  where entity.position.Y >= (y * block_size)
-                                                  select entity);
+                                                      where entity.position.X < ((x + 1) * block_size)
+                                                      where entity.position.X >= (x * block_size)
+                                                      where entity.position.Y < ((y + 1) * block_size)
+                                                      where entity.position.Y >= (y * block_size)
+                                                      select entity);
                     if (result.Count() > 0)
                         grid.Add(result.ToList());
+                }
+            }
+            return grid;
+        }
+
+        public List<CMapData> GridSplit2(int block_size)
+        {
+            List<CMapData> grid = new List<CMapData>();
+            int size = 8192;
+            int numblocks = (size / block_size) + 1;
+            CMapData tmp = this;
+            for (int x = -numblocks; x <= numblocks; x++)
+            {
+                for (int y = -numblocks; y <= numblocks; y++)
+                {
+                    IEnumerable<CEntityDef> entity_query = (from entity in entities
+                                                            where entity.position.X < ((x + 1) * block_size)
+                                                            where entity.position.X >= (x * block_size)
+                                                            where entity.position.Y < ((y + 1) * block_size)
+                                                            where entity.position.Y >= (y * block_size)
+                                                            select entity);
+                    if (entity_query.Count() > 0)
+                        tmp.entities = entity_query.ToList();
+
+                    IEnumerable<GrassInstance> grass_query = (from batch in instancedData.GrassInstanceList
+                                                              where (((batch.BatchAABB.max) + (batch.BatchAABB.min)) / 2).X < ((x + 1) * block_size)
+                                                              where (((batch.BatchAABB.max) + (batch.BatchAABB.min)) / 2).X >= (x * block_size)
+                                                              where (((batch.BatchAABB.max) + (batch.BatchAABB.min)) / 2).Y < ((y + 1) * block_size)
+                                                              where (((batch.BatchAABB.max) + (batch.BatchAABB.min)) / 2).Y >= (y * block_size)
+                                                              select batch);
+                    if (grass_query.Count() > 0)
+                        tmp.instancedData.GrassInstanceList = grass_query.ToList();
+                    grid.Add(tmp);
                 }
             }
             return grid;
