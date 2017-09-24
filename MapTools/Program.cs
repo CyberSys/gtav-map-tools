@@ -59,7 +59,7 @@ namespace MapTools
                         MissingYtd(ytypfiles,dir);
                         break;
                     case "grid":
-                        Grid(ymapfiles);
+                        Grid2(ymapfiles);
                         break;
                     case "overlapping":
                         DeleteOverlappingEntities(ymapfiles);
@@ -93,7 +93,7 @@ namespace MapTools
                 for (int i = 0; i < ymapfiles.Length; i++)
                 {
                     int k = 1;
-                    List<List<CEntityDef>> grid = ymapfiles[i].CMapData.GridSplit(blocksize);
+                    List<List<CEntityDef>> grid = ymapfiles[i].CMapData.GridSplitEntities(blocksize);
                     foreach (List<CEntityDef> block in grid)
                     {
                         Ymap tmp = ymapfiles[i];
@@ -106,7 +106,30 @@ namespace MapTools
                     Console.WriteLine(ymapfiles[i].filename + " splitted in " + (k - 1) + " blocks.");
                 }
             }
-        } 
+        }
+        public static void Grid2(Ymap[] ymapfiles)
+        {
+            if (ymapfiles != null && ymapfiles.Length != 0)
+            {
+                Console.WriteLine("Insert the size of the blocks:");
+                int blocksize = int.Parse(Console.ReadLine());
+                for (int i = 0; i < ymapfiles.Length; i++)
+                {
+                    int k = 1;
+                    List<CMapData> grid = ymapfiles[i].CMapData.GridSplitAll(blocksize);
+                    foreach (CMapData block in grid)
+                    {
+                        Ymap tmp = ymapfiles[i];
+                        tmp.CMapData = block;
+
+                        XDocument ymapDoc = tmp.WriteXML();
+                        ymapDoc.Save(ymapfiles[i].filename.Split('.')[0] + "_" + k.ToString("00") + ".ymap.xml");
+                        k++;
+                    }
+                    Console.WriteLine(ymapfiles[i].filename + " splitted in " + (k - 1) + " blocks.");
+                }
+            }
+        }
 
         public static void Move(Ymap[] ymapfiles)
         {

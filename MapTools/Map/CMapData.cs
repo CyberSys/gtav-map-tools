@@ -29,6 +29,28 @@ namespace MapTools.Map
         public DistantLODLightsSOA DistantLODLightsSOA;
         public block block;
 
+        public CMapData(CMapData map)
+        {
+            this.name = map.name;
+            this.parent = map.parent;
+            this.flags = map.flags;
+            this.contentFlags = map.contentFlags;
+            this.streamingExtentsMin = map.streamingExtentsMin;
+            this.streamingExtentsMax = map.streamingExtentsMax;
+            this.entitiesExtentsMin = map.entitiesExtentsMin;
+            this.entitiesExtentsMax = map.entitiesExtentsMax;
+            this.entities = map.entities;
+            this.containerLods = map.containerLods;
+            this.boxOccluders = map.boxOccluders;
+            this.occludeModels = map.occludeModels;
+            this.physicsDictionaries = map.physicsDictionaries;
+            this.instancedData = map.instancedData;
+            this.carGenerators = map.carGenerators;
+            this.LODLightsSOA = map.LODLightsSOA;
+            this.DistantLODLightsSOA = map.DistantLODLightsSOA;
+            this.block = map.block;
+        }
+
         public CMapData(string filename)
         {
             name = filename;
@@ -530,7 +552,7 @@ namespace MapTools.Map
         }*/
 
         //SPLITS THE ENTITIES IN A GRID ACCORDING TO THEIR POSITION
-        public List<List<CEntityDef>> GridSplit(int block_size)
+        public List<List<CEntityDef>> GridSplitEntities(int block_size)
         {
             List<List<CEntityDef>> grid = new List<List<CEntityDef>>();
             int size = 8192;
@@ -553,34 +575,46 @@ namespace MapTools.Map
             return grid;
         }
 
-        public List<CMapData> GridSplit2(int block_size)
+        public List<CMapData> GridSplitAll(int block_size)
         {
             List<CMapData> grid = new List<CMapData>();
             int size = 8192;
             int numblocks = (size / block_size) + 1;
-            CMapData tmp = this;
+            
             for (int x = -numblocks; x <= numblocks; x++)
             {
                 for (int y = -numblocks; y <= numblocks; y++)
                 {
-                    IEnumerable<CEntityDef> entity_query = (from entity in entities
-                                                            where entity.position.X < ((x + 1) * block_size)
-                                                            where entity.position.X >= (x * block_size)
-                                                            where entity.position.Y < ((y + 1) * block_size)
-                                                            where entity.position.Y >= (y * block_size)
-                                                            select entity);
-                    if (entity_query.Count() > 0)
-                        tmp.entities = entity_query.ToList();
+                    CMapData current = new CMapData(this);
 
-                    IEnumerable<GrassInstance> grass_query = (from batch in instancedData.GrassInstanceList
-                                                              where (((batch.BatchAABB.max) + (batch.BatchAABB.min)) / 2).X < ((x + 1) * block_size)
-                                                              where (((batch.BatchAABB.max) + (batch.BatchAABB.min)) / 2).X >= (x * block_size)
-                                                              where (((batch.BatchAABB.max) + (batch.BatchAABB.min)) / 2).Y < ((y + 1) * block_size)
-                                                              where (((batch.BatchAABB.max) + (batch.BatchAABB.min)) / 2).Y >= (y * block_size)
-                                                              select batch);
-                    if (grass_query.Count() > 0)
-                        tmp.instancedData.GrassInstanceList = grass_query.ToList();
-                    grid.Add(tmp);
+                    if (entities != null && entities.Count > 0)
+                    {
+                        IEnumerable<CEntityDef> entity_query = (from entity in entities
+                                                                where entity.position.X < ((x + 1) * block_size)
+                                                                where entity.position.X >= (x * block_size)
+                                                                where entity.position.Y < ((y + 1) * block_size)
+                                                                where entity.position.Y >= (y * block_size)
+                                                                select entity);
+                        if (entity_query.Count() > 0)
+                            current.entities = entity_query.ToList();
+                        else
+                            current.entities = new List<CEntityDef>();
+                    }
+                    if (instancedData.GrassInstanceList != null && instancedData.GrassInstanceList.Count > 0)
+                    {
+                        IEnumerable<GrassInstance> grass_query = (from batch in instancedData.GrassInstanceList
+                                                                  where (((batch.BatchAABB.max) + (batch.BatchAABB.min)) / 2).X < ((x + 1) * block_size)
+                                                                  where (((batch.BatchAABB.max) + (batch.BatchAABB.min)) / 2).X >= (x * block_size)
+                                                                  where (((batch.BatchAABB.max) + (batch.BatchAABB.min)) / 2).Y < ((y + 1) * block_size)
+                                                                  where (((batch.BatchAABB.max) + (batch.BatchAABB.min)) / 2).Y >= (y * block_size)
+                                                                  select batch);
+                        if (grass_query.Count() > 0)
+                            current.instancedData.GrassInstanceList = grass_query.ToList();
+                        else
+                            current.instancedData.GrassInstanceList = new List<GrassInstance>();
+                    }
+                    if (current.entities.Count > 0 || current.instancedData.GrassInstanceList.Count > 0)
+                        grid.Add(current);
                 }
             }
             return grid;
@@ -708,7 +742,7 @@ namespace MapTools.Map
         }
     }
 
-    public class GrassInstance
+    public struct GrassInstance
     {
         public BatchAABB BatchAABB { get; set; }
         public Vector3 ScaleRange { get; set; }
