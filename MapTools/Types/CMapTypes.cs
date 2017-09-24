@@ -8,20 +8,20 @@ namespace MapTools.Types
     public class CMapTypes
     {
         public object extensions { get; set; } //UNKNOWN
-        public Dictionary<string,CBaseArchetypeDef> archetypes { get; set; }
+        public List<CBaseArchetypeDef> archetypes { get; set; }
         public string name { get; set; }
         public object dependencies { get; set; } //UNKNOWN
         public object compositeEntityTypes { get; set; } //UNKNOWN
 
         public CMapTypes(string filename)
         {
-            archetypes = new Dictionary<string, CBaseArchetypeDef>();
+            archetypes = new List<CBaseArchetypeDef>();
             name = filename;
         }
 
         public CMapTypes(XElement node)
         {
-            archetypes = new Dictionary<string, CBaseArchetypeDef>();
+            archetypes = new List<CBaseArchetypeDef>();
             if (node.Element("archetypes").Elements() != null && node.Element("archetypes").Elements().Count() > 0)
             {
                 foreach (XElement arc in node.Element("archetypes").Elements())
@@ -29,7 +29,7 @@ namespace MapTools.Types
                     if (arc.Attribute("type").Value == "CBaseArchetypeDef")
                     {
                         CBaseArchetypeDef a = new CBaseArchetypeDef(arc);
-                        archetypes.Add(a.name, a);
+                        archetypes.Add(a);
                     }  
                     else
                         Console.WriteLine("Skipped unsupported archetype: " + arc.Attribute("type").Value);
@@ -42,28 +42,28 @@ namespace MapTools.Types
 
         public void UpdatelodDist()
         {
-            foreach (CBaseArchetypeDef arc in archetypes.Values)
+            foreach (CBaseArchetypeDef arc in archetypes)
             {
                 arc.lodDist = 100 + (1.5f * arc.bsRadius);
                 arc.hdTextureDist = 100 + arc.bsRadius;
             }
         }
 
-        public Dictionary<string, CBaseArchetypeDef> RemoveArchetypesByNames(List<string> removelist)
+        public List<CBaseArchetypeDef> RemoveArchetypesByNames(List<string> removelist)
         {
-            Dictionary<string, CBaseArchetypeDef> removed = new Dictionary<string, CBaseArchetypeDef>();
+            List<CBaseArchetypeDef> removed = new List<CBaseArchetypeDef>();
             if (removelist == null || removelist.Count > 0)
                 return removed;
-            Dictionary<string, CBaseArchetypeDef> archetypes_new = new Dictionary<string, CBaseArchetypeDef>();
+            List<CBaseArchetypeDef> archetypes_new = new List<CBaseArchetypeDef>();
 
             if (archetypes != null && archetypes.Count > 0)
             {
-                foreach (KeyValuePair<string, CBaseArchetypeDef> archetype in archetypes)
+                foreach (CBaseArchetypeDef archetype in archetypes)
                 {
-                    if (removelist.Contains(archetype.Key))
-                        removed.Add(archetype.Key,archetype.Value);
+                    if (removelist.Contains(archetype.name))
+                        removed.Add(archetype);
                     else
-                        archetypes_new.Add(archetype.Key, archetype.Value);
+                        archetypes_new.Add(archetype);
                 }
             }
             this.archetypes = archetypes_new;
@@ -73,7 +73,7 @@ namespace MapTools.Types
         public List<string> textureDictionaryList()
         {
             List<string> txdList = new List<string>();
-            foreach (CBaseArchetypeDef archetype in archetypes.Values)
+            foreach (CBaseArchetypeDef archetype in archetypes)
             {
                 if (!txdList.Contains(archetype.textureDictionary))
                     txdList.Add(archetype.textureDictionary);
@@ -96,8 +96,8 @@ namespace MapTools.Types
 
             if (archetypes != null && archetypes.Count > 0)
             {
-                foreach (KeyValuePair<string,CBaseArchetypeDef> archetype in archetypes)
-                    archetypesNode.Add(archetype.Value.WriteXML());
+                foreach (CBaseArchetypeDef archetype in archetypes)
+                    archetypesNode.Add(archetype.WriteXML());
             }
 
             //name

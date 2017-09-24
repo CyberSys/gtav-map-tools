@@ -274,7 +274,7 @@ namespace MapTools.Map
             return CMapDataNode;
         }
 
-        public void UpdatelodDist(Dictionary<string, CBaseArchetypeDef> archetypes)
+        public void UpdatelodDist(List<CBaseArchetypeDef> archetypes)
         {
             if (archetypes == null || archetypes.Count < 0)
                 return;
@@ -282,9 +282,12 @@ namespace MapTools.Map
             foreach(CEntityDef ent in entities)
             {
                 CBaseArchetypeDef arc = null;
-                archetypes.TryGetValue(ent.archetypeName, out arc);
-
-                if(arc != null)
+                IEnumerable<CBaseArchetypeDef> query = (from archetype in archetypes
+                                         where (archetype.name == ent.archetypeName)
+                                         select archetype);
+                if (query.Count() > 0)
+                     arc = query.Single();
+                if (arc != null)
                     ent.lodDist = 100 + (1.5f * arc.bsRadius);
             }
         }
@@ -330,7 +333,7 @@ namespace MapTools.Map
         }
 
         //UPDATES THE EXTENTS OF A CMAPDATA AND RETURNS NAMES OF THE MISSING ARCHETYPES TO WARN ABOUT INACCURATE CALCULATION
-        public HashSet<string> UpdateExtents(Dictionary<string,CBaseArchetypeDef> archetypes)
+        public HashSet<string> UpdateExtents(List<CBaseArchetypeDef> archetypes)
         {
             HashSet<string> missing = new HashSet<string>();
             Vector3 entMin = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
@@ -342,10 +345,15 @@ namespace MapTools.Map
             {
                 foreach (CEntityDef entity in entities)
                 {
-                    
                     CBaseArchetypeDef selected = null;
                     if (archetypes != null && archetypes.Count > 0)
-                        archetypes.TryGetValue(entity.archetypeName, out selected);
+                    {
+                        IEnumerable<CBaseArchetypeDef> query = (from archetype in archetypes
+                                    where (archetype.name == entity.archetypeName)
+                                    select archetype);
+                        if (query.Count() > 0)
+                            selected = query.Single();
+                    }
 
                     float lodDist = entity.lodDist;
 

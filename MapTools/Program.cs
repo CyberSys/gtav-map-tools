@@ -159,7 +159,7 @@ namespace MapTools
         public static void Extents(Ytyp[] ytypfiles, Ymap[] ymapfiles)
         {
             Ytyp merged = null;
-            Dictionary<string, CBaseArchetypeDef> archetypeList = null;
+            List<CBaseArchetypeDef> archetypeList = null;
 
             if (ytypfiles != null && ytypfiles.Length != 0)
             {
@@ -187,14 +187,14 @@ namespace MapTools
 
         public static void Reset(Ytyp[] ytypfiles, Ymap[] ymapfiles)
         {
-            Dictionary<string, CBaseArchetypeDef> archetypeList = null;
+            List<CBaseArchetypeDef> archetypeList = null;
 
             if (ytypfiles != null && ytypfiles.Length != 0)
             {
                 for (int i = 0; i < ytypfiles.Length; i++)
                 {
                     ytypfiles[i].CMapTypes.UpdatelodDist();
-                    foreach (CBaseArchetypeDef arc in ytypfiles[i].CMapTypes.archetypes.Values)
+                    foreach (CBaseArchetypeDef arc in ytypfiles[i].CMapTypes.archetypes)
                     {
                         arc.flags = 0;
                         arc.specialAttribute = 0;

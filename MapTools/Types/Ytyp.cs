@@ -42,12 +42,12 @@ namespace MapTools.Types
             {
                 if(current.CMapTypes.archetypes != null && current.CMapTypes.archetypes.Count > 0)
                 {
-                    foreach (KeyValuePair<string, CBaseArchetypeDef> archetype in current.CMapTypes.archetypes)
+                    foreach (CBaseArchetypeDef archetype in current.CMapTypes.archetypes)
                     {
-                        if (!merged.CMapTypes.archetypes.ContainsKey(archetype.Key))
-                            merged.CMapTypes.archetypes.Add(archetype.Key, archetype.Value);
+                        if (!merged.CMapTypes.archetypes.Contains(archetype))
+                            merged.CMapTypes.archetypes.Add(archetype);
                         else
-                            Console.WriteLine("Skipped duplicated CBaseArchetypeDef " + archetype.Key);
+                            Console.WriteLine("Skipped duplicated CBaseArchetypeDef " + archetype.name);
                     }
                 }
             }
