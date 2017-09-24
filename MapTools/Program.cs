@@ -33,7 +33,7 @@ namespace MapTools
             {
                 DirectoryInfo dir = new DirectoryInfo(Directory.GetCurrentDirectory());
                 Ymap[] ymapfiles = CollectYmaps(dir);
-                Ytyp[] ytypfiles = CollectYytps(dir);
+                Ytyp[] ytypfiles = CollectYtps(dir);
                 
                 switch (args[0])
                 {
@@ -59,20 +59,13 @@ namespace MapTools
                         MissingYtd(ytypfiles,dir);
                         break;
                     case "grid":
-                        Grid2(ymapfiles);
+                        Grid(ymapfiles);
                         break;
                     case "overlapping":
                         DeleteOverlappingEntities(ymapfiles);
                         break;
                     case "test":
                         Dictionary<string, List<byte[]>> colours = CollectGrassInstanceColours(ymapfiles);
-                        /*
-                        foreach (KeyValuePair<string, List<byte[]>> entry in colours)
-                        {
-                            Console.WriteLine("COLORS FOR: " + entry.Key);
-                            foreach (byte[] rgb in entry.Value)
-                                Console.WriteLine(rgb[0] + ", " + rgb[1] + ", " + rgb[2]);
-                        }*/
                         break;
                     default:
                         Console.WriteLine(args[0] + " isn't a valid command.");
@@ -85,29 +78,6 @@ namespace MapTools
         }
 
         public static void Grid(Ymap[] ymapfiles)
-        {
-            if (ymapfiles != null && ymapfiles.Length != 0)
-            {
-                Console.WriteLine("Insert the size of the blocks:");
-                int blocksize = int.Parse(Console.ReadLine());
-                for (int i = 0; i < ymapfiles.Length; i++)
-                {
-                    int k = 1;
-                    List<List<CEntityDef>> grid = ymapfiles[i].CMapData.GridSplitEntities(blocksize);
-                    foreach (List<CEntityDef> block in grid)
-                    {
-                        Ymap tmp = ymapfiles[i];
-                        tmp.CMapData.entities = block;
-
-                        XDocument ymapDoc = tmp.WriteXML();
-                        ymapDoc.Save(ymapfiles[i].filename.Split('.')[0] + "_" + k.ToString("00") + ".ymap.xml");
-                        k++;
-                    }
-                    Console.WriteLine(ymapfiles[i].filename + " splitted in " + (k - 1) + " blocks.");
-                }
-            }
-        }
-        public static void Grid2(Ymap[] ymapfiles)
         {
             if (ymapfiles != null && ymapfiles.Length != 0)
             {
@@ -304,7 +274,7 @@ namespace MapTools
             return ymaps;
         }
 
-        public static Ytyp[] CollectYytps(DirectoryInfo dir)
+        public static Ytyp[] CollectYtps(DirectoryInfo dir)
         {
             Ytyp[] ytyps = null;
             FileInfo[] files = dir.GetFiles("*.ytyp.xml");

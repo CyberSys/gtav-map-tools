@@ -551,28 +551,25 @@ namespace MapTools.Map
             return missing;
         }*/
 
-        //SPLITS THE ENTITIES IN A GRID ACCORDING TO THEIR POSITION
-        public List<List<CEntityDef>> GridSplitEntities(int block_size)
+        public List<CEntityDef> RemoveEntitiesByNames(List<string> removelist)
         {
-            List<List<CEntityDef>> grid = new List<List<CEntityDef>>();
-            int size = 8192;
-            int numblocks = (size / block_size) + 1;
+            List<CEntityDef> removed = new List<CEntityDef>();
+            if (removelist == null || removelist.Count > 0)
+                return removed;
+            List<CEntityDef> entities_new = new List<CEntityDef>();
 
-            for (int x = -numblocks; x <= numblocks; x++)
+            if (entities != null && entities.Count > 0)
             {
-                for (int y = -numblocks; y <= numblocks; y++)
+                foreach (CEntityDef entity in entities)
                 {
-                    IEnumerable<CEntityDef> result = (from entity in entities
-                                                      where entity.position.X < ((x + 1) * block_size)
-                                                      where entity.position.X >= (x * block_size)
-                                                      where entity.position.Y < ((y + 1) * block_size)
-                                                      where entity.position.Y >= (y * block_size)
-                                                      select entity);
-                    if (result.Count() > 0)
-                        grid.Add(result.ToList());
+                    if (removelist.Contains(entity.archetypeName))
+                        removed.Add(entity);
+                    else
+                        entities_new.Add(entity);
                 }
             }
-            return grid;
+            this.entities = entities_new;
+            return removed;
         }
 
         public List<CMapData> GridSplitAll(int block_size)

@@ -49,6 +49,27 @@ namespace MapTools.Types
             }
         }
 
+        public Dictionary<string, CBaseArchetypeDef> RemoveArchetypesByNames(List<string> removelist)
+        {
+            Dictionary<string, CBaseArchetypeDef> removed = new Dictionary<string, CBaseArchetypeDef>();
+            if (removelist == null || removelist.Count > 0)
+                return removed;
+            Dictionary<string, CBaseArchetypeDef> archetypes_new = new Dictionary<string, CBaseArchetypeDef>();
+
+            if (archetypes != null && archetypes.Count > 0)
+            {
+                foreach (KeyValuePair<string, CBaseArchetypeDef> archetype in archetypes)
+                {
+                    if (removelist.Contains(archetype.Key))
+                        removed.Add(archetype.Key,archetype.Value);
+                    else
+                        archetypes_new.Add(archetype.Key, archetype.Value);
+                }
+            }
+            this.archetypes = archetypes_new;
+            return removed;
+        }
+
         public List<string> textureDictionaryList()
         {
             List<string> txdList = new List<string>();
