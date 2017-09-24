@@ -412,6 +412,7 @@ namespace MapTools
                     removedytyp.CMapTypes.archetypes = removed_archetypes;
                     doc = removedytyp.WriteXML();
                     doc.Save(ytypfiles[i].filename.Split('.')[0] + "_removed.ytyp.xml");
+                    Console.WriteLine("Exported " + ytypfiles[i].filename.Split('.')[0] + "_removed.ytyp.xml");
 
                 }
             }
@@ -429,6 +430,7 @@ namespace MapTools
                     removedymap.CMapData.entities = removed_entities;
                     doc = removedymap.WriteXML();
                     doc.Save(ymapfiles[i].filename.Split('.')[0] + "_removed.ymap.xml");
+                    Console.WriteLine("Exported " + ymapfiles[i].filename.Split('.')[0] + "_removed.ymap.xml");
                 }
             }
         }
