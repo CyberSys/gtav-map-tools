@@ -52,7 +52,7 @@ namespace MapTools.Types
         public List<CBaseArchetypeDef> RemoveArchetypesByNames(List<string> removelist)
         {
             List<CBaseArchetypeDef> removed = new List<CBaseArchetypeDef>();
-            if (removelist == null || removelist.Count > 0)
+            if (removelist == null || removelist.Count < 1)
                 return removed;
             List<CBaseArchetypeDef> archetypes_new = new List<CBaseArchetypeDef>();
 

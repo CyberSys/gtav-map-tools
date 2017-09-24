@@ -26,6 +26,7 @@ namespace MapTools
                 Console.WriteLine("reset\nResets flags and lodDist.\n");
                 Console.WriteLine("missingytd\nReturns the list of missing .ytd foreach ytyp.\n");
                 Console.WriteLine("grid\nDivides all the .ymap.xml files into blocks of a given size.\n");
+                Console.WriteLine("listsplit\nReads a list of names from a .txt and moves all the archetypes and entities in other files.\n");
                 Console.WriteLine("overlapping\nRemoves all the overlapping entities in each .ymap.xml rounding their position by a given precision.\n");
                 args = Console.ReadLine().Split();
             }
@@ -63,6 +64,9 @@ namespace MapTools
                         break;
                     case "overlapping":
                         DeleteOverlappingEntities(ymapfiles);
+                        break;
+                    case "listsplit":
+                        RemoveFromList(ytypfiles,ymapfiles);
                         break;
                     case "test":
                         Dictionary<string, List<byte[]>> colours = CollectGrassInstanceColours(ymapfiles);
@@ -376,6 +380,55 @@ namespace MapTools
                     XDocument ymapDoc = ymapfiles[i].WriteXML();
                     ymapDoc.Save(ymapfiles[i].filename);
                     Console.WriteLine("Deleted " + k + " entities in " + (ymapfiles[i].filename));
+                }
+            }
+        }
+
+        public static void RemoveFromList(Ytyp[] ytypfiles,Ymap[] ymapfiles)
+        {
+            List<string> removelist = new List<string>();
+            Console.WriteLine("Insert the file to load names from: (ex. list.txt)");
+            string filename = Console.ReadLine();
+            
+            using (StreamReader reader = new StreamReader(filename))
+            {
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    removelist.Add(line.Trim().ToLower());
+                }
+            }
+
+            if (ytypfiles != null && ytypfiles.Length != 0)
+            {
+                for (int i = 0; i < ytypfiles.Length; i++)
+                {
+                    List<CBaseArchetypeDef> removed_archetypes = ytypfiles[i].CMapTypes.RemoveArchetypesByNames(removelist);
+                    XDocument doc = ytypfiles[i].WriteXML();
+                    doc.Save(ytypfiles[i].filename);
+                    Console.WriteLine("Updated " + (ytypfiles[i].filename));
+
+                    Ytyp removedytyp = ytypfiles[i];
+                    removedytyp.CMapTypes.archetypes = removed_archetypes;
+                    doc = removedytyp.WriteXML();
+                    doc.Save(ytypfiles[i].filename.Split('.')[0] + "_removed.ytyp.xml");
+
+                }
+            }
+
+            if (ymapfiles != null && ymapfiles.Length != 0)
+            {
+                for (int i = 0; i < ymapfiles.Length; i++)
+                {
+                    List<CEntityDef> removed_entities = ymapfiles[i].CMapData.RemoveEntitiesByNames(removelist);
+                    XDocument doc = ymapfiles[i].WriteXML();
+                    doc.Save(ymapfiles[i].filename);
+                    Console.WriteLine("Updated " + (ymapfiles[i].filename));
+
+                    Ymap removedymap = ymapfiles[i];
+                    removedymap.CMapData.entities = removed_entities;
+                    doc = removedymap.WriteXML();
+                    doc.Save(ymapfiles[i].filename.Split('.')[0] + "_removed.ymap.xml");
                 }
             }
         }

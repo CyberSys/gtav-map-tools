@@ -562,7 +562,7 @@ namespace MapTools.Map
         public List<CEntityDef> RemoveEntitiesByNames(List<string> removelist)
         {
             List<CEntityDef> removed = new List<CEntityDef>();
-            if (removelist == null || removelist.Count > 0)
+            if (removelist == null || removelist.Count < 1)
                 return removed;
             List<CEntityDef> entities_new = new List<CEntityDef>();
 
