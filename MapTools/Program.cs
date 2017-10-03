@@ -250,12 +250,12 @@ namespace MapTools
                     {
                         foreach (XElement ent in doc.Element("CMapData").Element("entities").Elements())
                         {
-                            int guid = rnd.Next();
-                            if (!guidlist.Contains(guid))
-                            {
-                                guidlist.Add(guid);
-                                ent.Element("guid").Attribute("value").Value = guid.ToString();
-                            }
+                            int guid;
+                            do guid = rnd.Next();
+                            while (guidlist.Contains(guid));
+
+                            guidlist.Add(guid);
+                            ent.Element("guid").Attribute("value").Value = guid.ToString();
                         }
                     }
                     doc.Save(file.Name);
