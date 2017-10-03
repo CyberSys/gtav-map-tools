@@ -7,6 +7,7 @@ using System.IO;
 using System.Numerics;
 using System.Globalization;
 using System.Threading;
+using System.Linq;
 
 namespace MapTools
 {
@@ -354,32 +355,34 @@ namespace MapTools
         {
             if (ymapfiles != null && ymapfiles.Length != 0)
             {
-                Console.WriteLine("Insert the number of decimals to round positions and detect duplicates:");
-                int precision = int.Parse(Console.ReadLine());
+                Console.WriteLine("Insert the minimum distance allowed among entities with same names:");
+                Console.WriteLine("For the decimal separator use the character '" + CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator + "'");
+                float limit = float.Parse(Console.ReadLine());
 
                 for (int i = 0; i < ymapfiles.Length; i++)
                 {
                     int k = 0;
-                    List<CEntityDef> entities_new = new List<CEntityDef>();
-                    HashSet<KeyValuePair<string, Vector3>> newlist = new HashSet<KeyValuePair<string, Vector3>>();
-                    foreach (CEntityDef entity in ymapfiles[i].CMapData.entities)
+                    List<CEntityDef> allentities = new List<CEntityDef>(ymapfiles[i].CMapData.entities);
+                    foreach (CEntityDef entity in allentities)
                     {
-                        Vector3 position = entity.position;
-                        position.X = (float)Math.Round(position.X, precision);
-                        position.Y = (float)Math.Round(position.Y, precision);
-                        position.Z = (float)Math.Round(position.Z, precision);
-                        KeyValuePair<string, Vector3> tmp = new KeyValuePair<string, Vector3>(entity.archetypeName, position);
-                        if (!newlist.Contains(tmp))
+                        List<CEntityDef> samenamelist = allentities.Where(a => a.archetypeName == entity.archetypeName).Except(new List<CEntityDef>() { entity }).ToList();
+
+                        foreach (CEntityDef samename in samenamelist)
                         {
-                            newlist.Add(tmp);
-                            entities_new.Add(entity);
+                            if (Vector3.Distance(entity.position, samename.position) <= limit)
+                            {
+                                if (ymapfiles[i].CMapData.entities.Remove(samename))
+                                    k++;
+                            }    
                         }
-                        else k++;
+
                     }
-                    ymapfiles[i].CMapData.entities = entities_new;
-                    XDocument ymapDoc = ymapfiles[i].WriteXML();
-                    ymapDoc.Save(ymapfiles[i].filename);
-                    Console.WriteLine("Deleted " + k + " entities in " + (ymapfiles[i].filename));
+                    if(k > 0)
+                    {
+                        XDocument ymapDoc = ymapfiles[i].WriteXML();
+                        ymapDoc.Save(ymapfiles[i].filename);
+                        Console.WriteLine("Deleted " + k + " entities in " + (ymapfiles[i].filename));
+                    }
                 }
             }
         }
