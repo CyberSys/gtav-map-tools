@@ -1,13 +1,73 @@
-﻿using MapTools.Types;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using System.Xml.Linq;
 
-namespace MapTools.Map
+namespace MapTools.XML
 {
+    public class Ymap
+    {
+        public string filename { get; set; }
+        public CMapData CMapData { get; set; }
+
+        public Ymap(string name)
+        {
+            filename = name;
+            CMapData = new CMapData(name);
+        }
+
+        public XDocument WriteXML()
+        {
+            //document
+            XDocument doc = new XDocument();
+            //declaration
+            XDeclaration declaration = new XDeclaration("1.0", "UTF-8", "no");
+            doc.Declaration = declaration;
+            //CMapData
+            doc.Add(CMapData.WriteXML());
+            return doc;
+        }
+
+        public Ymap(XDocument document, string name)
+        {
+            filename = name;
+            CMapData = new CMapData(document.Element("CMapData"));
+        }
+
+        public static Ymap Merge(Ymap[] list)
+        {
+            if (list == null || list.Length < 1)
+                return null;
+            Ymap merged = new Ymap("merged");
+            foreach (Ymap current in list)
+            {
+                if (current.CMapData.entities != null && current.CMapData.entities.Count > 0)
+                {
+                    foreach (CEntityDef entity in current.CMapData.entities)
+                    {
+                        if (!merged.CMapData.entities.Contains(entity))
+                            merged.CMapData.entities.Add(entity);
+                        else
+                            Console.WriteLine("Skipped duplicated CEntityDef " + entity.guid);
+                    }
+                }
+
+                if (current.CMapData.instancedData.GrassInstanceList != null && current.CMapData.instancedData.GrassInstanceList.Count > 0)
+                {
+                    foreach (GrassInstance instance in current.CMapData.instancedData.GrassInstanceList)
+                    {
+                        if (!merged.CMapData.instancedData.GrassInstanceList.Contains(instance))
+                            merged.CMapData.instancedData.GrassInstanceList.Add(instance);
+                        else
+                            Console.WriteLine("Skipped duplicated GrassInstance Item " + instance.archetypeName);
+                    }
+                }
+            }
+            return merged;
+        }
+    }
+
     public class CMapData
     {
         public string name { get; set; }
@@ -58,7 +118,7 @@ namespace MapTools.Map
             physicsDictionaries = new HashSet<string>();
             instancedData = new instancedData();
             instancedData.GrassInstanceList = new List<GrassInstance>();
-            block = new block(0,0,"GTADrifting","Neos7","GTADrifting");
+            block = new block(0, 0, "GTADrifting", "Neos7", "GTADrifting");
         }
 
         public CMapData(XElement node)
@@ -135,7 +195,7 @@ namespace MapTools.Map
 
             //parent
             XElement parentNode = new XElement("parent");
-            if(parent != null)
+            if (parent != null)
                 parentNode.Value = parent;
             CMapDataNode.Add(parentNode);
 
@@ -208,7 +268,7 @@ namespace MapTools.Map
             if (physicsDictionaries != null && physicsDictionaries.Count > 0)
             {
                 foreach (string phDict in physicsDictionaries)
-                    physicsDictionariesNode.Add(new XElement("Item",phDict));
+                    physicsDictionariesNode.Add(new XElement("Item", phDict));
             }
 
             //instancedData
@@ -279,14 +339,14 @@ namespace MapTools.Map
             if (archetypes == null || archetypes.Count < 0)
                 return;
 
-            foreach(CEntityDef ent in entities)
+            foreach (CEntityDef ent in entities)
             {
                 CBaseArchetypeDef arc = null;
                 IEnumerable<CBaseArchetypeDef> query = (from archetype in archetypes
-                                         where (archetype.name == ent.archetypeName)
-                                         select archetype);
+                                                        where (archetype.name == ent.archetypeName)
+                                                        select archetype);
                 if (query.Count() > 0)
-                     arc = query.Single();
+                    arc = query.Single();
                 if (arc != null)
                     ent.lodDist = 100 + (1.5f * arc.bsRadius);
             }
@@ -294,7 +354,7 @@ namespace MapTools.Map
 
         public void MoveEntities(Vector3 offset)
         {
-            foreach(CEntityDef entity in entities)
+            foreach (CEntityDef entity in entities)
                 entity.position += offset;
         }
 
@@ -317,12 +377,12 @@ namespace MapTools.Map
             return i;
         }
 
-        public int MoveAndRotateEntitiesByName(string entityname,Vector3 positionOffset, Quaternion rotationOffset)
+        public int MoveAndRotateEntitiesByName(string entityname, Vector3 positionOffset, Quaternion rotationOffset)
         {
             int i = 0;
             foreach (CEntityDef entity in entities)
             {
-                if(entity.archetypeName == entityname)
+                if (entity.archetypeName == entityname)
                 {
                     entity.position += positionOffset;
                     entity.rotation = Quaternion.Multiply(entity.rotation, rotationOffset);
@@ -341,7 +401,7 @@ namespace MapTools.Map
             Vector3 strMin = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
             Vector3 strMax = new Vector3(float.MinValue, float.MinValue, float.MinValue);
 
-            if(entities != null)
+            if (entities != null)
             {
                 foreach (CEntityDef entity in entities)
                 {
@@ -349,8 +409,8 @@ namespace MapTools.Map
                     if (archetypes != null && archetypes.Count > 0)
                     {
                         IEnumerable<CBaseArchetypeDef> query = (from archetype in archetypes
-                                    where (archetype.name == entity.archetypeName)
-                                    select archetype);
+                                                                where (archetype.name == entity.archetypeName)
+                                                                select archetype);
                         if (query.Count() > 0)
                             selected = query.Single();
                     }
@@ -585,7 +645,7 @@ namespace MapTools.Map
             List<CMapData> grid = new List<CMapData>();
             int size = 8192;
             int numblocks = (size / block_size) + 1;
-            
+
             for (int x = -numblocks; x <= numblocks; x++)
             {
                 for (int y = -numblocks; y <= numblocks; y++)
@@ -659,7 +719,7 @@ namespace MapTools.Map
         {
             //block
             XElement blockNode = new XElement("block");
-            
+
             //version
             XElement versionNode = new XElement("version", new XAttribute("value", 0));
             blockNode.Add(versionNode);
@@ -841,12 +901,12 @@ namespace MapTools.Map
             XElement InstanceListNode = new XElement("InstanceList");
             ItemNode.Add(InstanceListNode);
 
-            if(InstanceList != null && InstanceList.Count > 0)
+            if (InstanceList != null && InstanceList.Count > 0)
             {
                 foreach (Instance item in InstanceList)
                     InstanceListNode.Add(item.WriteXML());
             }
-            
+
             return ItemNode;
         }
     }
@@ -887,8 +947,8 @@ namespace MapTools.Map
             XElement ItemNode = new XElement("Item");
 
             //Position
-            XElement PositionNode = new XElement("Position",new XAttribute("content","short_array"));
-            PositionNode.Value = ("\n              " + Position[0]+ "\n              " + Position[1] + "\n              " + Position[2] + "\n            ");
+            XElement PositionNode = new XElement("Position", new XAttribute("content", "short_array"));
+            PositionNode.Value = ("\n              " + Position[0] + "\n              " + Position[1] + "\n              " + Position[2] + "\n            ");
             ItemNode.Add(PositionNode);
 
             //NormalX

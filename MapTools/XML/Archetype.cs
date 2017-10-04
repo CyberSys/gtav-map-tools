@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Globalization;
 using System.Numerics;
 using System.Xml.Linq;
 
-namespace MapTools.Types
+namespace MapTools.XML
 {
     public enum ArchetypeTypes
     {

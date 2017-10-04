@@ -45,14 +45,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Types\Archetype.cs" />
-    <Compile Include="Map\Entity.cs" />
-    <Compile Include="Map\CMapData.cs" />
-    <Compile Include="Types\CMapTypes.cs" />
+    <Compile Include="XML\Archetype.cs" />
+    <Compile Include="XML\Entity.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Map\Ymap.cs" />
-    <Compile Include="Types\Ytyp.cs" />
+    <Compile Include="XML\Ymap.cs" />
+    <Compile Include="XML\Ytyp.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

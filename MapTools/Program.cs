@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using MapTools.Map;
-using MapTools.Types;
+using MapTools.XML;
 using System.Xml.Linq;
 using System.IO;
 using System.Numerics;

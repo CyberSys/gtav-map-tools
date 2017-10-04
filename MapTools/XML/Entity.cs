@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Globalization;
 using System.Numerics;
 using System.Xml.Linq;
 
-namespace MapTools.Map
+namespace MapTools.XML
 {
     public enum EntityTypes
     {
