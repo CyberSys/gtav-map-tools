@@ -4,11 +4,6 @@ using System.Xml.Linq;
 
 namespace MapTools.XML
 {
-    public enum EntityTypes
-    {
-        CEntityDef,
-        CMloInstanceDef
-    }
     public enum lodLevel : uint
     {
         LODTYPES_DEPTH_HD = 0,
@@ -27,15 +22,13 @@ namespace MapTools.XML
         PRI_OPTIONAL_LOW = 3,
     };
 
-    public interface Entity { }
-
-    public class CEntityDef : Entity, IEquatable<CEntityDef>
+    public class CEntityDef : IEquatable<CEntityDef>
     {
         public string archetypeName { get; set; }
         public uint flags { get; set; }
         public uint guid { get; set; }
         public Vector3 position { get; set; }
-        public Quaternion rotation { get; set; }
+        public Quaternion rotation { get; set; } //Vector4
         public float scaleXY { get; set; }
         public float scaleZ { get; set; }
         public int parentIndex { get; set; }

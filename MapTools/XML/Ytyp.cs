@@ -78,6 +78,11 @@ namespace MapTools.XML
                         CBaseArchetypeDef a = new CBaseArchetypeDef(arc);
                         archetypes.Add(a);
                     }
+                    else if (arc.Attribute("type").Value == "CTimeArchetypeDef")
+                    {
+                        CTimeArchetypeDef a = new CTimeArchetypeDef(arc);
+                        archetypes.Add(a);
+                    }
                     else
                         Console.WriteLine("Skipped unsupported archetype: " + arc.Attribute("type").Value);
                 }
@@ -143,8 +148,13 @@ namespace MapTools.XML
 
             if (archetypes != null && archetypes.Count > 0)
             {
-                foreach (CBaseArchetypeDef archetype in archetypes)
-                    archetypesNode.Add(archetype.WriteXML());
+                foreach (var archetype in archetypes)
+                {
+                    if (archetype.GetType() == typeof(CTimeArchetypeDef))
+                        archetypesNode.Add((archetype as CTimeArchetypeDef).WriteXML());
+                    else
+                        archetypesNode.Add(archetype.WriteXML());
+                }
             }
 
             CMapTypesNode.Add(new XElement("name", name));

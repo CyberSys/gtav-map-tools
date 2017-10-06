@@ -4,16 +4,7 @@ using System.Xml.Linq;
 
 namespace MapTools.XML
 {
-    public enum ArchetypeTypes
-    {
-        CBaseArchetypeDef,
-        CTimeArchetypeDef,
-        CMloArchetypeDef
-    }
-
-    public interface Archetype { }
-
-    public class CBaseArchetypeDef : Archetype, IEquatable<CBaseArchetypeDef>
+    public class CBaseArchetypeDef : IEquatable<CBaseArchetypeDef>
     {
         public float lodDist { get; set; }
         public uint flags { get; set; }
@@ -101,14 +92,32 @@ namespace MapTools.XML
                 );
             bsRadius = float.Parse(node.Element("bsRadius").Attribute("value").Value);
             hdTextureDist = float.Parse(node.Element("hdTextureDist").Attribute("value").Value);
-            name = node.Element("name").Value.ToLower(); //SOME YTYP CONTAINS ARCHETYPES WITH UPPERCASE -.-
+            name = node.Element("name").Value.ToLower(); //SOME YTYP CONTAINS ARCHETYPES WITH UPPERCASE
             textureDictionary = node.Element("textureDictionary").Value;
             clipDictionary = node.Element("clipDictionary").Value;
             drawableDictionary = node.Element("drawableDictionary").Value;
             physicsDictionary = node.Element("physicsDictionary").Value;
             assetType = node.Element("assetType").Value;
-            assetName = node.Element("assetName").Value.ToLower(); //SOME YTYP CONTAINS ARCHETYPES WITH UPPERCASE -.-
+            assetName = node.Element("assetName").Value.ToLower(); //SOME YTYP CONTAINS ARCHETYPES WITH UPPERCASE
             extensions = node.Element("extensions");
+        }
+    }
+
+    public class CTimeArchetypeDef : CBaseArchetypeDef
+    {
+        public uint timeFlags { get; set; }
+
+        public CTimeArchetypeDef(XElement node) : base(node)
+        {
+            timeFlags = uint.Parse(node.Element("timeFlags").Attribute("value").Value);
+        }
+
+        public new XElement WriteXML()
+        {
+            XElement CTimeArchetypeDefNode = base.WriteXML();
+            CTimeArchetypeDefNode.Attribute("type").Value = "CTimeArchetypeDef";
+            CTimeArchetypeDefNode.Add(new XElement("timeFlags", new XAttribute("value", timeFlags.ToString())));
+            return CTimeArchetypeDefNode;
         }
     }
 }

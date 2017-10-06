@@ -244,51 +244,8 @@ namespace MapTools.XML
             CMapDataNode.Add(instancedData.WriteXML());
             CMapDataNode.Add(new XElement("timeCycleModifiers"));
             CMapDataNode.Add(new XElement("carGenerators"));
-
-            //LODLightsSOA
-            XElement LODLightsSOANode = new XElement("LODLightsSOA");
-            CMapDataNode.Add(LODLightsSOANode);
-            //direction
-            XElement directionNode = new XElement("direction");
-            LODLightsSOANode.Add(directionNode);
-            //falloff
-            XElement falloffNode = new XElement("falloff");
-            LODLightsSOANode.Add(falloffNode);
-            //falloffExponent
-            XElement falloffExponentNode = new XElement("falloffExponent");
-            LODLightsSOANode.Add(falloffExponentNode);
-            //timeAndStateFlags
-            XElement timeAndStateFlagsNode = new XElement("timeAndStateFlags");
-            LODLightsSOANode.Add(timeAndStateFlagsNode);
-            //hash
-            XElement hashNode = new XElement("hash");
-            LODLightsSOANode.Add(hashNode);
-            //coneInnerAngle
-            XElement coneInnerAngleNode = new XElement("coneInnerAngle");
-            LODLightsSOANode.Add(coneInnerAngleNode);
-            //coneOuterAngleOrCapExt
-            XElement coneOuterAngleOrCapExtNode = new XElement("coneOuterAngleOrCapExt");
-            LODLightsSOANode.Add(coneOuterAngleOrCapExtNode);
-            //coronaIntensity
-            XElement coronaIntensityNode = new XElement("coronaIntensity");
-            LODLightsSOANode.Add(coronaIntensityNode);
-
-            //DistantLODLightsSOA
-            XElement DistantLODLightsSOANode = new XElement("DistantLODLightsSOA");
-            CMapDataNode.Add(DistantLODLightsSOANode);
-            //position
-            XElement positionNode = new XElement("position");
-            DistantLODLightsSOANode.Add(positionNode);
-            //RGBI
-            XElement RGBINode = new XElement("RGBI");
-            DistantLODLightsSOANode.Add(RGBINode);
-            //numStreetLights
-            XElement numStreetLightsNode = new XElement("numStreetLights", new XAttribute("value", 0));
-            DistantLODLightsSOANode.Add(numStreetLightsNode);
-            //category
-            XElement categoryNode = new XElement("category", new XAttribute("value", 0));
-            DistantLODLightsSOANode.Add(categoryNode);
-
+            CMapDataNode.Add(LODLightsSOA.WriteXML());
+            CMapDataNode.Add(DistantLODLightsSOA.WriteXML());
             CMapDataNode.Add(block.WriteXML());
 
             return CMapDataNode;
@@ -690,34 +647,61 @@ namespace MapTools.XML
 
     public struct DistantLODLightsSOA
     {
-        public object position { get; set; }
-        public object RGBI { get; set; }
-        public object numStreetLights { get; set; }
-        public object category { get; set; }
+        public object position { get; set; } //Vector3??
+        public uint[] RGBI { get; set; }
+        public ushort numStreetLights { get; set; }
+        public ushort category { get; set; }
+
+        public XElement WriteXML()
+        {
+            //DistantLODLightsSOA
+            XElement DistantLODLightsSOANode = new XElement("DistantLODLightsSOA");
+            DistantLODLightsSOANode.Add(new XElement("position"));
+            DistantLODLightsSOANode.Add(new XElement("RGBI"));
+            DistantLODLightsSOANode.Add(new XElement("numStreetLights", new XAttribute("value", 0)));
+            DistantLODLightsSOANode.Add(new XElement("category", new XAttribute("value", 0)));
+            return DistantLODLightsSOANode;
+        }
     }
 
     public struct LODLightsSOA
     {
-        public object direction { get; set; }
-        public object falloff { get; set; }
-        public object falloffExponent { get; set; }
-        public object timeAndStateFlags { get; set; }
-        public object hash { get; set; }
-        public object coneInnerAngle { get; set; }
-        public object coneOuterAngleOrCapExt { get; set; }
-        public object coronaIntensity { get; set; }
+        public object direction { get; set; } //Vector3???
+        public float falloff { get; set; }
+        public float falloffExponent { get; set; }
+        public uint timeAndStateFlags { get; set; }
+        public uint[] hash { get; set; }
+        public float coneInnerAngle { get; set; }
+        public byte[] coneOuterAngleOrCapExt { get; set; }
+        public byte[] coronaIntensity { get; set; }
+
+        public XElement WriteXML()
+        {
+            //LODLightsSOA
+            XElement LODLightsSOANode = new XElement("LODLightsSOA");
+            LODLightsSOANode.Add(new XElement("direction"));
+            LODLightsSOANode.Add(new XElement("falloff"));
+            LODLightsSOANode.Add(new XElement("falloffExponent"));
+            LODLightsSOANode.Add(new XElement("timeAndStateFlags"));
+            LODLightsSOANode.Add(new XElement("hash"));
+            LODLightsSOANode.Add(new XElement("coneInnerAngle"));
+            LODLightsSOANode.Add(new XElement("coneOuterAngleOrCapExt"));
+            LODLightsSOANode.Add(new XElement("coronaIntensity"));
+
+            return LODLightsSOANode;
+        }
     }
 
     public struct instancedData
     {
-        public object ImapLink { get; set; }
-        public object PropInstanceList { get; set; }
+        public object ImapLink { get; set; } //Is this even used by the game?
+        public object PropInstanceList { get; set; } //Is this even used by the game?
         public List<GrassInstance> GrassInstanceList { get; set; }
 
         public instancedData(XElement node)
         {
-            ImapLink = null; //TEMP
-            PropInstanceList = null; //TEMP
+            ImapLink = null;
+            PropInstanceList = null;
             GrassInstanceList = new List<GrassInstance>();
             foreach (XElement item in node.Element("GrassInstanceList").Elements())
                 GrassInstanceList.Add(new GrassInstance(item));
