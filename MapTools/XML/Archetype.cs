@@ -46,92 +46,34 @@ namespace MapTools.XML
         {
             //CBaseArchetypeDef
             XElement CBaseArchetypeDefNode = new XElement("Item", new XAttribute("type", "CBaseArchetypeDef"));
-
-            //lodDist
-            XElement lodDistNode = new XElement("lodDist", new XAttribute("value", lodDist.ToString()));
-            CBaseArchetypeDefNode.Add(lodDistNode);
-
-            //flags
-            XElement flagsNode = new XElement("flags", new XAttribute("value", flags.ToString()));
-            CBaseArchetypeDefNode.Add(flagsNode);
-
-            //specialAttribute
-            XElement specialAttributeNode = new XElement("specialAttribute", new XAttribute("value", specialAttribute.ToString()));
-            CBaseArchetypeDefNode.Add(specialAttributeNode);
-
-            //bbMin
-            XElement bbMinNode = new XElement("bbMin",
+            CBaseArchetypeDefNode.Add(new XElement("lodDist", new XAttribute("value", lodDist.ToString())));
+            CBaseArchetypeDefNode.Add(new XElement("flags", new XAttribute("value", flags.ToString())));
+            CBaseArchetypeDefNode.Add(new XElement("specialAttribute", new XAttribute("value", specialAttribute.ToString())));
+            CBaseArchetypeDefNode.Add(new XElement("bbMin",
                 new XAttribute("x", bbMin.X.ToString()),
                 new XAttribute("y", bbMin.Y.ToString()),
                 new XAttribute("z", bbMin.Z.ToString())
-                );
-            CBaseArchetypeDefNode.Add(bbMinNode);
-
-            //bbMax
-            XElement bbMaxFiled = new XElement("bbMax",
+                ));
+            CBaseArchetypeDefNode.Add(new XElement("bbMax",
                 new XAttribute("x", bbMax.X.ToString()),
                 new XAttribute("y", bbMax.Y.ToString()),
                 new XAttribute("z", bbMax.Z.ToString())
-                );
-            CBaseArchetypeDefNode.Add(bbMaxFiled);
-
-            //bsCentre
-            XElement bsCentreNode = new XElement("bsCentre",
+                ));
+            CBaseArchetypeDefNode.Add(new XElement("bsCentre",
                 new XAttribute("x", bsCentre.X.ToString()),
                 new XAttribute("y", bsCentre.Y.ToString()),
                 new XAttribute("z", bsCentre.Z.ToString())
-                );
-            CBaseArchetypeDefNode.Add(bsCentreNode);
-
-            //bsRadius
-            XElement bsRadiusNode = new XElement("bsRadius", new XAttribute("value", bsRadius.ToString()));
-            CBaseArchetypeDefNode.Add(bsRadiusNode);
-
-            //hdTextureDist
-            XElement hdTextureDistNode = new XElement("hdTextureDist", new XAttribute("value", hdTextureDist.ToString()));
-            CBaseArchetypeDefNode.Add(hdTextureDistNode);
-
-            //name
-            XElement nameNode = new XElement("name");
-            nameNode.Value = name;
-            CBaseArchetypeDefNode.Add(nameNode);
-
-            //textureDictionary
-            XElement textureDictionaryNode = new XElement("textureDictionary");
-            textureDictionaryNode.Value = textureDictionary;
-            CBaseArchetypeDefNode.Add(textureDictionaryNode);
-
-            //clipDictionary
-            XElement clipDictionaryNode = new XElement("clipDictionary");
-            if (clipDictionary != null)
-                clipDictionaryNode.Value = clipDictionary;
-            CBaseArchetypeDefNode.Add(clipDictionaryNode);
-
-            //drawableDictionary
-            XElement drawableDictionaryNode = new XElement("drawableDictionary");
-            if (drawableDictionary != null)
-                drawableDictionaryNode.Value = drawableDictionary;
-            CBaseArchetypeDefNode.Add(drawableDictionaryNode);
-
-            //physicsDictionary
-            XElement physicsDictionaryNode = new XElement("physicsDictionary");
-            if (physicsDictionary != null)
-                physicsDictionaryNode.Value = physicsDictionary;
-            CBaseArchetypeDefNode.Add(physicsDictionaryNode);
-
-            //assetType
-            XElement assetTypeNode = new XElement("assetType");
-            assetTypeNode.Value = assetType;
-            CBaseArchetypeDefNode.Add(assetTypeNode);
-
-            //assetName
-            XElement assetNameNode = new XElement("assetName");
-            assetNameNode.Value = assetName;
-            CBaseArchetypeDefNode.Add(assetNameNode);
-
-            //extensions
-            XElement extensionsNode = new XElement("extensions");
-            CBaseArchetypeDefNode.Add(extensionsNode);
+                ));
+            CBaseArchetypeDefNode.Add(new XElement("bsRadius", new XAttribute("value", bsRadius.ToString())));
+            CBaseArchetypeDefNode.Add(new XElement("hdTextureDist", new XAttribute("value", hdTextureDist.ToString())));
+            CBaseArchetypeDefNode.Add(new XElement("name", name));
+            CBaseArchetypeDefNode.Add(new XElement("textureDictionary", textureDictionary));
+            CBaseArchetypeDefNode.Add(new XElement("clipDictionary", clipDictionary ?? string.Empty));
+            CBaseArchetypeDefNode.Add(new XElement("drawableDictionary", drawableDictionary ?? string.Empty));
+            CBaseArchetypeDefNode.Add(new XElement("physicsDictionary", physicsDictionary ?? string.Empty));
+            CBaseArchetypeDefNode.Add(new XElement("assetType", assetType));
+            CBaseArchetypeDefNode.Add(new XElement("assetName", assetName));
+            CBaseArchetypeDefNode.Add(new XElement("extensions"));
 
             return CBaseArchetypeDefNode;
         }

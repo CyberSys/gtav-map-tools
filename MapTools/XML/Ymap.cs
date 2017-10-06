@@ -19,14 +19,7 @@ namespace MapTools.XML
 
         public XDocument WriteXML()
         {
-            //document
-            XDocument doc = new XDocument();
-            //declaration
-            XDeclaration declaration = new XDeclaration("1.0", "UTF-8", "no");
-            doc.Declaration = declaration;
-            //CMapData
-            doc.Add(CMapData.WriteXML());
-            return doc;
+            return new XDocument(new XDeclaration("1.0", "UTF-8", "no"), CMapData.WriteXML());
         }
 
         public Ymap(XDocument document, string name)
@@ -50,6 +43,17 @@ namespace MapTools.XML
                             merged.CMapData.entities.Add(entity);
                         else
                             Console.WriteLine("Skipped duplicated CEntityDef " + entity.guid);
+                    }
+                }
+
+                if (current.CMapData.physicsDictionaries != null && current.CMapData.physicsDictionaries.Count > 0)
+                {
+                    foreach (string physicsDictionary in current.CMapData.physicsDictionaries)
+                    {
+                        if (!merged.CMapData.physicsDictionaries.Contains(physicsDictionary))
+                            merged.CMapData.physicsDictionaries.Add(physicsDictionary);
+                        else
+                            Console.WriteLine("Skipped duplicated physicsDictionary " + physicsDictionary);
                     }
                 }
 
@@ -118,7 +122,7 @@ namespace MapTools.XML
             physicsDictionaries = new HashSet<string>();
             instancedData = new instancedData();
             instancedData.GrassInstanceList = new List<GrassInstance>();
-            block = new block(0, 0, "GTADrifting", "Neos7", "GTADrifting");
+            block = new block(0, 0, "GTADrifting", "Neos7's MapTools" , Environment.UserName);
         }
 
         public CMapData(XElement node)
@@ -188,56 +192,30 @@ namespace MapTools.XML
             //CMapData
             XElement CMapDataNode = new XElement("CMapData");
 
-            //name
-            XElement nameNode = new XElement("name");
-            nameNode.Value = name;
-            CMapDataNode.Add(nameNode);
-
-            //parent
-            XElement parentNode = new XElement("parent");
-            if (parent != null)
-                parentNode.Value = parent;
-            CMapDataNode.Add(parentNode);
-
-            //flags
-            XElement flagsNode = new XElement("flags", new XAttribute("value", flags.ToString()));
-            CMapDataNode.Add(flagsNode);
-
-            //contentFlags
-            XElement contentFlagsNode = new XElement("contentFlags", new XAttribute("value", contentFlags.ToString()));
-            CMapDataNode.Add(contentFlagsNode);
-
-            //streamingExtentsMin
-            XElement streamingExtentsMinNode = new XElement("streamingExtentsMin",
+            CMapDataNode.Add(new XElement("name", name));
+            CMapDataNode.Add(new XElement("parent", parent ?? string.Empty));
+            CMapDataNode.Add(new XElement("flags", new XAttribute("value", flags.ToString())));
+            CMapDataNode.Add(new XElement("contentFlags", new XAttribute("value", contentFlags.ToString())));
+            CMapDataNode.Add(new XElement("streamingExtentsMin",
                 new XAttribute("x", streamingExtentsMin.X.ToString()),
                 new XAttribute("y", streamingExtentsMin.Y.ToString()),
                 new XAttribute("z", streamingExtentsMin.Z.ToString())
-                );
-            CMapDataNode.Add(streamingExtentsMinNode);
-
-            //streamingExtentsMax
-            XElement streamingExtentsMaxNode = new XElement("streamingExtentsMax",
+                ));
+            CMapDataNode.Add(new XElement("streamingExtentsMax",
                 new XAttribute("x", streamingExtentsMax.X.ToString()),
                 new XAttribute("y", streamingExtentsMax.Y.ToString()),
                 new XAttribute("z", streamingExtentsMax.Z.ToString())
-                );
-            CMapDataNode.Add(streamingExtentsMaxNode);
-
-            //entitiesExtentsMin
-            XElement entitiesExtentsMinNode = new XElement("entitiesExtentsMin",
+                ));
+            CMapDataNode.Add(new XElement("entitiesExtentsMin",
                 new XAttribute("x", entitiesExtentsMin.X.ToString()),
                 new XAttribute("y", entitiesExtentsMin.Y.ToString()),
                 new XAttribute("z", entitiesExtentsMin.Z.ToString())
-                );
-            CMapDataNode.Add(entitiesExtentsMinNode);
-
-            //entitiesExtentsMax
-            XElement entitiesExtentsMaxNode = new XElement("entitiesExtentsMax",
+                ));
+            CMapDataNode.Add(new XElement("entitiesExtentsMax",
                 new XAttribute("x", entitiesExtentsMax.X.ToString()),
                 new XAttribute("y", entitiesExtentsMax.Y.ToString()),
                 new XAttribute("z", entitiesExtentsMax.Z.ToString())
-                );
-            CMapDataNode.Add(entitiesExtentsMaxNode);
+                ));
 
             //entities
             XElement entitiesNode = new XElement("entities");
@@ -249,17 +227,9 @@ namespace MapTools.XML
                     entitiesNode.Add(entity.WriteXML());
             }
 
-            //containerLods
-            XElement containerLodsNode = new XElement("containerLods");
-            CMapDataNode.Add(containerLodsNode);
-
-            //boxOccluders
-            XElement boxOccludersNode = new XElement("boxOccluders");
-            CMapDataNode.Add(boxOccludersNode);
-
-            //occludeModels
-            XElement occludeModelsNode = new XElement("occludeModels");
-            CMapDataNode.Add(occludeModelsNode);
+            CMapDataNode.Add(new XElement("containerLods"));
+            CMapDataNode.Add(new XElement("boxOccluders"));
+            CMapDataNode.Add(new XElement("occludeModels"));
 
             //physicsDictionaries
             XElement physicsDictionariesNode = new XElement("physicsDictionaries");
@@ -271,17 +241,9 @@ namespace MapTools.XML
                     physicsDictionariesNode.Add(new XElement("Item", phDict));
             }
 
-            //instancedData
-            XElement instancedDataNode = instancedData.WriteXML();
-            CMapDataNode.Add(instancedDataNode);
-
-            //timeCycleModifiers
-            XElement timeCycleModifiersNode = new XElement("timeCycleModifiers");
-            CMapDataNode.Add(timeCycleModifiersNode);
-
-            //carGenerators
-            XElement carGeneratorsNode = new XElement("carGenerators");
-            CMapDataNode.Add(carGeneratorsNode);
+            CMapDataNode.Add(instancedData.WriteXML());
+            CMapDataNode.Add(new XElement("timeCycleModifiers"));
+            CMapDataNode.Add(new XElement("carGenerators"));
 
             //LODLightsSOA
             XElement LODLightsSOANode = new XElement("LODLightsSOA");
@@ -327,9 +289,7 @@ namespace MapTools.XML
             XElement categoryNode = new XElement("category", new XAttribute("value", 0));
             DistantLODLightsSOANode.Add(categoryNode);
 
-            //block
-            XElement blockNode = block.WriteXML();
-            CMapDataNode.Add(blockNode);
+            CMapDataNode.Add(block.WriteXML());
 
             return CMapDataNode;
         }
@@ -717,32 +677,13 @@ namespace MapTools.XML
 
         public XElement WriteXML()
         {
-            //block
             XElement blockNode = new XElement("block");
-
-            //version
-            XElement versionNode = new XElement("version", new XAttribute("value", 0));
-            blockNode.Add(versionNode);
-            //flags
-            XElement blockflagsNode = new XElement("flags", new XAttribute("value", 0));
-            blockNode.Add(blockflagsNode);
-            //name
-            XElement blocknameNode = new XElement("name");
-            blocknameNode.Value = name;
-            blockNode.Add(blocknameNode);
-            //exportedBy
-            XElement exportedByNode = new XElement("exportedBy");
-            exportedByNode.Value = exportedBy;
-            blockNode.Add(exportedByNode);
-            //owner
-            XElement ownerNode = new XElement("owner");
-            ownerNode.Value = owner;
-            blockNode.Add(ownerNode);
-            //time
-            XElement timeNode = new XElement("time");
-            timeNode.Value = time;
-            blockNode.Add(timeNode);
-
+            blockNode.Add(new XElement("version", new XAttribute("value", version)));
+            blockNode.Add(new XElement("flags", new XAttribute("value", flags)));
+            blockNode.Add(new XElement("name", name));
+            blockNode.Add(new XElement("exportedBy", exportedBy));
+            blockNode.Add(new XElement("owner", owner));
+            blockNode.Add(new XElement("time", time));
             return blockNode;
         }
     }
@@ -786,13 +727,9 @@ namespace MapTools.XML
         {
             //instancedData
             XElement instancedDataNode = new XElement("instancedData");
+            instancedDataNode.Add(new XElement("ImapLink"));
+            instancedDataNode.Add(new XElement("PropInstanceList"));
 
-            //ImapLink
-            XElement ImapLinkNode = new XElement("ImapLink");
-            instancedDataNode.Add(ImapLinkNode);
-            //PropInstanceList
-            XElement PropInstanceListNode = new XElement("PropInstanceList");
-            instancedDataNode.Add(PropInstanceListNode);
             //GrassInstanceList
             XElement GrassInstanceListNode = new XElement("GrassInstanceList");
             instancedDataNode.Add(GrassInstanceListNode);
@@ -850,52 +787,30 @@ namespace MapTools.XML
             //Item
             XElement ItemNode = new XElement("Item");
 
-            //BatchAABB
-            XElement BatchAABBNode = new XElement("BatchAABB");
-            XElement minNode = new XElement("min",
-                new XAttribute("x", BatchAABB.min.X.ToString()),
-                new XAttribute("y", BatchAABB.min.Y.ToString()),
-                new XAttribute("z", BatchAABB.min.Z.ToString()),
-                new XAttribute("w", BatchAABB.min.W.ToString())
-                );
-            BatchAABBNode.Add(minNode);
-            XElement maxNode = new XElement("max",
-                new XAttribute("x", BatchAABB.max.X.ToString()),
-                new XAttribute("y", BatchAABB.max.Y.ToString()),
-                new XAttribute("z", BatchAABB.max.Z.ToString()),
-                new XAttribute("w", BatchAABB.max.W.ToString())
-                );
-            BatchAABBNode.Add(maxNode);
-            ItemNode.Add(BatchAABBNode);
-
-            //ScaleRange
-            XElement ScaleRangeNode = new XElement("ScaleRange",
+            ItemNode.Add(new XElement("BatchAABB",
+                new XElement("min",
+                    new XAttribute("x", BatchAABB.min.X.ToString()),
+                    new XAttribute("y", BatchAABB.min.Y.ToString()),
+                    new XAttribute("z", BatchAABB.min.Z.ToString()),
+                    new XAttribute("w", BatchAABB.min.W.ToString())
+                    ),
+                new XElement("max",
+                    new XAttribute("x", BatchAABB.max.X.ToString()),
+                    new XAttribute("y", BatchAABB.max.Y.ToString()),
+                    new XAttribute("z", BatchAABB.max.Z.ToString()),
+                    new XAttribute("w", BatchAABB.max.W.ToString())
+                    )
+                 ));
+            ItemNode.Add(new XElement("ScaleRange",
                 new XAttribute("x", ScaleRange.X.ToString()),
                 new XAttribute("y", ScaleRange.Y.ToString()),
                 new XAttribute("z", ScaleRange.Z.ToString())
-                );
-            ItemNode.Add(ScaleRangeNode);
-
-            //archetypeName
-            XElement archetypeNameNode = new XElement("archetypeName");
-            archetypeNameNode.Value = archetypeName;
-            ItemNode.Add(archetypeNameNode);
-
-            //lodDist
-            XElement lodDistNode = new XElement("lodDist", new XAttribute("value", lodDist));
-            ItemNode.Add(lodDistNode);
-
-            //LodFadeStartDist
-            XElement LodFadeStartDistNode = new XElement("LodFadeStartDist", new XAttribute("value", LodFadeStartDist));
-            ItemNode.Add(LodFadeStartDistNode);
-
-            //LodInstFadeRange
-            XElement LodInstFadeRangeNode = new XElement("LodInstFadeRange", new XAttribute("value", LodInstFadeRange));
-            ItemNode.Add(LodInstFadeRangeNode);
-
-            //OrientToTerrain
-            XElement OrientToTerrainNode = new XElement("OrientToTerrain", new XAttribute("value", OrientToTerrain));
-            ItemNode.Add(OrientToTerrainNode);
+                ));
+            ItemNode.Add(new XElement("archetypeName", archetypeName));
+            ItemNode.Add(new XElement("lodDist", new XAttribute("value", lodDist)));
+            ItemNode.Add(new XElement("LodFadeStartDist", new XAttribute("value", LodFadeStartDist)));
+            ItemNode.Add(new XElement("LodInstFadeRange", new XAttribute("value", LodInstFadeRange)));
+            ItemNode.Add(new XElement("OrientToTerrain", new XAttribute("value", OrientToTerrain)));
 
             //InstanceList
             XElement InstanceListNode = new XElement("InstanceList");
@@ -943,40 +858,18 @@ namespace MapTools.XML
 
         public XElement WriteXML()
         {
+            string PositionNode = (Environment.NewLine + (new string(' ', 14)) + Position[0] + Environment.NewLine + (new string(' ', 14)) + Position[1] + Environment.NewLine + (new string(' ', 14)) + Position[2] + Environment.NewLine + (new string(' ', 12)));
+            string ColorNode = (Environment.NewLine + (new string(' ', 14)) + Color[0] + Environment.NewLine + (new string(' ', 14)) + Color[1] + Environment.NewLine + (new string(' ', 14)) + Color[2] + Environment.NewLine + (new string(' ', 12)));
+            string PadNode = (Environment.NewLine + (new string(' ', 14)) + Pad[0] + Environment.NewLine + (new string(' ', 14)) + Pad[1] + Environment.NewLine + (new string(' ', 14)) + Pad[2] + Environment.NewLine + (new string(' ', 12)));
             //Item
             XElement ItemNode = new XElement("Item");
-
-            //Position
-            XElement PositionNode = new XElement("Position", new XAttribute("content", "short_array"));
-            PositionNode.Value = ("\n              " + Position[0] + "\n              " + Position[1] + "\n              " + Position[2] + "\n            ");
-            ItemNode.Add(PositionNode);
-
-            //NormalX
-            XElement NormalXNode = new XElement("NormalX", new XAttribute("value", NormalX));
-            ItemNode.Add(NormalXNode);
-
-            //NormalY
-            XElement NormalYNode = new XElement("NormalY", new XAttribute("value", NormalY));
-            ItemNode.Add(NormalYNode);
-
-            //Color
-            XElement ColorNode = new XElement("Color", new XAttribute("content", "char_array"));
-            ColorNode.Value = ("\n              " + Color[0] + "\n              " + Color[1] + "\n              " + Color[2] + "\n            ");
-            ItemNode.Add(ColorNode);
-
-            //Scale
-            XElement ScaleNode = new XElement("Scale", new XAttribute("value", Scale));
-            ItemNode.Add(ScaleNode);
-
-            //Ao
-            XElement AoNode = new XElement("Ao", new XAttribute("value", Ao));
-            ItemNode.Add(AoNode);
-
-            //Pad
-            XElement PadNode = new XElement("Pad", new XAttribute("content", "char_array"));
-            PadNode.Value = ("\n              " + Pad[0] + "\n              " + Pad[1] + "\n              " + Pad[2] + "\n            ");
-            ItemNode.Add(PadNode);
-
+            ItemNode.Add(new XElement("Position", new XAttribute("content", "short_array"), PositionNode));
+            ItemNode.Add(new XElement("NormalX", new XAttribute("value", NormalX)));
+            ItemNode.Add(new XElement("NormalY", new XAttribute("value", NormalY)));
+            ItemNode.Add(new XElement("Color", new XAttribute("content", "char_array"), ColorNode));
+            ItemNode.Add(new XElement("Scale", new XAttribute("value", Scale)));
+            ItemNode.Add(new XElement("Ao", new XAttribute("value", Ao)));
+            ItemNode.Add(new XElement("Pad", new XAttribute("content", "char_array"), PadNode));
             return ItemNode;
         }
     }

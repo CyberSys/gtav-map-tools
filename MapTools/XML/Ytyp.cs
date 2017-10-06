@@ -18,14 +18,7 @@ namespace MapTools.XML
 
         public XDocument WriteXML()
         {
-            //document
-            XDocument doc = new XDocument();
-            //declaration
-            XDeclaration declaration = new XDeclaration("1.0", "UTF-8", "no");
-            doc.Declaration = declaration;
-            //CMapTypes
-            doc.Add(CMapTypes.WriteXML());
-            return doc;
+            return new XDocument(new XDeclaration("1.0", "UTF-8", "no"), CMapTypes.WriteXML());
         }
 
         public Ytyp(XDocument document, string name)
@@ -66,8 +59,11 @@ namespace MapTools.XML
 
         public CMapTypes(string filename)
         {
+            extensions = null;
             archetypes = new List<CBaseArchetypeDef>();
             name = filename;
+            dependencies = null;
+            compositeEntityTypes = null;
         }
 
         public CMapTypes(XElement node)
@@ -96,7 +92,7 @@ namespace MapTools.XML
             foreach (CBaseArchetypeDef arc in archetypes)
             {
                 arc.lodDist = 100 + (1.5f * arc.bsRadius);
-                arc.hdTextureDist = 100 + arc.bsRadius;
+                arc.hdTextureDist = 0.75f * arc.lodDist;
             }
         }
 
@@ -151,10 +147,7 @@ namespace MapTools.XML
                     archetypesNode.Add(archetype.WriteXML());
             }
 
-            //name
-            XElement nameNode = new XElement("name");
-            nameNode.Value = name;
-            CMapTypesNode.Add(nameNode);
+            CMapTypesNode.Add(new XElement("name", name));
 
             //dependencies
             XElement dependenciesNode = new XElement("dependencies");
