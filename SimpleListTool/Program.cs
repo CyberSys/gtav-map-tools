@@ -12,13 +12,12 @@ namespace SimpleListTool
     {
         static void Main(string[] args)
         {
-            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
             if (args.Length != 2)
             {
                 Console.WriteLine("How to use the tool:");
-                Console.WriteLine("list <(.ydr|.ytd|.ybn|.ydd|.ymap.xml|.ytyp.xml)> (example. list .ydr)");
-                Console.WriteLine("missing <file.ytyp.xml> (example. missing myfile.ytyp.xml)");
-                Console.WriteLine("useless <file.ytyp.xml> (example. useless myfile.ytyp.xml)");
+                Console.WriteLine("list <(.ydr|.ytd|.ybn|.ydd|.ymap.xml|.ytyp.xml)> (example: list .ydr)");
+                Console.WriteLine("missing <file.ytyp.xml> (example: missing myfile.ytyp.xml)");
+                Console.WriteLine("useless <file.ytyp.xml> (example: useless myfile.ytyp.xml)");
             }
 
             DirectoryInfo dir = new DirectoryInfo(Directory.GetCurrentDirectory()); ;
@@ -126,7 +125,7 @@ namespace SimpleListTool
                         }
                         break;
                     default:
-                        Console.WriteLine("wrong input");
+                        Console.WriteLine("Wrong input.");
                         break;
                 }
             }
