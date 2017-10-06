@@ -4,7 +4,7 @@ using System.Xml.Linq;
 
 namespace MapTools.XML
 {
-    public enum lodLevel : uint
+    public enum lodLevel : int
     {
         LODTYPES_DEPTH_HD = 0,
         LODTYPES_DEPTH_LOD = 1,
@@ -14,7 +14,7 @@ namespace MapTools.XML
         LODTYPES_DEPTH_ORPHANHD = 5,
         LODTYPES_DEPTH_SLOD4 = 6,
     };
-    public enum priorityLevel : uint
+    public enum priorityLevel : int
     {
         PRI_REQUIRED = 0,
         PRI_OPTIONAL_HIGH = 1,
@@ -114,6 +114,35 @@ namespace MapTools.XML
             ambientOcclusionMultiplier = int.Parse(node.Element("ambientOcclusionMultiplier").Attribute("value").Value);
             artificialAmbientOcclusion = int.Parse(node.Element("artificialAmbientOcclusion").Attribute("value").Value);
             tintValue = uint.Parse(node.Element("tintValue").Attribute("value").Value);
+        }
+    }
+    public class CMloInstanceDef : CEntityDef
+    {
+        public uint groupId { get; set; }
+        public uint floorId { get; set; }
+        public object defaultEntitySets { get; set; } //Array_uint??
+        public uint numExitPortals { get; set; }
+        public uint MLOInstflags { get; set; }
+
+        public CMloInstanceDef(XElement node) : base(node)
+        {
+            groupId = uint.Parse(node.Element("groupId").Attribute("value").Value);
+            floorId = uint.Parse(node.Element("floorId").Attribute("value").Value);
+            defaultEntitySets = null; //Temp
+            numExitPortals = uint.Parse(node.Element("numExitPortals").Attribute("value").Value);
+            MLOInstflags = uint.Parse(node.Element("MLOInstflags").Attribute("value").Value);
+        }
+
+        public new XElement WriteXML()
+        {
+            XElement CMloInstanceDefNode = base.WriteXML();
+            CMloInstanceDefNode.Attribute("type").Value = "CMloInstanceDef";
+            CMloInstanceDefNode.Add(new XElement("groupId", new XAttribute("value", groupId.ToString())));
+            CMloInstanceDefNode.Add(new XElement("floorId", new XAttribute("value", floorId.ToString())));
+            CMloInstanceDefNode.Add(new XElement("defaultEntitySets")); //Temp
+            CMloInstanceDefNode.Add(new XElement("numExitPortals", new XAttribute("value", numExitPortals.ToString())));
+            CMloInstanceDefNode.Add(new XElement("MLOInstflags", new XAttribute("value", MLOInstflags.ToString())));
+            return CMloInstanceDefNode;
         }
     }
 }

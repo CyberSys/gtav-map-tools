@@ -4,6 +4,15 @@ using System.Xml.Linq;
 
 namespace MapTools.XML
 {
+    public enum assetType : int
+    {
+        ASSET_TYPE_UNINITIALIZED = 0,
+        ASSET_TYPE_FRAGMENT = 1,
+        ASSET_TYPE_DRAWABLE = 2,
+        ASSET_TYPE_DRAWABLEDICTIONARY = 3,
+        ASSET_TYPE_ASSETLESS = 4,
+    }
+
     public class CBaseArchetypeDef : IEquatable<CBaseArchetypeDef>
     {
         public float lodDist { get; set; }
@@ -19,7 +28,7 @@ namespace MapTools.XML
         public string clipDictionary { get; set; }
         public string drawableDictionary { get; set; }
         public string physicsDictionary { get; set; }
-        public string assetType { get; set; }
+        public assetType assetType { get; set; }
         public string assetName { get; set; }
         public object extensions { get; set; } //UNKNOWN
 
@@ -97,7 +106,7 @@ namespace MapTools.XML
             clipDictionary = node.Element("clipDictionary").Value;
             drawableDictionary = node.Element("drawableDictionary").Value;
             physicsDictionary = node.Element("physicsDictionary").Value;
-            assetType = node.Element("assetType").Value;
+            assetType = (assetType)Enum.Parse(typeof(assetType),node.Element("assetType").Value);
             assetName = node.Element("assetName").Value.ToLower(); //SOME YTYP CONTAINS ARCHETYPES WITH UPPERCASE
             extensions = node.Element("extensions");
         }
@@ -118,6 +127,31 @@ namespace MapTools.XML
             CTimeArchetypeDefNode.Attribute("type").Value = "CTimeArchetypeDef";
             CTimeArchetypeDefNode.Add(new XElement("timeFlags", new XAttribute("value", timeFlags.ToString())));
             return CTimeArchetypeDefNode;
+        }
+    }
+
+    public class CMloArchetypeDef : CBaseArchetypeDef
+    {
+        public uint mloFlags { get; set; }
+        public CEntityDef[] entities { get; set; }
+        public object rooms { get; set; }
+        public object portals { get; set; }
+        public object entitySets { get; set; }
+        public object timeCycleModifiers { get; set; }
+
+        public CMloArchetypeDef(XElement node) : base(node)
+        {
+            mloFlags = uint.Parse(node.Element("mloFlags").Attribute("value").Value);
+            //TO BE CONTINUED :D
+        }
+
+        public new XElement WriteXML()
+        {
+            XElement CMloArchetypeDefNode = base.WriteXML();
+            CMloArchetypeDefNode.Attribute("type").Value = "CMloArchetypeDef";
+            CMloArchetypeDefNode.Add(new XElement("mloFlags", new XAttribute("value", mloFlags.ToString())));
+            //TO BE CONTINUED :D
+            return CMloArchetypeDefNode;
         }
     }
 }
