@@ -553,7 +553,7 @@ namespace MapTools.XML
                 {
                     CMapData current = new CMapData(this);
 
-                    if (entities != null && entities.Count > 0)
+                    if (entities?.Any() ?? false)
                     {
                         IEnumerable<CEntityDef> entity_query = (from entity in entities
                                                                 where entity.position.X < ((x + 1) * block_size)
@@ -561,12 +561,12 @@ namespace MapTools.XML
                                                                 where entity.position.Y < ((y + 1) * block_size)
                                                                 where entity.position.Y >= (y * block_size)
                                                                 select entity);
-                        if (entity_query.Count() > 0)
+                        if (entity_query.Any())
                             current.entities = entity_query.ToList();
                         else
                             current.entities = new List<CEntityDef>();
                     }
-                    if (instancedData.GrassInstanceList != null && instancedData.GrassInstanceList.Count > 0)
+                    if (instancedData.GrassInstanceList?.Any() ?? false)
                     {
                         IEnumerable<GrassInstance> grass_query = (from batch in instancedData.GrassInstanceList
                                                                   where (((batch.BatchAABB.max) + (batch.BatchAABB.min)) / 2).X < ((x + 1) * block_size)
@@ -574,12 +574,12 @@ namespace MapTools.XML
                                                                   where (((batch.BatchAABB.max) + (batch.BatchAABB.min)) / 2).Y < ((y + 1) * block_size)
                                                                   where (((batch.BatchAABB.max) + (batch.BatchAABB.min)) / 2).Y >= (y * block_size)
                                                                   select batch);
-                        if (grass_query.Count() > 0)
+                        if (grass_query.Any())
                             current.instancedData.GrassInstanceList = grass_query.ToList();
                         else
                             current.instancedData.GrassInstanceList = new List<GrassInstance>();
                     }
-                    if (current.entities.Count > 0 || current.instancedData.GrassInstanceList.Count > 0)
+                    if (current.entities.Any()|| current.instancedData.GrassInstanceList.Any())
                         grid.Add(current);
                 }
             }
