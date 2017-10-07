@@ -96,11 +96,10 @@ namespace MapTools
                         Ymap tmp = ymapfiles[i];
                         tmp.CMapData = block;
 
-                        XDocument ymapDoc = tmp.WriteXML();
-                        ymapDoc.Save(ymapfiles[i].filename.Split('.')[0] + "_" + k.ToString("00") + ".ymap.xml");
+                        tmp.WriteXML().Save(ymapfiles[i].filename.Split('.')[0] + "_" + k.ToString("00") + ".ymap.xml");
                         k++;
                     }
-                    Console.WriteLine(ymapfiles[i].filename + " splitted in " + (k - 1) + " blocks.");
+                    Console.WriteLine("{0} splitted in {1} blocks.", ymapfiles[i].filename, (k - 1));
                 }
             }
         }
@@ -136,7 +135,7 @@ namespace MapTools
                     int k = ymapfiles[i].CMapData.MoveAndRotateEntitiesByName(matchingName, positionOffset, rotationOffset);
                     XDocument ymapDoc = ymapfiles[i].WriteXML();
                     ymapDoc.Save(ymapfiles[i].filename);
-                    Console.WriteLine("Edited " + k + " entities of " + ymapfiles[i].filename);
+                    Console.WriteLine("Edited {0} entities of {1}", k, ymapfiles[i].filename);
                 }
             }
         }
@@ -145,31 +144,22 @@ namespace MapTools
         {
             if (ytypfiles != null && ytypfiles.Length != 0)
             {
-                Ytyp merged_ytyp = Ytyp.Merge(ytypfiles);
-                XDocument ytyp_new = merged_ytyp.WriteXML();
-                ytyp_new.Save("merged.ytyp.xml");
+                Ytyp.Merge(ytypfiles).WriteXML().Save("merged.ytyp.xml");
                 Console.WriteLine("Exported merged.ytyp.xml");
             }
 
             if (ymapfiles != null && ymapfiles.Length != 0)
             {
-                Ymap merged_ymap = Ymap.Merge(ymapfiles);
-                XDocument ymap_new = merged_ymap.WriteXML();
-                ymap_new.Save("merged.ymap.xml");
+                Ymap.Merge(ymapfiles).WriteXML().Save("merged.ymap.xml");
                 Console.WriteLine("Exported merged.ymap.xml");
             }      
         }
 
         public static void Extents(Ytyp[] ytypfiles, Ymap[] ymapfiles)
         {
-            Ytyp merged = null;
             List<CBaseArchetypeDef> archetypeList = null;
-
             if (ytypfiles != null && ytypfiles.Length != 0)
-            {
-                merged = Ytyp.Merge(ytypfiles);
-                archetypeList = merged.CMapTypes.archetypes;
-            }
+                archetypeList = Ytyp.Merge(ytypfiles).CMapTypes.archetypes;
 
             if (ymapfiles != null && ymapfiles.Length != 0)
             {
@@ -181,10 +171,8 @@ namespace MapTools
                         foreach (string name in missing)
                             Console.WriteLine("Missing CBaseArchetypeDef: " + name);
                     }
-                    XDocument ymapDoc = ymapfiles[i].WriteXML();
-                    ymapDoc.Save(ymapfiles[i].filename);
+                    ymapfiles[i].WriteXML().Save(ymapfiles[i].filename);
                     Console.WriteLine("Updated extents for " + ymapfiles[i].filename);
-                    Console.WriteLine("");
                 }
             }
         }
@@ -203,13 +191,10 @@ namespace MapTools
                         arc.flags = 0;
                         arc.specialAttribute = 0;
                     }
-
-                    XDocument ytypDoc = ytypfiles[i].WriteXML();
-                    ytypDoc.Save(ytypfiles[i].filename);
+                    ytypfiles[i].WriteXML().Save(ytypfiles[i].filename);
                     Console.WriteLine("Resetted " + ytypfiles[i].filename);
                 }
-                Ytyp merged = Ytyp.Merge(ytypfiles);
-                archetypeList = merged.CMapTypes.archetypes;
+                archetypeList = Ytyp.Merge(ytypfiles).CMapTypes.archetypes;
             }
 
             if (ymapfiles != null && ymapfiles.Length != 0)
@@ -217,7 +202,7 @@ namespace MapTools
                 for (int i = 0; i < ymapfiles.Length; i++)
                 {
                     ymapfiles[i].CMapData.UpdatelodDist(archetypeList);
-                    ymapfiles[i].CMapData.block = new block(0, 0, "GTADrifting", "Neos7", "GTADrifting");
+                    ymapfiles[i].CMapData.block = new block(0, 0, "GTADrifting", "Neos7's MapTools", Environment.UserName);
                     ymapfiles[i].CMapData.flags = 0;
                     ymapfiles[i].CMapData.contentFlags = 1;
                     foreach (CEntityDef ent in ymapfiles[i].CMapData.entities)
@@ -225,9 +210,7 @@ namespace MapTools
                         ent.flags = 0;
                         ent.childLodDist = 0;
                     }
-
-                    XDocument ymapDoc = ymapfiles[i].WriteXML();
-                    ymapDoc.Save(ymapfiles[i].filename);
+                    ymapfiles[i].WriteXML().Save(ymapfiles[i].filename);
                     Console.WriteLine("Resetted " + (ymapfiles[i].filename));
                 }
             }
@@ -296,7 +279,7 @@ namespace MapTools
         public static Vector3 ReadVector3()
         {
             Vector3 offset = new Vector3();
-            Console.WriteLine("For the decimal separator use the character '" + CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator + "'");
+            Console.WriteLine("For the decimal separator use the character '{0}'", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator);
             Console.WriteLine("X:");
             offset.X = float.Parse(Console.ReadLine());
             Console.WriteLine("Y:");
@@ -308,22 +291,13 @@ namespace MapTools
 
         public static void MissingYtd(Ytyp[] ytypfiles, DirectoryInfo dir)
         {
-            FileInfo[] ytdfiles = dir.GetFiles(".ytd");
-            List<string> ytdlist = new List<string>();
-            foreach (FileInfo ytd in ytdfiles)
-                ytdlist.Add(Path.GetFileNameWithoutExtension(ytd.Name));
-
+            IEnumerable<string> ytdlist = dir.GetFiles(".ytd").Select(a => Path.GetFileNameWithoutExtension(a.Name));
             if (ytypfiles != null && ytypfiles.Length != 0)
             {
                 for (int i = 0; i < ytypfiles.Length; i++)
                 {
-                    Console.WriteLine("Missing .ytd for " + ytypfiles[i].filename + ":");
-                    List<string> missing = new List<string>();
-                    foreach (string entry in ytypfiles[i].CMapTypes.textureDictionaryList())
-                    {
-                        if (!ytdlist.Contains(entry))
-                            missing.Add(entry);
-                    }
+                    IEnumerable<string> missing = ytypfiles[i].CMapTypes.textureDictionaries().Except(ytdlist.AsEnumerable());
+                    Console.WriteLine("Missing .ytd for {0} : {1}", ytypfiles[i].filename, missing.Count().ToString());
                     foreach (string missingytd in missing)
                         Console.WriteLine(missingytd + ".ytd");
                 }
@@ -355,7 +329,7 @@ namespace MapTools
             if (ymapfiles != null && ymapfiles.Length != 0)
             {
                 Console.WriteLine("Insert the minimum distance allowed among entities with same names:");
-                Console.WriteLine("For the decimal separator use the character '" + CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator + "'");
+                Console.WriteLine("For the decimal separator use the character '{0}'", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator);
                 float limit = float.Parse(Console.ReadLine());
 
                 for (int i = 0; i < ymapfiles.Length; i++)
@@ -378,9 +352,8 @@ namespace MapTools
                     }
                     if(k > 0)
                     {
-                        XDocument ymapDoc = ymapfiles[i].WriteXML();
-                        ymapDoc.Save(ymapfiles[i].filename);
-                        Console.WriteLine("Deleted " + k + " entities in " + (ymapfiles[i].filename));
+                        ymapfiles[i].WriteXML().Save(ymapfiles[i].filename);
+                        Console.WriteLine("Deleted {0} entities in {1}", k, ymapfiles[i].filename);
                     }
                 }
             }
@@ -406,15 +379,14 @@ namespace MapTools
                 for (int i = 0; i < ytypfiles.Length; i++)
                 {
                     List<CBaseArchetypeDef> removed_archetypes = ytypfiles[i].CMapTypes.RemoveArchetypesByNames(removelist);
-                    XDocument doc = ytypfiles[i].WriteXML();
-                    doc.Save(ytypfiles[i].filename);
+                    ytypfiles[i].WriteXML().Save(ytypfiles[i].filename);
                     Console.WriteLine("Updated " + (ytypfiles[i].filename));
 
                     Ytyp removedytyp = ytypfiles[i];
                     removedytyp.CMapTypes.archetypes = removed_archetypes;
-                    doc = removedytyp.WriteXML();
-                    doc.Save(ytypfiles[i].filename.Split('.')[0] + "_removed.ytyp.xml");
-                    Console.WriteLine("Exported " + ytypfiles[i].filename.Split('.')[0] + "_removed.ytyp.xml");
+
+                    removedytyp.WriteXML().Save(ytypfiles[i].filename.Split('.')[0] + "_removed.ytyp.xml");
+                    Console.WriteLine("Exported {0}_removed.ytyp.xml", ytypfiles[i].filename.Split('.')[0]);
 
                 }
             }
@@ -424,15 +396,14 @@ namespace MapTools
                 for (int i = 0; i < ymapfiles.Length; i++)
                 {
                     List<CEntityDef> removed_entities = ymapfiles[i].CMapData.RemoveEntitiesByNames(removelist);
-                    XDocument doc = ymapfiles[i].WriteXML();
-                    doc.Save(ymapfiles[i].filename);
+                    ymapfiles[i].WriteXML().Save(ymapfiles[i].filename);
                     Console.WriteLine("Updated " + (ymapfiles[i].filename));
 
                     Ymap removedymap = ymapfiles[i];
                     removedymap.CMapData.entities = removed_entities;
-                    doc = removedymap.WriteXML();
-                    doc.Save(ymapfiles[i].filename.Split('.')[0] + "_removed.ymap.xml");
-                    Console.WriteLine("Exported " + ymapfiles[i].filename.Split('.')[0] + "_removed.ymap.xml");
+
+                    removedymap.WriteXML().Save(ymapfiles[i].filename.Split('.')[0] + "_removed.ymap.xml");
+                    Console.WriteLine("Exported {0}_removed.ymap.xml", ymapfiles[i].filename.Split('.')[0]);
                 }
             }
         }

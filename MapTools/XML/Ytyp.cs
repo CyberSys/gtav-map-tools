@@ -57,6 +57,8 @@ namespace MapTools.XML
         public object dependencies { get; set; } //UNKNOWN
         public object compositeEntityTypes { get; set; } //UNKNOWN
 
+        public IEnumerable<string> textureDictionaries() => archetypes.Select(a => a.textureDictionary).Distinct();
+
         public CMapTypes(string filename)
         {
             extensions = null;
@@ -122,17 +124,6 @@ namespace MapTools.XML
             return removed;
         }
 
-        public List<string> textureDictionaryList()
-        {
-            List<string> txdList = new List<string>();
-            foreach (CBaseArchetypeDef archetype in archetypes)
-            {
-                if (!txdList.Contains(archetype.textureDictionary))
-                    txdList.Add(archetype.textureDictionary);
-            }
-            return txdList;
-        }
-
         public XElement WriteXML()
         {
             //CMapTypes
@@ -152,6 +143,8 @@ namespace MapTools.XML
                 {
                     if (archetype.GetType() == typeof(CTimeArchetypeDef))
                         archetypesNode.Add((archetype as CTimeArchetypeDef).WriteXML());
+                    /*else if(archetype.GetType() == typeof(CMloArchetypeDef))
+                        archetypesNode.Add((archetype as CMloArchetypeDef).WriteXML());*/
                     else
                         archetypesNode.Add(archetype.WriteXML());
                 }

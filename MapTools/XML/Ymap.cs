@@ -272,19 +272,21 @@ namespace MapTools.XML
 
         public void UpdatelodDist(List<CBaseArchetypeDef> archetypes)
         {
-            if (archetypes == null || archetypes.Count < 0)
-                return;
-
-            foreach (CEntityDef ent in entities)
+            if (archetypes != null && archetypes.Count > 0)
             {
-                CBaseArchetypeDef arc = null;
-                IEnumerable<CBaseArchetypeDef> query = (from archetype in archetypes
-                                                        where (archetype.name == ent.archetypeName)
-                                                        select archetype);
-                if (query.Count() > 0)
-                    arc = query.Single();
-                if (arc != null)
-                    ent.lodDist = 100 + (1.5f * arc.bsRadius);
+                foreach (CEntityDef ent in entities)
+                {
+                    CBaseArchetypeDef arc = archetypes.Where(a => a.name == ent.archetypeName).FirstOrDefault();
+                    if (arc != null)
+                        ent.lodDist = 100 + (1.5f * arc.bsRadius);
+                    else
+                        Console.WriteLine("Missing CBaseArchetypeDef: " + ent.archetypeName);
+                }
+            }
+            else
+            {
+                foreach (CEntityDef ent in entities)
+                    Console.WriteLine("Missing CBaseArchetypeDef: " + ent.archetypeName);
             }
         }
 
@@ -343,13 +345,7 @@ namespace MapTools.XML
                 {
                     CBaseArchetypeDef selected = null;
                     if (archetypes != null && archetypes.Count > 0)
-                    {
-                        IEnumerable<CBaseArchetypeDef> query = (from archetype in archetypes
-                                                                where (archetype.name == entity.archetypeName)
-                                                                select archetype);
-                        if (query.Count() > 0)
-                            selected = query.Single();
-                    }
+                        selected = archetypes.Where(a => a.name == entity.archetypeName).FirstOrDefault();
 
                     float lodDist = entity.lodDist;
 
