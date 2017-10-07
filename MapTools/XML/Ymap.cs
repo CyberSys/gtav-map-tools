@@ -67,6 +67,24 @@ namespace MapTools.XML
                             Console.WriteLine("Skipped duplicated GrassInstance Item " + instance.archetypeName);
                     }
                 }
+
+                if ((current.CMapData.DistantLODLightsSOA.position != null && current.CMapData.DistantLODLightsSOA.position.Count > 0) && (current.CMapData.DistantLODLightsSOA.RGBI != null && current.CMapData.DistantLODLightsSOA.RGBI.Count > 0))
+                {
+                    if (current.CMapData.DistantLODLightsSOA.position.Count == current.CMapData.DistantLODLightsSOA.RGBI.Count)
+                    {
+                        for (int i = 0; i < current.CMapData.DistantLODLightsSOA.position.Count ; i++)
+                        {
+                            if (!merged.CMapData.DistantLODLightsSOA.position.Contains(current.CMapData.DistantLODLightsSOA.position[i]))
+                            {
+                                merged.CMapData.DistantLODLightsSOA.position.Add(current.CMapData.DistantLODLightsSOA.position[i]);
+                                merged.CMapData.DistantLODLightsSOA.RGBI.Add(current.CMapData.DistantLODLightsSOA.RGBI[i]);
+                            }
+                            else
+                                Console.WriteLine("Skipped duplicated DistantLODLightsSOA Item " + current.CMapData.DistantLODLightsSOA.position[i].ToString());
+                        }
+                    }
+                    else Console.WriteLine("Skipped DistantLODLightsSOA in {0} (position and RGBI count aren't matching)", current.filename);
+                }
             }
             return merged;
         }
@@ -122,6 +140,9 @@ namespace MapTools.XML
             physicsDictionaries = new HashSet<string>();
             instancedData = new instancedData();
             instancedData.GrassInstanceList = new List<GrassInstance>();
+            DistantLODLightsSOA = new DistantLODLightsSOA();
+            DistantLODLightsSOA.position = new List<Vector3>();
+            DistantLODLightsSOA.RGBI = new List<uint>();
             block = new block(0, 0, "GTADrifting", "Neos7's MapTools" , Environment.UserName);
         }
 
@@ -179,11 +200,9 @@ namespace MapTools.XML
             }
 
             instancedData = new instancedData(node.Element("instancedData"));
-
             //carGenerators
             //LODLightsSOA
-            //DistantLODLightsSOA
-
+            DistantLODLightsSOA = new DistantLODLightsSOA(node.Element("DistantLODLightsSOA"));
             block = new block(node.Element("block"));
         }
 
@@ -313,10 +332,10 @@ namespace MapTools.XML
         public HashSet<string> UpdateExtents(List<CBaseArchetypeDef> archetypes)
         {
             HashSet<string> missing = new HashSet<string>();
-            Vector3 entMin = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
-            Vector3 entMax = new Vector3(float.MinValue, float.MinValue, float.MinValue);
-            Vector3 strMin = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
-            Vector3 strMax = new Vector3(float.MinValue, float.MinValue, float.MinValue);
+            Vector3 entities_entMin = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+            Vector3 entities_entMax = new Vector3(float.MinValue, float.MinValue, float.MinValue);
+            Vector3 entities_strMin = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+            Vector3 entities_strMax = new Vector3(float.MinValue, float.MinValue, float.MinValue);
 
             if (entities != null)
             {
@@ -343,101 +362,117 @@ namespace MapTools.XML
                         Vector3 aabbmin = Vector3.Transform(selected.bbMin, entity.rotation);
                         Vector3 centroid = Vector3.Transform(selected.bsCentre, entity.rotation);
 
-                        entMax.X = Math.Max(entMax.X, entity.position.X + aabbmax.X + centroid.X);
-                        entMax.Y = Math.Max(entMax.Y, entity.position.Y + aabbmax.Y + centroid.Y);
-                        entMax.Z = Math.Max(entMax.Z, entity.position.Z + aabbmax.Z + centroid.Z);
+                        entities_entMax.X = Math.Max(entities_entMax.X, entity.position.X + aabbmax.X + centroid.X);
+                        entities_entMax.Y = Math.Max(entities_entMax.Y, entity.position.Y + aabbmax.Y + centroid.Y);
+                        entities_entMax.Z = Math.Max(entities_entMax.Z, entity.position.Z + aabbmax.Z + centroid.Z);
 
-                        entMin.X = Math.Min(entMin.X, entity.position.X + aabbmin.X + centroid.X);
-                        entMin.Y = Math.Min(entMin.Y, entity.position.Y + aabbmin.Y + centroid.Y);
-                        entMin.Z = Math.Min(entMin.Z, entity.position.Z + aabbmin.Z + centroid.Z);
+                        entities_entMin.X = Math.Min(entities_entMin.X, entity.position.X + aabbmin.X + centroid.X);
+                        entities_entMin.Y = Math.Min(entities_entMin.Y, entity.position.Y + aabbmin.Y + centroid.Y);
+                        entities_entMin.Z = Math.Min(entities_entMin.Z, entity.position.Z + aabbmin.Z + centroid.Z);
 
-                        strMax.X = Math.Max(strMax.X, entity.position.X + aabbmax.X + centroid.X + lodDist);
-                        strMax.Y = Math.Max(strMax.Y, entity.position.Y + aabbmax.Y + centroid.Y + lodDist);
-                        strMax.Z = Math.Max(strMax.Z, entity.position.Z + aabbmax.Z + centroid.Z + lodDist);
+                        entities_strMax.X = Math.Max(entities_strMax.X, entity.position.X + aabbmax.X + centroid.X + lodDist);
+                        entities_strMax.Y = Math.Max(entities_strMax.Y, entity.position.Y + aabbmax.Y + centroid.Y + lodDist);
+                        entities_strMax.Z = Math.Max(entities_strMax.Z, entity.position.Z + aabbmax.Z + centroid.Z + lodDist);
 
-                        strMin.X = Math.Min(strMin.X, entity.position.X + aabbmin.X + centroid.X - lodDist);
-                        strMin.Y = Math.Min(strMin.Y, entity.position.Y + aabbmin.Y + centroid.Y - lodDist);
-                        strMin.Z = Math.Min(strMin.Z, entity.position.Z + aabbmin.Z + centroid.Z - lodDist);
+                        entities_strMin.X = Math.Min(entities_strMin.X, entity.position.X + aabbmin.X + centroid.X - lodDist);
+                        entities_strMin.Y = Math.Min(entities_strMin.Y, entity.position.Y + aabbmin.Y + centroid.Y - lodDist);
+                        entities_strMin.Z = Math.Min(entities_strMin.Z, entity.position.Z + aabbmin.Z + centroid.Z - lodDist);
                     }
                     else
                     {
                         missing.Add(entity.archetypeName);
 
-                        entMax.X = Math.Max(entMax.X, entity.position.X);
-                        entMax.Y = Math.Max(entMax.Y, entity.position.Y);
-                        entMax.Z = Math.Max(entMax.Z, entity.position.Z);
+                        entities_entMax.X = Math.Max(entities_entMax.X, entity.position.X);
+                        entities_entMax.Y = Math.Max(entities_entMax.Y, entity.position.Y);
+                        entities_entMax.Z = Math.Max(entities_entMax.Z, entity.position.Z);
 
-                        entMin.X = Math.Min(entMin.X, entity.position.X);
-                        entMin.Y = Math.Min(entMin.Y, entity.position.Y);
-                        entMin.Z = Math.Min(entMin.Z, entity.position.Z);
+                        entities_entMin.X = Math.Min(entities_entMin.X, entity.position.X);
+                        entities_entMin.Y = Math.Min(entities_entMin.Y, entity.position.Y);
+                        entities_entMin.Z = Math.Min(entities_entMin.Z, entity.position.Z);
 
-                        strMax.X = Math.Max(strMax.X, entity.position.X + lodDist);
-                        strMax.Y = Math.Max(strMax.Y, entity.position.Y + lodDist);
-                        strMax.Z = Math.Max(strMax.Z, entity.position.Z + lodDist);
+                        entities_strMax.X = Math.Max(entities_strMax.X, entity.position.X + lodDist);
+                        entities_strMax.Y = Math.Max(entities_strMax.Y, entity.position.Y + lodDist);
+                        entities_strMax.Z = Math.Max(entities_strMax.Z, entity.position.Z + lodDist);
 
-                        strMin.X = Math.Min(strMin.X, entity.position.X - lodDist);
-                        strMin.Y = Math.Min(strMin.Y, entity.position.Y - lodDist);
-                        strMin.Z = Math.Min(strMin.Z, entity.position.Z - lodDist);
+                        entities_strMin.X = Math.Min(entities_strMin.X, entity.position.X - lodDist);
+                        entities_strMin.Y = Math.Min(entities_strMin.Y, entity.position.Y - lodDist);
+                        entities_strMin.Z = Math.Min(entities_strMin.Z, entity.position.Z - lodDist);
                     }
                 }
             }
+
+            Vector3 grass_entMin = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+            Vector3 grass_entMax = new Vector3(float.MinValue, float.MinValue, float.MinValue);
+            Vector3 grass_strMin = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+            Vector3 grass_strMax = new Vector3(float.MinValue, float.MinValue, float.MinValue);
 
             if (instancedData.GrassInstanceList != null)
             {
                 foreach (GrassInstance item in instancedData.GrassInstanceList)
                 {
+                    grass_entMax.X = Math.Max(grass_entMax.X, item.BatchAABB.max.X);
+                    grass_entMax.Y = Math.Max(grass_entMax.Y, item.BatchAABB.max.Y);
+                    grass_entMax.Z = Math.Max(grass_entMax.Z, item.BatchAABB.max.Z);
 
-                    entMax.X = Math.Max(entMax.X, item.BatchAABB.max.X);
-                    entMax.Y = Math.Max(entMax.Y, item.BatchAABB.max.Y);
-                    entMax.Z = Math.Max(entMax.Z, item.BatchAABB.max.Z);
+                    grass_entMin.X = Math.Min(grass_entMin.X, item.BatchAABB.min.X);
+                    grass_entMin.Y = Math.Min(grass_entMin.Y, item.BatchAABB.min.Y);
+                    grass_entMin.Z = Math.Min(grass_entMin.Z, item.BatchAABB.min.Z);
 
-                    entMin.X = Math.Min(entMin.X, item.BatchAABB.min.X);
-                    entMin.Y = Math.Min(entMin.Y, item.BatchAABB.min.Y);
-                    entMin.Z = Math.Min(entMin.Z, item.BatchAABB.min.Z);
+                    grass_strMax.X = Math.Max(grass_strMax.X, item.BatchAABB.max.X + item.lodDist);
+                    grass_strMax.Y = Math.Max(grass_strMax.Y, item.BatchAABB.max.Y + item.lodDist);
+                    grass_strMax.Z = Math.Max(grass_strMax.Z, item.BatchAABB.max.Z + item.lodDist - 100); // Seams a common thing for GrassInstance-only ymaps
 
-                    strMax.X = Math.Max(strMax.X, item.BatchAABB.max.X + item.lodDist);
-                    strMax.Y = Math.Max(strMax.Y, item.BatchAABB.max.Y + item.lodDist);
-                    strMax.Z = Math.Max(strMax.Z, item.BatchAABB.max.Z + item.lodDist - 100); //IDK WHY
-
-                    strMin.X = Math.Min(strMin.X, item.BatchAABB.min.X - item.lodDist);
-                    strMin.Y = Math.Min(strMin.Y, item.BatchAABB.min.Y - item.lodDist);
-                    strMin.Z = Math.Min(strMin.Z, item.BatchAABB.min.Z - item.lodDist + 100); //IDK WHY
+                    grass_strMin.X = Math.Min(grass_strMin.X, item.BatchAABB.min.X - item.lodDist);
+                    grass_strMin.Y = Math.Min(grass_strMin.Y, item.BatchAABB.min.Y - item.lodDist);
+                    grass_strMin.Z = Math.Min(grass_strMin.Z, item.BatchAABB.min.Z - item.lodDist + 100); // Seams a common thing for GrassInstance-only ymaps
                 }
             }
 
-            streamingExtentsMax = strMax;
-            streamingExtentsMin = strMin;
-            entitiesExtentsMax = entMax;
-            entitiesExtentsMin = entMin;
+            Vector3 distlights_entMin = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+            Vector3 distlights_entMax = new Vector3(float.MinValue, float.MinValue, float.MinValue);
+            Vector3 distlights_strMin = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+            Vector3 distlights_strMax = new Vector3(float.MinValue, float.MinValue, float.MinValue);
+
+            if (DistantLODLightsSOA.position != null)
+            {
+                foreach (Vector3 item in DistantLODLightsSOA.position)
+                {
+                    distlights_entMax.X = Math.Max(distlights_entMax.X, item.X);
+                    distlights_entMax.Y = Math.Max(distlights_entMax.Y, item.Y);
+                    distlights_entMax.Z = Math.Max(distlights_entMax.Z, item.Z);
+
+                    distlights_entMin.X = Math.Min(distlights_entMin.X, item.X);
+                    distlights_entMin.Y = Math.Min(distlights_entMin.Y, item.Y);
+                    distlights_entMin.Z = Math.Min(distlights_entMin.Z, item.Z);
+                }
+                distlights_strMax.X = distlights_entMax.X + 3000; // Seams a common thing for DistantLODLightsSOA-only ymaps
+                distlights_strMax.Y = distlights_entMax.Y + 3000; // Seams a common thing for DistantLODLightsSOA-only ymaps
+                distlights_strMax.Z = distlights_entMax.Z + 3000; // Seams a common thing for DistantLODLightsSOA-only ymaps
+                distlights_strMin.X = distlights_entMin.X - 3000; // Seams a common thing for DistantLODLightsSOA-only ymaps
+                distlights_strMin.Y = distlights_entMin.Y - 3000; // Seams a common thing for DistantLODLightsSOA-only ymaps
+                distlights_strMin.Z = distlights_entMin.Z - 3000; // Seams a common thing for DistantLODLightsSOA-only ymaps
+            }
+
+            streamingExtentsMax = new Vector3(
+                Math.Max(Math.Max(entities_strMax.X, grass_strMax.X), distlights_strMax.X),
+                Math.Max(Math.Max(entities_strMax.Y, grass_strMax.Y), distlights_strMax.Y),
+                Math.Max(Math.Max(entities_strMax.Z, grass_strMax.Z), distlights_strMax.Z));
+            streamingExtentsMin = new Vector3(
+                Math.Min(Math.Min(entities_strMin.X, grass_strMin.X), distlights_strMin.X),
+                Math.Min(Math.Min(entities_strMin.Y, grass_strMin.Y), distlights_strMin.Y),
+                Math.Min(Math.Min(entities_strMin.Z, grass_strMin.Z), distlights_strMin.Z));
+            entitiesExtentsMax = new Vector3(
+                Math.Max(Math.Max(entities_entMax.X, grass_entMax.X), distlights_entMax.X),
+                Math.Max(Math.Max(entities_entMax.Y, grass_entMax.Y), distlights_entMax.Y),
+                Math.Max(Math.Max(entities_entMax.Z, grass_entMax.Z), distlights_entMax.Z));
+            entitiesExtentsMin = new Vector3(
+                Math.Min(Math.Min(entities_entMin.X, grass_entMin.X), distlights_entMin.X),
+                Math.Min(Math.Min(entities_entMin.Y, grass_entMin.Y), distlights_entMin.Y),
+                Math.Min(Math.Min(entities_entMin.Z, grass_entMin.Z), distlights_entMin.Z));
             return missing;
         }
 
-        /* NEW VERSION WIP
-        public HashSet<string> UpdateExtents_NEW(Dictionary<string, CBaseArchetypeDef> archetypes)
-        {
-            HashSet<string> missing = new HashSet<string>();
-            Vector3 entMin = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
-            Vector3 entMax = new Vector3(float.MinValue, float.MinValue, float.MinValue);
-            Vector3 strMin = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
-            Vector3 strMax = new Vector3(float.MinValue, float.MinValue, float.MinValue);
-
-            if (entities != null)
-            {
-                foreach (CEntityDef entity in entities)
-                {
-
-                    CBaseArchetypeDef selected = null;
-                    if (archetypes != null && archetypes.Count > 0)
-                        archetypes.TryGetValue(entity.archetypeName, out selected);
-
-                    float lodDist = entity.lodDist;
-
-                    if (selected != null)
-                    {
-                        if (entity.lodDist <= 0.0f)
-                            lodDist = selected.lodDist;
-
-                        Vector3 aabbmax = selected.bbMax;
+                      /*Vector3 aabbmax = selected.bbMax;
                         Vector3 aabbmin = selected.bbMin;
                         Vector3 centroid = selected.bsCentre;
 
@@ -481,60 +516,7 @@ namespace MapTools.XML
                             strMin.X = Math.Max(strMin.X, Vector3.Transform(strBox[i], entity.rotation).X);
                             strMin.Y = Math.Max(strMin.Y, Vector3.Transform(strBox[i], entity.rotation).Y);
                             strMin.Z = Math.Max(strMin.Z, Vector3.Transform(strBox[i], entity.rotation).Z);
-                        }
-                    }
-                    else
-                    {
-                        missing.Add(entity.archetypeName);
-
-                        entMax.X = Math.Max(entMax.X, entity.position.X);
-                        entMax.Y = Math.Max(entMax.Y, entity.position.Y);
-                        entMax.Z = Math.Max(entMax.Z, entity.position.Z);
-
-                        entMin.X = Math.Min(entMin.X, entity.position.X);
-                        entMin.Y = Math.Min(entMin.Y, entity.position.Y);
-                        entMin.Z = Math.Min(entMin.Z, entity.position.Z);
-
-                        strMax.X = Math.Max(strMax.X, entity.position.X + lodDist);
-                        strMax.Y = Math.Max(strMax.Y, entity.position.Y + lodDist);
-                        strMax.Z = Math.Max(strMax.Z, entity.position.Z + lodDist);
-
-                        strMin.X = Math.Min(strMin.X, entity.position.X - lodDist);
-                        strMin.Y = Math.Min(strMin.Y, entity.position.Y - lodDist);
-                        strMin.Z = Math.Min(strMin.Z, entity.position.Z - lodDist);
-                    }
-                }
-            }
-
-            if (instancedData.GrassInstanceList != null)
-            {
-                foreach (GrassInstance item in instancedData.GrassInstanceList)
-                {
-
-                    entMax.X = Math.Max(entMax.X, item.BatchAABB.max.X);
-                    entMax.Y = Math.Max(entMax.Y, item.BatchAABB.max.Y);
-                    entMax.Z = Math.Max(entMax.Z, item.BatchAABB.max.Z);
-
-                    entMin.X = Math.Min(entMin.X, item.BatchAABB.min.X);
-                    entMin.Y = Math.Min(entMin.Y, item.BatchAABB.min.Y);
-                    entMin.Z = Math.Min(entMin.Z, item.BatchAABB.min.Z);
-
-                    strMax.X = Math.Max(strMax.X, item.BatchAABB.max.X + item.lodDist);
-                    strMax.Y = Math.Max(strMax.Y, item.BatchAABB.max.Y + item.lodDist);
-                    strMax.Z = Math.Max(strMax.Z, item.BatchAABB.max.Z + item.lodDist - 100); //IDK WHY
-
-                    strMin.X = Math.Min(strMin.X, item.BatchAABB.min.X - item.lodDist);
-                    strMin.Y = Math.Min(strMin.Y, item.BatchAABB.min.Y - item.lodDist);
-                    strMin.Z = Math.Min(strMin.Z, item.BatchAABB.min.Z - item.lodDist + 100); //IDK WHY
-                }
-            }
-
-            streamingExtentsMax = strMax;
-            streamingExtentsMin = strMin;
-            entitiesExtentsMax = entMax;
-            entitiesExtentsMin = entMin;
-            return missing;
-        }*/
+                         }*/
 
         public List<CEntityDef> RemoveEntitiesByNames(List<string> removelist)
         {
@@ -647,19 +629,59 @@ namespace MapTools.XML
 
     public struct DistantLODLightsSOA
     {
-        public object position { get; set; } //Vector3??
-        public uint[] RGBI { get; set; }
+        public List<Vector3> position { get; set; }
+        public List<uint> RGBI { get; set; }
         public ushort numStreetLights { get; set; }
         public ushort category { get; set; }
+
+        //public bool IsFixed => (position.Count == RGBI.Count);
+
+        public DistantLODLightsSOA(XElement node)
+        {
+            position = new List<Vector3>();
+            foreach (XElement item in node.Element("position").Elements())
+                position.Add(new Vector3(float.Parse(item.Element("x").Attribute("value").Value), float.Parse(item.Element("y").Attribute("value").Value), float.Parse(item.Element("z").Attribute("value").Value)));
+
+            RGBI = new List<uint>();
+            foreach (string color in node.Element("RGBI").Value.Split('\n'))
+            {
+                string check = color.Trim();
+                if(check != string.Empty)
+                    RGBI.Add(uint.Parse(check));
+            }
+
+            numStreetLights = ushort.Parse(node.Element("numStreetLights").Attribute("value").Value); ;
+            category = ushort.Parse(node.Element("category").Attribute("value").Value); ;
+        }
 
         public XElement WriteXML()
         {
             //DistantLODLightsSOA
             XElement DistantLODLightsSOANode = new XElement("DistantLODLightsSOA");
-            DistantLODLightsSOANode.Add(new XElement("position"));
-            DistantLODLightsSOANode.Add(new XElement("RGBI"));
-            DistantLODLightsSOANode.Add(new XElement("numStreetLights", new XAttribute("value", 0)));
-            DistantLODLightsSOANode.Add(new XElement("category", new XAttribute("value", 0)));
+            XElement positionNode = new XElement("position");
+
+            foreach(Vector3 item in position)
+            {
+                positionNode.Add(new XElement("Item",
+                    new XElement("x", new XAttribute("value", item.X.ToString())),
+                    new XElement("y", new XAttribute("value", item.Y.ToString())),
+                    new XElement("z", new XAttribute("value", item.Z.ToString()))
+                    ));
+            }
+            DistantLODLightsSOANode.Add(positionNode);
+            XElement RGBINode = new XElement("RGBI", new XAttribute("content", "int_array"));
+
+            string RGBIvalue = string.Empty;
+            foreach(uint color in RGBI)
+            {
+                RGBIvalue += Environment.NewLine + (new string(' ', 6)) + color.ToString();
+            }
+            RGBIvalue += Environment.NewLine + (new string(' ', 4));
+
+            RGBINode.Value = RGBIvalue;
+            DistantLODLightsSOANode.Add(RGBINode);
+            DistantLODLightsSOANode.Add(new XElement("numStreetLights", new XAttribute("value", numStreetLights.ToString())));
+            DistantLODLightsSOANode.Add(new XElement("category", new XAttribute("value", category.ToString())));
             return DistantLODLightsSOANode;
         }
     }
