@@ -441,7 +441,6 @@ namespace MapTools.XML
 
                     byte[] rgbibytes = BitConverter.GetBytes(DistantLODLightsSOA.RGBI[i]);
                     float intensity = (rgbibytes[3] * 32.0f / 255); // I am not sure if this is correct
-                    Console.WriteLine(intensity.ToString());
 
                     distantlights_entMax.X = Math.Max(distantlights_entMax.X, DistantLODLightsSOA.position[i].X + intensity);
                     distantlights_entMax.Y = Math.Max(distantlights_entMax.Y, DistantLODLightsSOA.position[i].Y + intensity);
