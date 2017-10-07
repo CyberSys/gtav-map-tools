@@ -428,52 +428,54 @@ namespace MapTools.XML
                 }
             }
 
-            Vector3 distlights_entMin = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
-            Vector3 distlights_entMax = new Vector3(float.MinValue, float.MinValue, float.MinValue);
-            Vector3 distlights_strMin = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
-            Vector3 distlights_strMax = new Vector3(float.MinValue, float.MinValue, float.MinValue);
+            Vector3 distantlights_entMin = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+            Vector3 distantlights_entMax = new Vector3(float.MinValue, float.MinValue, float.MinValue);
+            Vector3 distantlights_strMin = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+            Vector3 distantlights_strMax = new Vector3(float.MinValue, float.MinValue, float.MinValue);
 
             if (DistantLODLightsSOA.position != null)
             {
-                for(int i=0; i< DistantLODLightsSOA.position.Count; i++)
+                for (int i = 0; i < DistantLODLightsSOA.position.Count; i++)
                 {
+                    //This probably also requires direction data which is stored in _lodlights.ymap whose extents are the same of their linked _distantlights.ymap
+
                     byte[] rgbibytes = BitConverter.GetBytes(DistantLODLightsSOA.RGBI[i]);
                     float intensity = (rgbibytes[3] * 32.0f / 255); // I am not sure if this is correct
                     Console.WriteLine(intensity.ToString());
 
-                    distlights_entMax.X = Math.Max(distlights_entMax.X, DistantLODLightsSOA.position[i].X + intensity);
-                    distlights_entMax.Y = Math.Max(distlights_entMax.Y, DistantLODLightsSOA.position[i].Y + intensity);
-                    distlights_entMax.Z = Math.Max(distlights_entMax.Z, DistantLODLightsSOA.position[i].Z + intensity);
+                    distantlights_entMax.X = Math.Max(distantlights_entMax.X, DistantLODLightsSOA.position[i].X + intensity);
+                    distantlights_entMax.Y = Math.Max(distantlights_entMax.Y, DistantLODLightsSOA.position[i].Y + intensity);
+                    distantlights_entMax.Z = Math.Max(distantlights_entMax.Z, DistantLODLightsSOA.position[i].Z + intensity);
 
-                    distlights_entMin.X = Math.Min(distlights_entMin.X, DistantLODLightsSOA.position[i].X - intensity);
-                    distlights_entMin.Y = Math.Min(distlights_entMin.Y, DistantLODLightsSOA.position[i].Y - intensity);
-                    distlights_entMin.Z = Math.Min(distlights_entMin.Z, DistantLODLightsSOA.position[i].Z - intensity);
+                    distantlights_entMin.X = Math.Min(distantlights_entMin.X, DistantLODLightsSOA.position[i].X - intensity);
+                    distantlights_entMin.Y = Math.Min(distantlights_entMin.Y, DistantLODLightsSOA.position[i].Y - intensity);
+                    distantlights_entMin.Z = Math.Min(distantlights_entMin.Z, DistantLODLightsSOA.position[i].Z - intensity);
 
-                    distlights_strMax.X = Math.Max(distlights_strMax.X, DistantLODLightsSOA.position[i].X + 3000); // Seams a common thing for DistantLODLightsSOA-only ymaps
-                    distlights_strMax.Y = Math.Max(distlights_strMax.Y, DistantLODLightsSOA.position[i].Y + 3000); // Seams a common thing for DistantLODLightsSOA-only ymaps
-                    distlights_strMax.Z = Math.Max(distlights_strMax.Z, DistantLODLightsSOA.position[i].Z + 3000); // Seams a common thing for DistantLODLightsSOA-only ymaps
-                    distlights_strMin.X = Math.Min(distlights_strMin.X, DistantLODLightsSOA.position[i].X - 3000); // Seams a common thing for DistantLODLightsSOA-only ymaps
-                    distlights_strMin.Y = Math.Min(distlights_strMin.Y, DistantLODLightsSOA.position[i].Y - 3000); // Seams a common thing for DistantLODLightsSOA-only ymaps
-                    distlights_strMin.Z = Math.Min(distlights_strMin.Z, DistantLODLightsSOA.position[i].Z - 3000); // Seams a common thing for DistantLODLightsSOA-only ymaps
+                    distantlights_strMax.X = Math.Max(distantlights_strMax.X, DistantLODLightsSOA.position[i].X + 3000); // Seams a common thing for DistantLODLightsSOA-only ymaps
+                    distantlights_strMax.Y = Math.Max(distantlights_strMax.Y, DistantLODLightsSOA.position[i].Y + 3000); // Seams a common thing for DistantLODLightsSOA-only ymaps
+                    distantlights_strMax.Z = Math.Max(distantlights_strMax.Z, DistantLODLightsSOA.position[i].Z + 3000); // Seams a common thing for DistantLODLightsSOA-only ymaps
+                    distantlights_strMin.X = Math.Min(distantlights_strMin.X, DistantLODLightsSOA.position[i].X - 3000); // Seams a common thing for DistantLODLightsSOA-only ymaps
+                    distantlights_strMin.Y = Math.Min(distantlights_strMin.Y, DistantLODLightsSOA.position[i].Y - 3000); // Seams a common thing for DistantLODLightsSOA-only ymaps
+                    distantlights_strMin.Z = Math.Min(distantlights_strMin.Z, DistantLODLightsSOA.position[i].Z - 3000); // Seams a common thing for DistantLODLightsSOA-only ymaps
                 }
             }
 
             streamingExtentsMax = new Vector3(
-                Math.Max(Math.Max(entities_strMax.X, grass_strMax.X), distlights_strMax.X),
-                Math.Max(Math.Max(entities_strMax.Y, grass_strMax.Y), distlights_strMax.Y),
-                Math.Max(Math.Max(entities_strMax.Z, grass_strMax.Z), distlights_strMax.Z));
+                Math.Max(Math.Max(entities_strMax.X, grass_strMax.X), distantlights_strMax.X),
+                Math.Max(Math.Max(entities_strMax.Y, grass_strMax.Y), distantlights_strMax.Y),
+                Math.Max(Math.Max(entities_strMax.Z, grass_strMax.Z), distantlights_strMax.Z));
             streamingExtentsMin = new Vector3(
-                Math.Min(Math.Min(entities_strMin.X, grass_strMin.X), distlights_strMin.X),
-                Math.Min(Math.Min(entities_strMin.Y, grass_strMin.Y), distlights_strMin.Y),
-                Math.Min(Math.Min(entities_strMin.Z, grass_strMin.Z), distlights_strMin.Z));
+                Math.Min(Math.Min(entities_strMin.X, grass_strMin.X), distantlights_strMin.X),
+                Math.Min(Math.Min(entities_strMin.Y, grass_strMin.Y), distantlights_strMin.Y),
+                Math.Min(Math.Min(entities_strMin.Z, grass_strMin.Z), distantlights_strMin.Z));
             entitiesExtentsMax = new Vector3(
-                Math.Max(Math.Max(entities_entMax.X, grass_entMax.X), distlights_entMax.X),
-                Math.Max(Math.Max(entities_entMax.Y, grass_entMax.Y), distlights_entMax.Y),
-                Math.Max(Math.Max(entities_entMax.Z, grass_entMax.Z), distlights_entMax.Z));
+                Math.Max(Math.Max(entities_entMax.X, grass_entMax.X), distantlights_entMax.X),
+                Math.Max(Math.Max(entities_entMax.Y, grass_entMax.Y), distantlights_entMax.Y),
+                Math.Max(Math.Max(entities_entMax.Z, grass_entMax.Z), distantlights_entMax.Z));
             entitiesExtentsMin = new Vector3(
-                Math.Min(Math.Min(entities_entMin.X, grass_entMin.X), distlights_entMin.X),
-                Math.Min(Math.Min(entities_entMin.Y, grass_entMin.Y), distlights_entMin.Y),
-                Math.Min(Math.Min(entities_entMin.Z, grass_entMin.Z), distlights_entMin.Z));
+                Math.Min(Math.Min(entities_entMin.X, grass_entMin.X), distantlights_entMin.X),
+                Math.Min(Math.Min(entities_entMin.Y, grass_entMin.Y), distantlights_entMin.Y),
+                Math.Min(Math.Min(entities_entMin.Z, grass_entMin.Z), distantlights_entMin.Z));
             return missing;
         }
 
