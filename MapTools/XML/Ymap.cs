@@ -105,11 +105,11 @@ namespace MapTools.XML
         public object boxOccluders { get; set; }
         public object occludeModels { get; set; }
         public HashSet<string> physicsDictionaries { get; set; }
-        public instancedData instancedData;
-        public List<carGenerator> carGenerators { get; set; }
-        public LODLightsSOA LODLightsSOA;
-        public DistantLODLightsSOA DistantLODLightsSOA;
-        public block block;
+        public InstancedMapData instancedData;
+        public List<CCarGen> carGenerators { get; set; }
+        public CLODLight LODLightsSOA;
+        public CDistantLODLight DistantLODLightsSOA;
+        public block block { get; set; }
 
         public CMapData(CMapData map)
         {
@@ -138,9 +138,9 @@ namespace MapTools.XML
             name = filename;
             entities = new List<CEntityDef>();
             physicsDictionaries = new HashSet<string>();
-            instancedData = new instancedData();
+            instancedData = new InstancedMapData();
             instancedData.GrassInstanceList = new List<GrassInstance>();
-            DistantLODLightsSOA = new DistantLODLightsSOA();
+            DistantLODLightsSOA = new CDistantLODLight();
             DistantLODLightsSOA.position = new List<Vector3>();
             DistantLODLightsSOA.RGBI = new List<uint>();
             block = new block(0, 0, "GTADrifting", "Neos7's MapTools" , Environment.UserName);
@@ -199,10 +199,10 @@ namespace MapTools.XML
                 }
             }
 
-            instancedData = new instancedData(node.Element("instancedData"));
+            instancedData = new InstancedMapData(node.Element("instancedData"));
             //carGenerators
-            //LODLightsSOA
-            DistantLODLightsSOA = new DistantLODLightsSOA(node.Element("DistantLODLightsSOA"));
+            LODLightsSOA = new CLODLight(node.Element("LODLightsSOA"));
+            DistantLODLightsSOA = new CDistantLODLight(node.Element("DistantLODLightsSOA"));
             block = new block(node.Element("block"));
         }
 
@@ -263,6 +263,7 @@ namespace MapTools.XML
             CMapDataNode.Add(instancedData.WriteXML());
             CMapDataNode.Add(new XElement("timeCycleModifiers"));
             CMapDataNode.Add(new XElement("carGenerators"));
+
             CMapDataNode.Add(LODLightsSOA.WriteXML());
             CMapDataNode.Add(DistantLODLightsSOA.WriteXML());
             CMapDataNode.Add(block.WriteXML());
@@ -630,16 +631,14 @@ namespace MapTools.XML
         }
     }
 
-    public struct DistantLODLightsSOA
+    public struct CDistantLODLight
     {
         public List<Vector3> position { get; set; }
         public List<uint> RGBI { get; set; }
         public ushort numStreetLights { get; set; }
         public ushort category { get; set; }
 
-        //public bool IsFixed => (position.Count == RGBI.Count);
-
-        public DistantLODLightsSOA(XElement node)
+        public CDistantLODLight(XElement node)
         {
             position = new List<Vector3>();
             foreach (XElement item in node.Element("position").Elements())
@@ -653,8 +652,8 @@ namespace MapTools.XML
                     RGBI.Add(uint.Parse(check));
             }
 
-            numStreetLights = ushort.Parse(node.Element("numStreetLights").Attribute("value").Value); ;
-            category = ushort.Parse(node.Element("category").Attribute("value").Value); ;
+            numStreetLights = ushort.Parse(node.Element("numStreetLights").Attribute("value").Value);
+            category = ushort.Parse(node.Element("category").Attribute("value").Value);
         }
 
         public XElement WriteXML()
@@ -664,24 +663,25 @@ namespace MapTools.XML
             XElement positionNode = new XElement("position");
 
             foreach(Vector3 item in position)
-            {
                 positionNode.Add(new XElement("Item",
                     new XElement("x", new XAttribute("value", item.X.ToString())),
                     new XElement("y", new XAttribute("value", item.Y.ToString())),
                     new XElement("z", new XAttribute("value", item.Z.ToString()))
                     ));
-            }
             DistantLODLightsSOANode.Add(positionNode);
-            XElement RGBINode = new XElement("RGBI", new XAttribute("content", "int_array"));
+            XElement RGBINode = new XElement("RGBI");
 
-            string RGBIvalue = string.Empty;
-            foreach(uint color in RGBI)
+            if (RGBI?.Any() ?? false)
             {
-                RGBIvalue += Environment.NewLine + (new string(' ', 6)) + color.ToString();
-            }
-            RGBIvalue += Environment.NewLine + (new string(' ', 4));
+                RGBINode.Add(new XAttribute("content", "int_array"));
 
-            RGBINode.Value = RGBIvalue;
+                string RGBIvalue = string.Empty;
+                foreach (uint color in RGBI)
+                    RGBIvalue += Environment.NewLine + (new string(' ', 6)) + color.ToString();
+                RGBIvalue += Environment.NewLine + (new string(' ', 4));
+
+                RGBINode.Value = RGBIvalue;
+            }  
             DistantLODLightsSOANode.Add(RGBINode);
             DistantLODLightsSOANode.Add(new XElement("numStreetLights", new XAttribute("value", numStreetLights.ToString())));
             DistantLODLightsSOANode.Add(new XElement("category", new XAttribute("value", category.ToString())));
@@ -689,20 +689,82 @@ namespace MapTools.XML
         }
     }
 
-    public struct LODLightsSOA
+    public struct CLODLight
     {
-        public object direction { get; set; } //Vector3???
-        public float falloff { get; set; }
-        public float falloffExponent { get; set; }
-        public uint timeAndStateFlags { get; set; }
-        public uint[] hash { get; set; }
-        public float coneInnerAngle { get; set; }
-        public byte[] coneOuterAngleOrCapExt { get; set; }
-        public byte[] coronaIntensity { get; set; }
+        public List<Vector3> direction { get; set; }
+        public List<float> falloff { get; set; }
+        public List<float> falloffExponent { get; set; }
+        public List<uint> timeAndStateFlags { get; set; }
+        public List<uint> hash { get; set; }
+        public List<byte> coneInnerAngle { get; set; }
+        public List<byte> coneOuterAngleOrCapExt { get; set; }
+        public List<byte> coronaIntensity { get; set; }
+
+        public CLODLight(XElement node)
+        {
+            direction = new List<Vector3>();
+            foreach (XElement item in node.Element("direction").Elements())
+                direction.Add(new Vector3(float.Parse(item.Element("x").Attribute("value").Value), float.Parse(item.Element("y").Attribute("value").Value), float.Parse(item.Element("z").Attribute("value").Value)));
+
+            falloff = new List<float>();
+            foreach (string item in node.Element("falloff").Value.Split('\n'))
+            {
+                string check = item.Trim();
+                if (check != string.Empty)
+                    falloff.Add(float.Parse(check));
+            }
+
+            falloffExponent = new List<float>();
+            foreach (string item in node.Element("falloffExponent").Value.Split('\n'))
+            {
+                string check = item.Trim();
+                if (check != string.Empty)
+                    falloffExponent.Add(float.Parse(check));
+            }
+
+            timeAndStateFlags = new List<uint>();
+            foreach (string item in node.Element("timeAndStateFlags").Value.Split('\n'))
+            {
+                string check = item.Trim();
+                if (check != string.Empty)
+                    timeAndStateFlags.Add(uint.Parse(check));
+            }
+
+            hash = new List<uint>();
+            foreach (string item in node.Element("hash").Value.Split('\n'))
+            {
+                string check = item.Trim();
+                if (check != string.Empty)
+                    hash.Add(uint.Parse(check));
+            }
+
+            coneInnerAngle = new List<byte>();
+            foreach (string item in node.Element("coneInnerAngle").Value.Split('\n'))
+            {
+                string check = item.Trim();
+                if (check != string.Empty)
+                    coneInnerAngle.Add(byte.Parse(check));
+            }
+
+            coneOuterAngleOrCapExt = new List<byte>();
+            foreach (string item in node.Element("coneOuterAngleOrCapExt").Value.Split('\n'))
+            {
+                string check = item.Trim();
+                if (check != string.Empty)
+                    coneOuterAngleOrCapExt.Add(byte.Parse(check));
+            }
+
+            coronaIntensity = new List<byte>();
+            foreach (string item in node.Element("coronaIntensity").Value.Split('\n'))
+            {
+                string check = item.Trim();
+                if (check != string.Empty)
+                    coronaIntensity.Add(byte.Parse(check));
+            }
+        }
 
         public XElement WriteXML()
         {
-            //LODLightsSOA
             XElement LODLightsSOANode = new XElement("LODLightsSOA");
             LODLightsSOANode.Add(new XElement("direction"));
             LODLightsSOANode.Add(new XElement("falloff"));
@@ -713,17 +775,74 @@ namespace MapTools.XML
             LODLightsSOANode.Add(new XElement("coneOuterAngleOrCapExt"));
             LODLightsSOANode.Add(new XElement("coronaIntensity"));
 
+            if (direction?.Any() ?? false)
+            {
+                foreach (Vector3 dir in direction)
+                    LODLightsSOANode.Element("direction").Add(new XElement("Item",
+                        new XElement("x", new XAttribute("value", dir.X)),
+                        new XElement("y", new XAttribute("value", dir.Y)),
+                        new XElement("z", new XAttribute("value", dir.Z))));
+            }
+            if (falloff?.Any() ?? false)
+            {
+                LODLightsSOANode.Element("falloff").Add(new XAttribute("content", "float_array"));
+                foreach(float item in falloff)
+                    LODLightsSOANode.Element("falloff").Value += Environment.NewLine + (new string(' ', 6) + item.ToString());
+                LODLightsSOANode.Element("falloff").Value += Environment.NewLine + (new string(' ', 4));
+            }
+            if (falloffExponent?.Any() ?? false)
+            {
+                LODLightsSOANode.Element("falloffExponent").Add(new XAttribute("content", "float_array"));
+                foreach (float item in falloffExponent)
+                    LODLightsSOANode.Element("falloffExponent").Value += Environment.NewLine + (new string(' ', 6) + item.ToString());
+                LODLightsSOANode.Element("falloffExponent").Value += Environment.NewLine + (new string(' ', 4));
+            }
+            if (timeAndStateFlags?.Any() ?? false)
+            {
+                LODLightsSOANode.Element("timeAndStateFlags").Add(new XAttribute("content", "int_array"));
+                foreach (uint item in timeAndStateFlags)
+                    LODLightsSOANode.Element("timeAndStateFlags").Value += Environment.NewLine + (new string(' ', 6) + item.ToString());
+                LODLightsSOANode.Element("timeAndStateFlags").Value += Environment.NewLine + (new string(' ', 4));
+            }
+            if (hash?.Any() ?? false)
+            {
+                LODLightsSOANode.Element("hash").Add(new XAttribute("content", "int_array"));
+                foreach (uint item in hash)
+                    LODLightsSOANode.Element("hash").Value += Environment.NewLine + (new string(' ', 6) + item.ToString());
+                LODLightsSOANode.Element("hash").Value += Environment.NewLine + (new string(' ', 4));
+            }
+            if (coneInnerAngle?.Any() ?? false)
+            {
+                LODLightsSOANode.Element("coneInnerAngle").Add(new XAttribute("content", "char_array"));
+                foreach (byte item in coneInnerAngle)
+                    LODLightsSOANode.Element("coneInnerAngle").Value += Environment.NewLine + (new string(' ', 6) + item.ToString());
+                LODLightsSOANode.Element("coneInnerAngle").Value += Environment.NewLine + (new string(' ', 4));
+            }
+            if (coneOuterAngleOrCapExt?.Any() ?? false)
+            {
+                LODLightsSOANode.Element("coneOuterAngleOrCapExt").Add(new XAttribute("content", "char_array"));
+                foreach (byte item in coneOuterAngleOrCapExt)
+                    LODLightsSOANode.Element("coneOuterAngleOrCapExt").Value += Environment.NewLine + (new string(' ', 6) + item.ToString());
+                LODLightsSOANode.Element("coneOuterAngleOrCapExt").Value += Environment.NewLine + (new string(' ', 4));
+            }
+            if (coronaIntensity?.Any() ?? false)
+            {
+                LODLightsSOANode.Element("coronaIntensity").Add(new XAttribute("content", "char_array"));
+                foreach (byte item in coronaIntensity)
+                    LODLightsSOANode.Element("coronaIntensity").Value += Environment.NewLine + (new string(' ', 6) + item.ToString());
+                LODLightsSOANode.Element("coronaIntensity").Value += Environment.NewLine + (new string(' ', 4));
+            }
             return LODLightsSOANode;
         }
     }
 
-    public struct instancedData
+    public struct InstancedMapData
     {
         public object ImapLink { get; set; } //Is this even used by the game?
         public object PropInstanceList { get; set; } //Is this even used by the game?
         public List<GrassInstance> GrassInstanceList { get; set; }
 
-        public instancedData(XElement node)
+        public InstancedMapData(XElement node)
         {
             ImapLink = null;
             PropInstanceList = null;
@@ -895,7 +1014,7 @@ namespace MapTools.XML
         }
     }
 
-    public struct carGenerator
+    public struct CCarGen
     {
         public Vector3 position { get; set; }
         public float orientX { get; set; }

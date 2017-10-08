@@ -35,17 +35,17 @@ namespace MapTools
                 DirectoryInfo dir = new DirectoryInfo(Directory.GetCurrentDirectory());
                 Ymap[] ymapfiles = CollectYmaps(dir);
                 Ytyp[] ytypfiles = CollectYtps(dir);
-                
+
                 switch (args[0])
                 {
                     case "merge":
-                        Merge(ytypfiles,ymapfiles);
+                        Merge(ytypfiles, ymapfiles);
                         break;
                     case "extents":
-                        Extents(ytypfiles,ymapfiles);
+                        Extents(ytypfiles, ymapfiles);
                         break;
                     case "reset":
-                        Reset(ytypfiles,ymapfiles);
+                        Reset(ytypfiles, ymapfiles);
                         break;
                     case "move":
                         Move(ymapfiles);
@@ -57,7 +57,7 @@ namespace MapTools
                         RandomGuid(dir);
                         break;
                     case "missingytd":
-                        MissingYtd(ytypfiles,dir);
+                        MissingYtd(ytypfiles, dir);
                         break;
                     case "grid":
                         Grid(ymapfiles);
@@ -66,7 +66,7 @@ namespace MapTools
                         DeleteOverlappingEntities(ymapfiles);
                         break;
                     case "listsplit":
-                        RemoveFromList(ytypfiles,ymapfiles);
+                        RemoveFromList(ytypfiles, ymapfiles);
                         break;
                     case "test":
                         Dictionary<string, List<byte[]>> colours = CollectGrassInstanceColours(ymapfiles);
