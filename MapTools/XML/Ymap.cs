@@ -559,20 +559,28 @@ namespace MapTools.XML
                     float minY= y * block_size;
 
                     if (entities?.Any() ?? false)
-                        current.entities = entities.Where(entity =>
-                        entity.position.X < maxX
-                        && entity.position.X >= minX
-                        && entity.position.Y < maxY
-                        && entity.position.Y >= minY).ToList();
+                        current.entities = entities.Where(entity => entity.position.X < maxX && entity.position.X >= minX && entity.position.Y < maxY && entity.position.Y >= minY).ToList();
 
                     if (instancedData.GrassInstanceList?.Any() ?? false)
                         current.instancedData.GrassInstanceList = instancedData.GrassInstanceList.Where(batch =>
-                        (((batch.BatchAABB.max) + (batch.BatchAABB.min)) / 2).X < maxX
-                        && (((batch.BatchAABB.max) + (batch.BatchAABB.min)) / 2).X >= minX
-                        && (((batch.BatchAABB.max) + (batch.BatchAABB.min)) / 2).Y < maxY
-                        && (((batch.BatchAABB.max) + (batch.BatchAABB.min)) / 2).Y >= minY).ToList();
+                        ((batch.BatchAABB.max + batch.BatchAABB.min) / 2).X < maxX && 
+                        ((batch.BatchAABB.max + batch.BatchAABB.min) / 2).X >= minX && 
+                        ((batch.BatchAABB.max + batch.BatchAABB.min) / 2).Y < maxY && 
+                        ((batch.BatchAABB.max + batch.BatchAABB.min) / 2).Y >= minY).ToList();
 
-                    if (current.entities.Any() || current.instancedData.GrassInstanceList.Any())
+                    if(DistantLODLightsSOA.position?.Any() ?? false)
+                    {
+                        current.DistantLODLightsSOA.position = DistantLODLightsSOA.position.Where(item => item.X < maxX && item.X >= minX && item.Y < maxY && item.Y >= minY).ToList();
+                        
+                        //current.DistantLODLightsSOA.RGBI = DistantLODLightsSOA.RGBI.Where(color => current.DistantLODLightsSOA.position.Contains(DistantLODLightsSOA.position[DistantLODLightsSOA.RGBI.IndexOf(color)])).ToList();
+                        current.DistantLODLightsSOA.RGBI = new List<uint>();
+                        foreach (Vector3 item in current.DistantLODLightsSOA.position)
+                        {
+                            current.DistantLODLightsSOA.RGBI.Add(DistantLODLightsSOA.RGBI[DistantLODLightsSOA.position.IndexOf(item)]);
+                        }
+                    }
+
+                    if (current.entities.Any() || current.instancedData.GrassInstanceList.Any() || current.DistantLODLightsSOA.position.Any())
                         grid.Add(current);
                 }
             }
