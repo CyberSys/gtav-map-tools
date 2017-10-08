@@ -113,8 +113,7 @@ namespace MapTools
                 for (int i = 0; i < ymapfiles.Length; i++)
                 {
                     ymapfiles[i].CMapData.MoveEntities(offset);
-                    XDocument ymapDoc = ymapfiles[i].WriteXML();
-                    ymapDoc.Save(ymapfiles[i].filename);
+                    ymapfiles[i].WriteXML().Save(ymapfiles[i].filename);
                     Console.WriteLine("Moved all the entities of " + ymapfiles[i].filename);
                 }
             }       
@@ -133,8 +132,7 @@ namespace MapTools
                 for (int i = 0; i < ymapfiles.Length; i++)
                 {
                     int k = ymapfiles[i].CMapData.MoveAndRotateEntitiesByName(matchingName, positionOffset, rotationOffset);
-                    XDocument ymapDoc = ymapfiles[i].WriteXML();
-                    ymapDoc.Save(ymapfiles[i].filename);
+                    ymapfiles[i].WriteXML().Save(ymapfiles[i].filename);
                     Console.WriteLine("Edited {0} entities of {1}", k, ymapfiles[i].filename);
                 }
             }

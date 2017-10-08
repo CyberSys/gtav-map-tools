@@ -553,33 +553,26 @@ namespace MapTools.XML
                 {
                     CMapData current = new CMapData(this);
 
+                    float maxX = (x + 1) * block_size;
+                    float minX = x * block_size;
+                    float maxY = (y + 1) * block_size;
+                    float minY= y * block_size;
+
                     if (entities?.Any() ?? false)
-                    {
-                        IEnumerable<CEntityDef> entity_query = (from entity in entities
-                                                                where entity.position.X < ((x + 1) * block_size)
-                                                                where entity.position.X >= (x * block_size)
-                                                                where entity.position.Y < ((y + 1) * block_size)
-                                                                where entity.position.Y >= (y * block_size)
-                                                                select entity);
-                        if (entity_query.Any())
-                            current.entities = entity_query.ToList();
-                        else
-                            current.entities = new List<CEntityDef>();
-                    }
+                        current.entities = entities.Where(entity =>
+                        entity.position.X < maxX
+                        && entity.position.X >= minX
+                        && entity.position.Y < maxY
+                        && entity.position.Y >= minY).ToList();
+
                     if (instancedData.GrassInstanceList?.Any() ?? false)
-                    {
-                        IEnumerable<GrassInstance> grass_query = (from batch in instancedData.GrassInstanceList
-                                                                  where (((batch.BatchAABB.max) + (batch.BatchAABB.min)) / 2).X < ((x + 1) * block_size)
-                                                                  where (((batch.BatchAABB.max) + (batch.BatchAABB.min)) / 2).X >= (x * block_size)
-                                                                  where (((batch.BatchAABB.max) + (batch.BatchAABB.min)) / 2).Y < ((y + 1) * block_size)
-                                                                  where (((batch.BatchAABB.max) + (batch.BatchAABB.min)) / 2).Y >= (y * block_size)
-                                                                  select batch);
-                        if (grass_query.Any())
-                            current.instancedData.GrassInstanceList = grass_query.ToList();
-                        else
-                            current.instancedData.GrassInstanceList = new List<GrassInstance>();
-                    }
-                    if (current.entities.Any()|| current.instancedData.GrassInstanceList.Any())
+                        current.instancedData.GrassInstanceList = instancedData.GrassInstanceList.Where(batch =>
+                        (((batch.BatchAABB.max) + (batch.BatchAABB.min)) / 2).X < maxX
+                        && (((batch.BatchAABB.max) + (batch.BatchAABB.min)) / 2).X >= minX
+                        && (((batch.BatchAABB.max) + (batch.BatchAABB.min)) / 2).Y < maxY
+                        && (((batch.BatchAABB.max) + (batch.BatchAABB.min)) / 2).Y >= minY).ToList();
+
+                    if (current.entities.Any() || current.instancedData.GrassInstanceList.Any())
                         grid.Add(current);
                 }
             }
