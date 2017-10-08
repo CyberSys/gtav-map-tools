@@ -572,13 +572,13 @@ namespace MapTools.XML
                     if(DistantLODLightsSOA.position?.Any() ?? false)
                     {
                         current.DistantLODLightsSOA.position = DistantLODLightsSOA.position.Where(item => item.X < maxX && item.X >= minX && item.Y < maxY && item.Y >= minY).ToList();
-                        
-                        //current.DistantLODLightsSOA.RGBI = DistantLODLightsSOA.RGBI.Where(color => current.DistantLODLightsSOA.position.Contains(DistantLODLightsSOA.position[DistantLODLightsSOA.RGBI.IndexOf(color)])).ToList();
-                        current.DistantLODLightsSOA.RGBI = new List<uint>();
-                        foreach (Vector3 item in current.DistantLODLightsSOA.position)
-                        {
-                            current.DistantLODLightsSOA.RGBI.Add(DistantLODLightsSOA.RGBI[DistantLODLightsSOA.position.IndexOf(item)]);
-                        }
+                        current.DistantLODLightsSOA.RGBI = DistantLODLightsSOA.RGBI.Where((color, index) => current.DistantLODLightsSOA.position.Contains(DistantLODLightsSOA.position[index])).ToList();
+                        /*
+                         * OLD VERSION WITHOUT LINQ
+                         * current.DistantLODLightsSOA.RGBI = new List<uint>();
+                         * foreach (Vector3 item in current.DistantLODLightsSOA.position)
+                         *   current.DistantLODLightsSOA.RGBI.Add(DistantLODLightsSOA.RGBI[DistantLODLightsSOA.position.IndexOf(item)]);
+                         */
                     }
 
                     if (current.entities.Any() || current.instancedData.GrassInstanceList.Any() || current.DistantLODLightsSOA.position.Any())
