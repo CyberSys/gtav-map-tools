@@ -35,7 +35,7 @@ namespace MapTools.XML
             Ymap merged = new Ymap("merged");
             foreach (Ymap current in list)
             {
-                if (current.CMapData.entities != null && current.CMapData.entities.Count > 0)
+                if (current.CMapData.entities?.Any() ?? false)
                 {
                     foreach (CEntityDef entity in current.CMapData.entities)
                     {
@@ -46,7 +46,7 @@ namespace MapTools.XML
                     }
                 }
 
-                if (current.CMapData.physicsDictionaries != null && current.CMapData.physicsDictionaries.Count > 0)
+                if (current.CMapData.physicsDictionaries?.Any() ?? false)
                 {
                     foreach (string physicsDictionary in current.CMapData.physicsDictionaries)
                     {
@@ -57,7 +57,7 @@ namespace MapTools.XML
                     }
                 }
 
-                if (current.CMapData.instancedData.GrassInstanceList != null && current.CMapData.instancedData.GrassInstanceList.Count > 0)
+                if (current.CMapData.instancedData.GrassInstanceList?.Any() ?? false)
                 {
                     foreach (GrassInstance instance in current.CMapData.instancedData.GrassInstanceList)
                     {
@@ -68,7 +68,7 @@ namespace MapTools.XML
                     }
                 }
 
-                if ((current.CMapData.DistantLODLightsSOA.position != null && current.CMapData.DistantLODLightsSOA.position.Count > 0) && (current.CMapData.DistantLODLightsSOA.RGBI != null && current.CMapData.DistantLODLightsSOA.RGBI.Count > 0))
+                if ((current.CMapData.DistantLODLightsSOA.position?.Any() ?? false) && (current.CMapData.DistantLODLightsSOA.RGBI?.Any() ?? false))
                 {
                     if (current.CMapData.DistantLODLightsSOA.position.Count == current.CMapData.DistantLODLightsSOA.RGBI.Count)
                     {
@@ -574,11 +574,16 @@ namespace MapTools.XML
                         current.DistantLODLightsSOA.position = DistantLODLightsSOA.position.Where(item => item.X < maxX && item.X >= minX && item.Y < maxY && item.Y >= minY).ToList();
                         current.DistantLODLightsSOA.RGBI = DistantLODLightsSOA.RGBI.Where((color, index) => current.DistantLODLightsSOA.position.Contains(DistantLODLightsSOA.position[index])).ToList();
                         /*
-                         * OLD VERSION WITHOUT LINQ
-                         * current.DistantLODLightsSOA.RGBI = new List<uint>();
-                         * foreach (Vector3 item in current.DistantLODLightsSOA.position)
-                         *   current.DistantLODLightsSOA.RGBI.Add(DistantLODLightsSOA.RGBI[DistantLODLightsSOA.position.IndexOf(item)]);
-                         */
+                        current.DistantLODLightsSOA.position = new List<Vector3>();
+                        current.DistantLODLightsSOA.RGBI = new List<uint>();
+                        for (int i = 0; i< DistantLODLightsSOA.position.Count; i++)
+                        {
+                            if (DistantLODLightsSOA.position[i].X < maxX && DistantLODLightsSOA.position[i].X >= minX && DistantLODLightsSOA.position[i].Y < maxY && DistantLODLightsSOA.position[i].Y >= minY)
+                            {
+                                current.DistantLODLightsSOA.position.Add(DistantLODLightsSOA.position[i]);
+                                current.DistantLODLightsSOA.RGBI.Add(DistantLODLightsSOA.RGBI[i]);
+                            }
+                        }*/
                     }
 
                     if (current.entities.Any() || current.instancedData.GrassInstanceList.Any() || current.DistantLODLightsSOA.position.Any())

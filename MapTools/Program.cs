@@ -34,7 +34,7 @@ namespace MapTools
             {
                 DirectoryInfo dir = new DirectoryInfo(Directory.GetCurrentDirectory());
                 Ymap[] ymapfiles = CollectYmaps(dir);
-                Ytyp[] ytypfiles = CollectYtps(dir);
+                Ytyp[] ytypfiles = CollectYtyps(dir);
 
                 switch (args[0])
                 {
@@ -259,7 +259,7 @@ namespace MapTools
             return ymaps;
         }
 
-        public static Ytyp[] CollectYtps(DirectoryInfo dir)
+        public static Ytyp[] CollectYtyps(DirectoryInfo dir)
         {
             Ytyp[] ytyps = null;
             FileInfo[] files = dir.GetFiles("*.ytyp.xml");
