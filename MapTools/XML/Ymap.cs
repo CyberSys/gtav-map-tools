@@ -106,10 +106,11 @@ namespace MapTools.XML
         public object occludeModels { get; set; }
         public HashSet<string> physicsDictionaries { get; set; }
         public InstancedMapData instancedData;
+        public List<CTimeCycleModifier> timeCycleModifiers;
         public List<CCarGen> carGenerators { get; set; }
         public CLODLight LODLightsSOA;
         public CDistantLODLight DistantLODLightsSOA;
-        public block block { get; set; }
+        public CBlockDesc block { get; set; }
 
         public CMapData(CMapData map)
         {
@@ -127,6 +128,7 @@ namespace MapTools.XML
             this.occludeModels = map.occludeModels;
             this.physicsDictionaries = map.physicsDictionaries;
             this.instancedData = map.instancedData;
+            this.timeCycleModifiers = map.timeCycleModifiers;
             this.carGenerators = map.carGenerators;
             this.LODLightsSOA = map.LODLightsSOA;
             this.DistantLODLightsSOA = map.DistantLODLightsSOA;
@@ -140,10 +142,12 @@ namespace MapTools.XML
             physicsDictionaries = new HashSet<string>();
             instancedData = new InstancedMapData();
             instancedData.GrassInstanceList = new List<GrassInstance>();
+            timeCycleModifiers = new List<CTimeCycleModifier>();
+            carGenerators = new List<CCarGen>();
             DistantLODLightsSOA = new CDistantLODLight();
             DistantLODLightsSOA.position = new List<Vector3>();
             DistantLODLightsSOA.RGBI = new List<uint>();
-            block = new block(0, 0, "GTADrifting", "Neos7's MapTools" , Environment.UserName);
+            block = new CBlockDesc(0, 0, "GTADrifting", "Neos7's MapTools" , Environment.UserName);
         }
 
         public CMapData(XElement node)
@@ -200,10 +204,12 @@ namespace MapTools.XML
             }
 
             instancedData = new InstancedMapData(node.Element("instancedData"));
+            //timeCycleModifiers
             //carGenerators
+
             LODLightsSOA = new CLODLight(node.Element("LODLightsSOA"));
             DistantLODLightsSOA = new CDistantLODLight(node.Element("DistantLODLightsSOA"));
-            block = new block(node.Element("block"));
+            block = new CBlockDesc(node.Element("block"));
         }
 
         public XElement WriteXML()
@@ -594,7 +600,7 @@ namespace MapTools.XML
         }
     }
 
-    public struct block
+    public struct CBlockDesc
     {
         public uint version { get; set; }
         public uint flags { get; set; }
@@ -603,7 +609,7 @@ namespace MapTools.XML
         public string owner { get; set; }
         public string time { get; set; }
 
-        public block(uint blockversion, uint blockflags, string blockname, string blockexportedby, string blockowner)
+        public CBlockDesc(uint blockversion, uint blockflags, string blockname, string blockexportedby, string blockowner)
         {
             version = blockversion;
             flags = blockflags;
@@ -613,7 +619,7 @@ namespace MapTools.XML
             time = DateTime.UtcNow.ToString();
         }
 
-        public block(XElement node)
+        public CBlockDesc(XElement node)
         {
             version = uint.Parse(node.Element("version").Attribute("value").Value);
             flags = uint.Parse(node.Element("flags").Attribute("value").Value);
@@ -1017,6 +1023,26 @@ namespace MapTools.XML
             min = batchmin;
             max = batchmax;
         }
+    }
+
+    public struct  CTimeCycleModifier
+    {
+        public string name;
+        public Vector3 minExtents;
+        public Vector3 maxExtents;
+        public float percentage;
+        public float range;
+        public uint startHour;
+        public uint endHour;
+
+        /*public CTimeCycleModifier(XElement node)
+        {
+        }
+        
+         public XElement WriteXML()
+         {
+         }
+         */
     }
 
     public struct CCarGen

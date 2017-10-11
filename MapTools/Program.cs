@@ -200,7 +200,7 @@ namespace MapTools
                 for (int i = 0; i < ymapfiles.Length; i++)
                 {
                     ymapfiles[i].CMapData.UpdatelodDist(archetypeList);
-                    ymapfiles[i].CMapData.block = new block(0, 0, "GTADrifting", "Neos7's MapTools", Environment.UserName);
+                    ymapfiles[i].CMapData.block = new CBlockDesc(0, 0, "GTADrifting", "Neos7's MapTools", Environment.UserName);
                     ymapfiles[i].CMapData.flags = 0;
                     ymapfiles[i].CMapData.contentFlags = 1;
                     foreach (CEntityDef ent in ymapfiles[i].CMapData.entities)
