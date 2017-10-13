@@ -34,7 +34,7 @@ namespace MapTools.XML
             Ytyp merged = new Ytyp("merged");
             foreach (Ytyp current in list)
             {
-                if(current.CMapTypes.archetypes != null && current.CMapTypes.archetypes.Count > 0)
+                if(current.CMapTypes.archetypes?.Any() ?? false)
                 {
                     foreach (CBaseArchetypeDef archetype in current.CMapTypes.archetypes)
                     {
@@ -46,6 +46,36 @@ namespace MapTools.XML
                 }
             }
             return merged;
+        }
+
+        public void UpdatelodDist()
+        {
+            foreach (CBaseArchetypeDef arc in CMapTypes.archetypes)
+            {
+                arc.lodDist = 100 + (1.5f * arc.bsRadius);
+                arc.hdTextureDist = 0.75f * arc.lodDist;
+            }
+        }
+
+        public List<CBaseArchetypeDef> RemoveArchetypesByNames(List<string> removelist)
+        {
+            List<CBaseArchetypeDef> removed = new List<CBaseArchetypeDef>();
+            if (removelist == null || removelist.Count < 1)
+                return removed;
+            List<CBaseArchetypeDef> archetypes_new = new List<CBaseArchetypeDef>();
+
+            if (CMapTypes.archetypes?.Any() ?? false)
+            {
+                foreach (CBaseArchetypeDef archetype in CMapTypes.archetypes)
+                {
+                    if (removelist.Contains(archetype.name))
+                        removed.Add(archetype);
+                    else
+                        archetypes_new.Add(archetype);
+                }
+            }
+            CMapTypes.archetypes = archetypes_new;
+            return removed;
         }
     }
 
@@ -71,7 +101,7 @@ namespace MapTools.XML
         public CMapTypes(XElement node)
         {
             archetypes = new List<CBaseArchetypeDef>();
-            if (node.Element("archetypes").Elements() != null && node.Element("archetypes").Elements().Count() > 0)
+            if (node.Element("archetypes").Elements()?.Any() ?? false)
             {
                 foreach (XElement arc in node.Element("archetypes").Elements())
                 {
@@ -94,36 +124,6 @@ namespace MapTools.XML
             compositeEntityTypes = node.Element("compositeEntityTypes");
         }
 
-        public void UpdatelodDist()
-        {
-            foreach (CBaseArchetypeDef arc in archetypes)
-            {
-                arc.lodDist = 100 + (1.5f * arc.bsRadius);
-                arc.hdTextureDist = 0.75f * arc.lodDist;
-            }
-        }
-
-        public List<CBaseArchetypeDef> RemoveArchetypesByNames(List<string> removelist)
-        {
-            List<CBaseArchetypeDef> removed = new List<CBaseArchetypeDef>();
-            if (removelist == null || removelist.Count < 1)
-                return removed;
-            List<CBaseArchetypeDef> archetypes_new = new List<CBaseArchetypeDef>();
-
-            if (archetypes != null && archetypes.Count > 0)
-            {
-                foreach (CBaseArchetypeDef archetype in archetypes)
-                {
-                    if (removelist.Contains(archetype.name))
-                        removed.Add(archetype);
-                    else
-                        archetypes_new.Add(archetype);
-                }
-            }
-            this.archetypes = archetypes_new;
-            return removed;
-        }
-
         public XElement WriteXML()
         {
             //CMapTypes
@@ -137,7 +137,7 @@ namespace MapTools.XML
             XElement archetypesNode = new XElement("archetypes");
             CMapTypesNode.Add(archetypesNode);
 
-            if (archetypes != null && archetypes.Count > 0)
+            if (archetypes?.Any() ?? false)
             {
                 foreach (var archetype in archetypes)
                 {

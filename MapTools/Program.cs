@@ -89,17 +89,10 @@ namespace MapTools
                 int blocksize = int.Parse(Console.ReadLine());
                 for (int i = 0; i < ymapfiles.Length; i++)
                 {
-                    int k = 1;
-                    List<CMapData> grid = ymapfiles[i].CMapData.GridSplitAll(blocksize);
-                    foreach (CMapData block in grid)
-                    {
-                        Ymap tmp = ymapfiles[i];
-                        tmp.CMapData = block;
-
-                        tmp.WriteXML().Save(ymapfiles[i].filename.Split('.')[0] + "_" + k.ToString("00") + ".ymap.xml");
-                        k++;
-                    }
-                    Console.WriteLine("{0} splitted in {1} blocks.", ymapfiles[i].filename, (k - 1));
+                    List<Ymap> splitted = ymapfiles[i].GridSplitAll(blocksize);
+                    foreach (Ymap block in splitted)
+                        block.WriteXML().Save(block.filename);
+                    Console.WriteLine("{0} splitted in {1} blocks.", ymapfiles[i].filename, splitted.Count);
                 }
             }
         }
@@ -112,7 +105,7 @@ namespace MapTools
                 Vector3 offset = ReadVector3();
                 for (int i = 0; i < ymapfiles.Length; i++)
                 {
-                    ymapfiles[i].CMapData.MoveEntities(offset);
+                    ymapfiles[i].MoveEntities(offset);
                     ymapfiles[i].WriteXML().Save(ymapfiles[i].filename);
                     Console.WriteLine("Moved all the entities of " + ymapfiles[i].filename);
                 }
@@ -131,7 +124,7 @@ namespace MapTools
                 Vector3 rotationOffset = ReadVector3();
                 for (int i = 0; i < ymapfiles.Length; i++)
                 {
-                    int k = ymapfiles[i].CMapData.MoveAndRotateEntitiesByName(matchingName, positionOffset, rotationOffset);
+                    int k = ymapfiles[i].MoveAndRotateEntitiesByName(matchingName, positionOffset, rotationOffset);
                     ymapfiles[i].WriteXML().Save(ymapfiles[i].filename);
                     Console.WriteLine("Edited {0} entities of {1}", k, ymapfiles[i].filename);
                 }
@@ -163,8 +156,8 @@ namespace MapTools
             {
                 for(int i = 0; i < ymapfiles.Length; i++)
                 {
-                    HashSet<string> missing = ymapfiles[i].CMapData.UpdateExtents(archetypeList);
-                    if (missing != null && missing.Count > 0)
+                    HashSet<string> missing = ymapfiles[i].UpdateExtents(archetypeList);
+                    if (missing?.Any() ?? false)
                     {
                         foreach (string name in missing)
                             Console.WriteLine("Missing CBaseArchetypeDef: " + name);
@@ -183,7 +176,7 @@ namespace MapTools
             {
                 for (int i = 0; i < ytypfiles.Length; i++)
                 {
-                    ytypfiles[i].CMapTypes.UpdatelodDist();
+                    ytypfiles[i].UpdatelodDist();
                     foreach (CBaseArchetypeDef arc in ytypfiles[i].CMapTypes.archetypes)
                     {
                         arc.flags = 0;
@@ -199,7 +192,7 @@ namespace MapTools
             {
                 for (int i = 0; i < ymapfiles.Length; i++)
                 {
-                    ymapfiles[i].CMapData.UpdatelodDist(archetypeList);
+                    ymapfiles[i].UpdatelodDist(archetypeList);
                     ymapfiles[i].CMapData.block = new CBlockDesc(0, 0, "GTADrifting", "Neos7's MapTools", Environment.UserName);
                     ymapfiles[i].CMapData.flags = 0;
                     ymapfiles[i].CMapData.contentFlags = 1;
@@ -376,7 +369,7 @@ namespace MapTools
             {
                 for (int i = 0; i < ytypfiles.Length; i++)
                 {
-                    List<CBaseArchetypeDef> removed_archetypes = ytypfiles[i].CMapTypes.RemoveArchetypesByNames(removelist);
+                    List<CBaseArchetypeDef> removed_archetypes = ytypfiles[i].RemoveArchetypesByNames(removelist);
                     ytypfiles[i].WriteXML().Save(ytypfiles[i].filename);
                     Console.WriteLine("Updated " + (ytypfiles[i].filename));
 
@@ -393,7 +386,7 @@ namespace MapTools
             {
                 for (int i = 0; i < ymapfiles.Length; i++)
                 {
-                    List<CEntityDef> removed_entities = ymapfiles[i].CMapData.RemoveEntitiesByNames(removelist);
+                    List<CEntityDef> removed_entities = ymapfiles[i].RemoveEntitiesByNames(removelist);
                     ymapfiles[i].WriteXML().Save(ymapfiles[i].filename);
                     Console.WriteLine("Updated " + (ymapfiles[i].filename));
 
