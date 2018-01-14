@@ -62,7 +62,7 @@ namespace MapTools.XML
                 Instance[] instances = batches[i].InstanceList.ToArray();
                 for (int j = 0; j < instances.Length; j++)
                 {
-                    instances[i].Color = RGB;
+                    instances[j].Color = RGB;
                 }
                 batches[i].InstanceList = instances.ToList();
             }

@@ -341,7 +341,7 @@ namespace MapTools
                 {
                     ymapfiles[i].EditInstancedGrassColor(RGB);
                     ymapfiles[i].WriteXML().Save(ymapfiles[i].filename);
-                    Console.WriteLine("Updated instanced grass color in", ymapfiles[i].filename);
+                    Console.WriteLine("Updated instanced grass color in {0}", ymapfiles[i].filename);
                 }
             }
         }
