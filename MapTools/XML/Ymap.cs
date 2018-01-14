@@ -54,6 +54,21 @@ namespace MapTools.XML
                 entity.position += offset;
         }
 
+        public void EditInstancedGrassColor(byte[] RGB)
+        {
+            GrassInstance[] batches = CMapData.instancedData.GrassInstanceList.ToArray();
+            for (int i = 0; i < batches.Length; i++)
+            {
+                Instance[] instances = batches[i].InstanceList.ToArray();
+                for (int j = 0; j < instances.Length; j++)
+                {
+                    instances[i].Color = RGB;
+                }
+                batches[i].InstanceList = instances.ToList();
+            }
+            CMapData.instancedData.GrassInstanceList = batches.ToList();
+        }
+
         //USES XYZ ROTATION IN DEGREES
         public int MoveAndRotateEntitiesByName(string entityname, Vector3 positionOffset, Vector3 rotationOffset)
         {
@@ -363,7 +378,7 @@ namespace MapTools.XML
         public List<Ymap> GridSplitAll(int block_size)
         {
             List<Ymap> grid = new List<Ymap>();
-            int size = 8192;
+            int size = 16384;
             int numblocks = (size / block_size) + 1;
 
             for (int x = -numblocks; x <= numblocks; x++)

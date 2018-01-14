@@ -28,6 +28,7 @@ namespace MapTools
                 Console.WriteLine("grid\nDivides all the .ymap.xml files into blocks of a given size.\n");
                 Console.WriteLine("listsplit\nReads a list of names from a .txt and moves all the archetypes and entities in other files.\n");
                 Console.WriteLine("overlapping\nRemoves all the overlapping entities in each .ymap.xml rounding their position by a given precision.\n");
+                Console.WriteLine("grasscolor\nReplaces the color of all the instances of all the batches of grass.\n");
                 args = Console.ReadLine().Split();
             }
             if (args.Length != 0)
@@ -68,8 +69,11 @@ namespace MapTools
                     case "listsplit":
                         RemoveFromList(ytypfiles, ymapfiles);
                         break;
+                    case "grasscolor":
+                        ReplaceColorInstancedGrass(ymapfiles);
+                        break;
                     case "test":
-                        Dictionary<string, List<byte[]>> colours = CollectGrassInstanceColours(ymapfiles);
+                        Dictionary<string, List<byte[]>> colors = CollectGrassInstanceColors(ymapfiles);
                         break;
                     default:
                         Console.WriteLine(args[0] + " isn't a valid command.");
@@ -280,6 +284,19 @@ namespace MapTools
             return offset;
         }
 
+        public static byte[] ReadRGB()
+        {
+            byte[] RGB = new byte[3];
+            Console.WriteLine("Insert the color you want to use for the instanced grass in RGB format (0-255)");
+            Console.WriteLine("R:");
+            RGB[0] = byte.Parse(Console.ReadLine());
+            Console.WriteLine("G:");
+            RGB[1] = byte.Parse(Console.ReadLine());
+            Console.WriteLine("B:");
+            RGB[2] = byte.Parse(Console.ReadLine());
+            return RGB;
+        }
+
         public static void MissingYtd(Ytyp[] ytypfiles, DirectoryInfo dir)
         {
             IEnumerable<string> ytdlist = dir.GetFiles(".ytd").Select(a => Path.GetFileNameWithoutExtension(a.Name));
@@ -295,9 +312,9 @@ namespace MapTools
             }
         }
 
-        public static Dictionary<string,List<byte[]>> CollectGrassInstanceColours(Ymap[] ymapfiles)
+        public static Dictionary<string,List<byte[]>> CollectGrassInstanceColors(Ymap[] ymapfiles)
         {
-            Dictionary<string, List<byte[]>> colours = new Dictionary<string, List<byte[]>>();
+            Dictionary<string, List<byte[]>> colors = new Dictionary<string, List<byte[]>>();
             if (ymapfiles != null && ymapfiles.Length != 0)
             {
                 for (int i = 0; i < ymapfiles.Length; i++)
@@ -305,14 +322,28 @@ namespace MapTools
                     foreach (GrassInstance batch in ymapfiles[i].CMapData.instancedData.GrassInstanceList)
                         foreach (Instance instance in batch.InstanceList)
                         {
-                            if (colours.ContainsKey(batch.archetypeName))
-                                colours[batch.archetypeName].Add(instance.Color);
+                            if (colors.ContainsKey(batch.archetypeName))
+                                colors[batch.archetypeName].Add(instance.Color);
                             else
-                                colours.Add(batch.archetypeName, new List<byte[]>() { instance.Color });
+                                colors.Add(batch.archetypeName, new List<byte[]>() { instance.Color });
                         }
                 }
             }
-            return colours;
+            return colors;
+        }
+
+        public static void ReplaceColorInstancedGrass(Ymap[] ymapfiles)
+        { 
+            if (ymapfiles != null && ymapfiles.Length != 0)
+            {
+                byte[] RGB = ReadRGB();
+                for (int i = 0; i < ymapfiles.Length; i++)
+                {
+                    ymapfiles[i].EditInstancedGrassColor(RGB);
+                    ymapfiles[i].WriteXML().Save(ymapfiles[i].filename);
+                    Console.WriteLine("Updated instanced grass color in", ymapfiles[i].filename);
+                }
+            }
         }
 
         public static void DeleteOverlappingEntities(Ymap[] ymapfiles)
