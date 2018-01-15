@@ -336,10 +336,13 @@ namespace MapTools
         { 
             if (ymapfiles != null && ymapfiles.Length != 0)
             {
-                byte[] RGB = ReadRGB();
+                Console.WriteLine("Insert the minimum RGB values to randomize from");
+                byte[] min = ReadRGB();
+                Console.WriteLine("Insert the maximum RGB values to randomize from");
+                byte[] max = ReadRGB();
                 for (int i = 0; i < ymapfiles.Length; i++)
                 {
-                    ymapfiles[i].EditInstancedGrassColor(RGB);
+                    ymapfiles[i].EditInstancedGrassColor(min,max);
                     ymapfiles[i].WriteXML().Save(ymapfiles[i].filename);
                     Console.WriteLine("Updated instanced grass color in {0}", ymapfiles[i].filename);
                 }

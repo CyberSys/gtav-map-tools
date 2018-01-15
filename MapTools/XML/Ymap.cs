@@ -54,15 +54,18 @@ namespace MapTools.XML
                 entity.position += offset;
         }
 
-        public void EditInstancedGrassColor(byte[] RGB)
+        public void EditInstancedGrassColor(byte[] min,byte[] max)
         {
+            Random rnd = new Random();
             GrassInstance[] batches = CMapData.instancedData.GrassInstanceList.ToArray();
             for (int i = 0; i < batches.Length; i++)
             {
                 Instance[] instances = batches[i].InstanceList.ToArray();
                 for (int j = 0; j < instances.Length; j++)
                 {
-                    instances[j].Color = RGB;
+                    instances[j].Color[0] = (byte)rnd.Next(min[0],max[0]);
+                    instances[j].Color[1] = (byte)rnd.Next(min[1], max[1]);
+                    instances[j].Color[2] = (byte)rnd.Next(min[2], max[2]);
                 }
                 batches[i].InstanceList = instances.ToList();
             }
