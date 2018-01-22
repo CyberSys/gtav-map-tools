@@ -48,10 +48,26 @@ namespace MapTools.XML
             }
         }
 
-        public void MoveEntities(Vector3 offset)
+        public void MoveYmap(Vector3 offset)
         {
+            CMapData.streamingExtentsMax += offset;
+            CMapData.streamingExtentsMin += offset;
+            CMapData.entitiesExtentsMax += offset;
+            CMapData.entitiesExtentsMin += offset;
+
             foreach (CEntityDef entity in CMapData.entities)
                 entity.position += offset;
+
+            GrassInstance[] batches = CMapData.instancedData.GrassInstanceList.ToArray();
+            for (int i = 0; i < batches.Length; i++)
+            {
+                BatchAABB bb = batches[i].BatchAABB;
+                bb.min += new Vector4(offset,0);
+                bb.max += new Vector4(offset, 0);
+                batches[i].BatchAABB = bb;
+            }
+            CMapData.instancedData.GrassInstanceList = batches.ToList();
+
         }
 
         public void EditInstancedGrassColor(byte[] min,byte[] max)

@@ -109,7 +109,7 @@ namespace MapTools
                 Vector3 offset = ReadVector3();
                 for (int i = 0; i < ymapfiles.Length; i++)
                 {
-                    ymapfiles[i].MoveEntities(offset);
+                    ymapfiles[i].MoveYmap(offset);
                     ymapfiles[i].WriteXML().Save(ymapfiles[i].filename);
                     Console.WriteLine("Moved all the entities of " + ymapfiles[i].filename);
                 }
