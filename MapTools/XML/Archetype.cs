@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Xml.Linq;
 
@@ -110,6 +112,26 @@ namespace MapTools.XML
             assetName = node.Element("assetName").Value.ToLower(); //SOME YTYP CONTAINS ARCHETYPES WITH UPPERCASE
             extensions = node.Element("extensions");
         }
+
+        public CBaseArchetypeDef(string archetypename) //TEST EMPTY ARCHETYPE
+        {
+            lodDist = 0;
+            flags = 0;
+            specialAttribute = 0;
+            bbMin = new Vector3(0, 0, 0);
+            bbMax = new Vector3(0, 0, 0);
+            bsCentre = new Vector3(0, 0, 0);
+            bsRadius = 0;
+            hdTextureDist = 0;
+            name = archetypename;
+            textureDictionary = null;
+            clipDictionary = null;
+            drawableDictionary = null;
+            physicsDictionary = archetypename;
+            assetType = assetType.ASSET_TYPE_DRAWABLE;
+            assetName = archetypename;
+            extensions = null;
+        }
     }
 
     public class CTimeArchetypeDef : CBaseArchetypeDef
@@ -133,16 +155,42 @@ namespace MapTools.XML
     public class CMloArchetypeDef : CBaseArchetypeDef
     {
         public uint mloFlags { get; set; }
-        public CEntityDef[] entities { get; set; }
+        public List<CEntityDef> entities;
         public object rooms { get; set; }
         public object portals { get; set; }
         public object entitySets { get; set; }
         public object timeCycleModifiers { get; set; }
 
+        public CMloArchetypeDef(string archetypename) : base(archetypename)
+        {
+            assetType = assetType.ASSET_TYPE_ASSETLESS;
+            mloFlags = 0;
+            entities = new List<CEntityDef>();
+            rooms = null;
+            portals = null;
+            entitySets = null;
+            timeCycleModifiers = null;
+        }
+
         public CMloArchetypeDef(XElement node) : base(node)
         {
             mloFlags = uint.Parse(node.Element("mloFlags").Attribute("value").Value);
-            //TO BE CONTINUED :D
+
+            entities = new List<CEntityDef>();
+            if (node.Element("entities").Elements()?.Any() ?? false)
+            {
+                foreach (XElement ent in node.Element("entities").Elements())
+                {
+                    if (ent.Attribute("type").Value == "CEntityDef")
+                        entities.Add(new CEntityDef(ent));
+                    else
+                        Console.WriteLine("Skipped unsupported entity: " + ent.Attribute("type").Value);
+                }
+            }
+            rooms = null; //TEMP
+            portals = null; //TEMP
+            entitySets = null; //TEMP
+            timeCycleModifiers = null; //TEMP
         }
 
         public new XElement WriteXML()
@@ -150,7 +198,21 @@ namespace MapTools.XML
             XElement CMloArchetypeDefNode = base.WriteXML();
             CMloArchetypeDefNode.Attribute("type").Value = "CMloArchetypeDef";
             CMloArchetypeDefNode.Add(new XElement("mloFlags", new XAttribute("value", mloFlags.ToString())));
-            //TO BE CONTINUED :D
+
+            XElement entitiesNode = new XElement("entities");
+            CMloArchetypeDefNode.Add(entitiesNode);
+
+            if (entities?.Any() ?? false)
+            {
+                foreach (CEntityDef entity in entities)
+                    entitiesNode.Add(entity.WriteXML());
+            }
+
+            CMloArchetypeDefNode.Add(new XElement("rooms")); //TEMP
+            CMloArchetypeDefNode.Add(new XElement("portals")); //TEMP
+            CMloArchetypeDefNode.Add(new XElement("entitySets")); //TEMP
+            CMloArchetypeDefNode.Add(new XElement("timeCycleModifiers")); //TEMP
+
             return CMloArchetypeDefNode;
         }
     }

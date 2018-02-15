@@ -115,6 +115,28 @@ namespace MapTools.XML
             artificialAmbientOcclusion = int.Parse(node.Element("artificialAmbientOcclusion").Attribute("value").Value);
             tintValue = uint.Parse(node.Element("tintValue").Attribute("value").Value);
         }
+
+        public CEntityDef(string entiyname)
+        {
+            Random rnd = new Random();
+            archetypeName = entiyname;
+            flags = 1572864;
+            guid = (uint)rnd.Next();
+            position = new Vector3(0, 0, 0);
+            rotation = new Quaternion(0, 0, 0, 1);
+            scaleXY = 1;
+            scaleZ = 1;
+            parentIndex = -1;
+            lodDist = 0;
+            childLodDist = 0;
+            lodLevel = lodLevel.LODTYPES_DEPTH_ORPHANHD;
+            numChildren = 0;
+            priorityLevel = priorityLevel.PRI_REQUIRED;
+            extensions = null;
+            ambientOcclusionMultiplier = 255;
+            artificialAmbientOcclusion = 255;
+            tintValue = 0;
+        }
     }
     public class CMloInstanceDef : CEntityDef
     {
@@ -123,6 +145,15 @@ namespace MapTools.XML
         public object defaultEntitySets { get; set; } //Array_uint??
         public uint numExitPortals { get; set; }
         public uint MLOInstflags { get; set; }
+
+        public CMloInstanceDef(string entityname) : base(entityname)
+        {
+            groupId = 0;
+            floorId = 0;
+            defaultEntitySets = null;
+            numExitPortals = 0;
+            MLOInstflags = 0;
+        }
 
         public CMloInstanceDef(XElement node) : base(node)
         {

@@ -72,9 +72,16 @@ namespace MapTools
                     case "grasscolor":
                         ReplaceColorInstancedGrass(ymapfiles);
                         break;
-                    case "test":
-                        Dictionary<string, List<byte[]>> colors = CollectGrassInstanceColors(ymapfiles);
+
+                        //TEMP
+                    case "mlo":
+                        {
+                            if (args.Length > 2)
+                                GenerateMLO(args[1], args[2]);
+                            else Console.WriteLine("args[1] isn't a ytyp.xml or args[2] isn't a ymap.xml");
+                        }
                         break;
+
                     default:
                         Console.WriteLine(args[0] + " isn't a valid command.");
                         break;
@@ -430,6 +437,52 @@ namespace MapTools
                     removedymap.WriteXML().Save(ymapfiles[i].filename.Split('.')[0] + "_removed.ymap.xml");
                     Console.WriteLine("Exported {0}_removed.ymap.xml", ymapfiles[i].filename.Split('.')[0]);
                 }
+            }
+        }
+
+        //TEMP
+        public static void GenerateMLO(string ytyppath, string ymappath)
+        {
+            Console.WriteLine("Insert the name for the MLO:");
+            string mloname = Console.ReadLine();
+
+            Ytyp theytyp = new Ytyp(XDocument.Load(ytyppath), mloname);
+            Ymap theymap = new Ymap(XDocument.Load(ymappath), mloname);
+
+            if(theytyp != null && theymap != null)
+            {                
+
+                CMloInstanceDef mloent = new CMloInstanceDef(mloname);
+                CMloArchetypeDef mloarc = new CMloArchetypeDef(mloname);
+
+                //COPY VALUES
+                mloarc.entities = theymap.CMapData.entities;
+                mloarc.lodDist = theytyp.CMapTypes.archetypes.Max(arc => arc.lodDist);
+                mloarc.hdTextureDist = theytyp.CMapTypes.archetypes.Max(arc => arc.hdTextureDist);
+                mloent.lodDist = theymap.CMapData.entities.Max(ent => ent.lodDist);
+
+                //GET CENTROID OF ENTITIES AND USE IT AS MLO POSITION
+                foreach (CEntityDef ent in theymap.CMapData.entities)
+                    mloent.position += ent.position;
+                mloent.position = mloent.position / theymap.CMapData.entities.Count;
+
+                //CHANGE COORDSYSTEM TO PARENT'S ONE
+                foreach (CEntityDef ent in mloarc.entities)
+                    ent.position = ent.position - mloent.position;
+
+                //WEIRD WAY OF SAVING BECAUSE I'M ACTUALLY TOO BORED TO FIX ALL THE CODE TO SUPPORT MLO :DDDDDDDDDDD
+                theytyp.CMapTypes.name = mloname;
+                XDocument doc = theytyp.WriteXML();
+                doc.Element("CMapTypes").Element("archetypes").Add(mloarc.WriteXML());
+                doc.Save(mloname +".ytyp.xml");
+                Console.WriteLine(mloname +".ytyp.xml");
+
+                theymap.CMapData.name = mloname;
+                theymap.CMapData.entities = new List<CEntityDef>();
+                doc = theymap.WriteXML();
+                doc.Element("CMapData").Element("entities").Add(mloent.WriteXML());
+                doc.Save(mloname + ".ymap.xml");
+                Console.WriteLine(mloname + ".ymap.xml");
             }
         }
     }
