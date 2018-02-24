@@ -229,11 +229,11 @@ namespace MapTools.XML
 
                     grass_strMax.X = Math.Max(grass_strMax.X, item.BatchAABB.max.X + item.lodDist);
                     grass_strMax.Y = Math.Max(grass_strMax.Y, item.BatchAABB.max.Y + item.lodDist);
-                    grass_strMax.Z = Math.Max(grass_strMax.Z, item.BatchAABB.max.Z + item.lodDist - 100); // Seams a common thing for GrassInstance-only ymaps
+                    grass_strMax.Z = Math.Max(grass_strMax.Z, item.BatchAABB.max.Z + item.lodDist); // - 100 Seams a common thing for GrassInstance-only ymaps
 
                     grass_strMin.X = Math.Min(grass_strMin.X, item.BatchAABB.min.X - item.lodDist);
                     grass_strMin.Y = Math.Min(grass_strMin.Y, item.BatchAABB.min.Y - item.lodDist);
-                    grass_strMin.Z = Math.Min(grass_strMin.Z, item.BatchAABB.min.Z - item.lodDist + 100); // Seams a common thing for GrassInstance-only ymaps
+                    grass_strMin.Z = Math.Min(grass_strMin.Z, item.BatchAABB.min.Z - item.lodDist); // + 100 Seams a common thing for GrassInstance-only ymaps
                 }
             }
 
