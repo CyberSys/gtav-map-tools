@@ -29,63 +29,71 @@ namespace MapTools
                 Console.WriteLine("listsplit\nReads a list of names from a .txt and moves all the archetypes and entities in other files.\n");
                 Console.WriteLine("overlapping\nRemoves all the overlapping entities in each .ymap.xml rounding their position by a given precision.\n");
                 Console.WriteLine("grasscolor\nReplaces the color of all the instances of all the batches of grass.\n");
+                Console.WriteLine("particles\nGenerates batches of grass from particles exported in 3ds.\n");
                 args = Console.ReadLine().Split();
             }
             if (args.Length != 0)
             {
-                DirectoryInfo dir = new DirectoryInfo(Directory.GetCurrentDirectory());
-                Ymap[] ymapfiles = CollectYmaps(dir);
-                Ytyp[] ytypfiles = CollectYtyps(dir);
-
-                switch (args[0])
+                if(args[0] == "particles")
                 {
-                    case "merge":
-                        Merge(ytypfiles, ymapfiles);
-                        break;
-                    case "extents":
-                        Extents(ytypfiles, ymapfiles);
-                        break;
-                    case "reset":
-                        Reset(ytypfiles, ymapfiles);
-                        break;
-                    case "move":
-                        Move(ymapfiles);
-                        break;
-                    case "editByName":
-                        MoveRotateByName(ymapfiles);
-                        break;
-                    case "guid":
-                        RandomGuid(dir);
-                        break;
-                    case "missingytd":
-                        MissingYtd(ytypfiles, dir);
-                        break;
-                    case "grid":
-                        Grid(ymapfiles);
-                        break;
-                    case "overlapping":
-                        DeleteOverlappingEntities(ymapfiles);
-                        break;
-                    case "listsplit":
-                        RemoveFromList(ytypfiles, ymapfiles);
-                        break;
-                    case "grasscolor":
-                        ReplaceColorInstancedGrass(ymapfiles);
-                        break;
+                    BatchesFromParticles();
+                }
+                else
+                {
+                    DirectoryInfo dir = new DirectoryInfo(Directory.GetCurrentDirectory());
+                    Ymap[] ymapfiles = CollectYmaps(dir);
+                    Ytyp[] ytypfiles = CollectYtyps(dir);
+
+                    switch (args[0])
+                    {
+                        case "merge":
+                            Merge(ytypfiles, ymapfiles);
+                            break;
+                        case "extents":
+                            Extents(ytypfiles, ymapfiles);
+                            break;
+                        case "reset":
+                            Reset(ytypfiles, ymapfiles);
+                            break;
+                        case "move":
+                            Move(ymapfiles);
+                            break;
+                        case "editByName":
+                            MoveRotateByName(ymapfiles);
+                            break;
+                        case "guid":
+                            RandomGuid(dir);
+                            break;
+                        case "missingytd":
+                            MissingYtd(ytypfiles, dir);
+                            break;
+                        case "grid":
+                            Grid(ymapfiles);
+                            break;
+                        case "overlapping":
+                            DeleteOverlappingEntities(ymapfiles);
+                            break;
+                        case "listsplit":
+                            RemoveFromList(ytypfiles, ymapfiles);
+                            break;
+                        case "grasscolor":
+                            ReplaceColorInstancedGrass(ymapfiles);
+                            break;
 
                         //TEMP
-                    case "mlo":
-                        {
-                            if (args.Length > 2)
-                                GenerateMLO(args[1], args[2]);
-                            else Console.WriteLine("args[1] isn't a ytyp.xml or args[2] isn't a ymap.xml");
-                        }
-                        break;
+                        case "mlo":
+                            {
+                                if (args.Length > 2)
+                                    GenerateMLO(args[1], args[2]);
+                                else Console.WriteLine("args[1] isn't a ytyp.xml or args[2] isn't a ymap.xml");
+                            }
+                            break;
 
-                    default:
-                        Console.WriteLine(args[0] + " isn't a valid command.");
-                        break;
-                }
+                        default:
+                            Console.WriteLine(args[0] + " isn't a valid command.");
+                            break;
+                    }
+                } 
             }
             /*Console.WriteLine("Press any key to continue...");
             Console.ReadKey();*/
@@ -120,7 +128,7 @@ namespace MapTools
                     ymapfiles[i].WriteXML().Save(ymapfiles[i].filename);
                     Console.WriteLine("Moved all the entities of " + ymapfiles[i].filename);
                 }
-            }       
+            }
         }
 
         public static void MoveRotateByName(Ymap[] ymapfiles)
@@ -154,7 +162,7 @@ namespace MapTools
             {
                 Ymap.Merge(ymapfiles).WriteXML().Save("merged.ymap.xml");
                 Console.WriteLine("Exported merged.ymap.xml");
-            }      
+            }
         }
 
         public static void Extents(Ytyp[] ytypfiles, Ymap[] ymapfiles)
@@ -165,7 +173,7 @@ namespace MapTools
 
             if (ymapfiles != null && ymapfiles.Length != 0)
             {
-                for(int i = 0; i < ymapfiles.Length; i++)
+                for (int i = 0; i < ymapfiles.Length; i++)
                 {
                     HashSet<string> missing = ymapfiles[i].UpdateExtents(archetypeList);
                     if (missing?.Any() ?? false)
@@ -319,7 +327,7 @@ namespace MapTools
             }
         }
 
-        public static Dictionary<string,List<byte[]>> CollectGrassInstanceColors(Ymap[] ymapfiles)
+        public static Dictionary<string, List<byte[]>> CollectGrassInstanceColors(Ymap[] ymapfiles)
         {
             Dictionary<string, List<byte[]>> colors = new Dictionary<string, List<byte[]>>();
             if (ymapfiles != null && ymapfiles.Length != 0)
@@ -340,7 +348,7 @@ namespace MapTools
         }
 
         public static void ReplaceColorInstancedGrass(Ymap[] ymapfiles)
-        { 
+        {
             if (ymapfiles != null && ymapfiles.Length != 0)
             {
                 Console.WriteLine("Insert the minimum RGB values to randomize from");
@@ -349,7 +357,7 @@ namespace MapTools
                 byte[] max = ReadRGB();
                 for (int i = 0; i < ymapfiles.Length; i++)
                 {
-                    ymapfiles[i].EditInstancedGrassColor(min,max);
+                    ymapfiles[i].EditInstancedGrassColor(min, max);
                     ymapfiles[i].WriteXML().Save(ymapfiles[i].filename);
                     Console.WriteLine("Updated instanced grass color in {0}", ymapfiles[i].filename);
                 }
@@ -378,11 +386,11 @@ namespace MapTools
                             {
                                 if (ymapfiles[i].CMapData.entities.Remove(samename))
                                     k++;
-                            }    
+                            }
                         }
 
                     }
-                    if(k > 0)
+                    if (k > 0)
                     {
                         ymapfiles[i].WriteXML().Save(ymapfiles[i].filename);
                         Console.WriteLine("Deleted {0} entities in {1}", k, ymapfiles[i].filename);
@@ -391,12 +399,12 @@ namespace MapTools
             }
         }
 
-        public static void RemoveFromList(Ytyp[] ytypfiles,Ymap[] ymapfiles)
+        public static void RemoveFromList(Ytyp[] ytypfiles, Ymap[] ymapfiles)
         {
             List<string> removelist = new List<string>();
             Console.WriteLine("Insert the file to load names from: (ex. list.txt)");
             string filename = Console.ReadLine();
-            
+
             using (StreamReader reader = new StreamReader(filename))
             {
                 string line;
@@ -449,8 +457,8 @@ namespace MapTools
             Ytyp theytyp = new Ytyp(XDocument.Load(ytyppath), mloname);
             Ymap theymap = new Ymap(XDocument.Load(ymappath), mloname);
 
-            if(theytyp != null && theymap != null)
-            {                
+            if (theytyp != null && theymap != null)
+            {
 
                 CMloInstanceDef mloent = new CMloInstanceDef(mloname);
                 CMloArchetypeDef mloarc = new CMloArchetypeDef(mloname);
@@ -474,8 +482,8 @@ namespace MapTools
                 theytyp.CMapTypes.name = mloname;
                 XDocument doc = theytyp.WriteXML();
                 doc.Element("CMapTypes").Element("archetypes").Add(mloarc.WriteXML());
-                doc.Save(mloname +".ytyp.xml");
-                Console.WriteLine(mloname +".ytyp.xml");
+                doc.Save(mloname + ".ytyp.xml");
+                Console.WriteLine(mloname + ".ytyp.xml");
 
                 theymap.CMapData.name = mloname;
                 theymap.CMapData.entities = new List<CEntityDef>();
@@ -484,6 +492,113 @@ namespace MapTools
                 doc.Save(mloname + ".ymap.xml");
                 Console.WriteLine(mloname + ".ymap.xml");
             }
+        }
+
+        public static void BatchesFromParticles()
+        {
+            List<float[]> particlesInfo = new List<float[]>();
+            Console.WriteLine("Insert the name of the file to load");
+            string filepath = Console.ReadLine();
+
+            float posXmax = float.MinValue;
+            float posXmin = float.MaxValue;
+            float posYmax = float.MinValue;
+            float posYmin = float.MaxValue;
+            float posZmax = float.MinValue;
+            float posZmin = float.MaxValue;
+
+            BinaryReader reader = new BinaryReader(File.OpenRead(filepath));
+            while (reader.BaseStream.Position != reader.BaseStream.Length)
+            {
+
+                float posx = reader.ReadSingle();
+                float posy = reader.ReadSingle();
+                float posz = reader.ReadSingle();
+                float dirx = reader.ReadSingle();
+                float diry = reader.ReadSingle();
+
+                float[] pInfo = new float[5] { posx, posy, posz, dirx, diry };
+
+                //Console.WriteLine("POS: {0},{1},{2} DIR:{3},{4}", posx, posy, posz, dirx, diry);
+                particlesInfo.Add(pInfo);
+
+                posXmax = Math.Max(posXmax, posx);
+                posXmin = Math.Min(posXmin, posx);
+                posYmax = Math.Max(posYmax, posy);
+                posYmin = Math.Min(posYmin, posy);
+                posZmax = Math.Max(posZmax, posz);
+                posZmin = Math.Min(posZmin, posz);
+            }
+            reader.Close();
+
+            if (particlesInfo == null || !particlesInfo.Any())
+                return;
+            Random rnd = new Random();
+
+            List<string> archetypes = new List<string>() { "proc_brittlebush_01", "proc_desert_sage_01", "proc_drygrasses01", "proc_drygrasses01b", "proc_drygrassfronds01", "proc_dryplantsgrass_01", "proc_dryplantsgrass_02", "proc_dry_plants_01", "proc_forest_grass01", "proc_forest_ivy_01", "proc_grassdandelion01", "proc_grasses01", "proc_grasses01b", "proc_grassfronds01", "proc_grassplantmix_01", "proc_grassplantmix_02", "proc_indian_pbrush_01", "proc_leafybush_01", "proc_leafyplant_01", "proc_lizardtail_01", "proc_lupins_01", "proc_meadowmix_01", "proc_meadowpoppy_01", "proc_sage_01", "proc_scrub_bush01", "proc_sml_reeds_01", "proc_sml_reeds_01b", "proc_sml_reeds_01c", "proc_stones_01", "proc_stones_02", "proc_stones_03", "proc_stones_04", "proc_stones_05", "proc_stones_06", "proc_wildquinine", "prop_dandy_b", "prop_dryweed_001_a", "prop_dryweed_002_a", "prop_fernba", "prop_fernbb", "prop_flowerweed_005_a", "prop_grass_001_a", "prop_grass_ca", "prop_grass_da", "prop_log_aa", "prop_log_ab", "prop_log_ac", "prop_log_ad", "prop_log_ae", "prop_log_af", "prop_saplin_001_b", "prop_saplin_001_c", "prop_saplin_002_b", "prop_saplin_002_c", "prop_small_bushyba", "prop_tall_drygrass_aa", "prop_tall_grass_ba", "prop_thindesertfiller_aa", "prop_weed_001_aa", "prop_weed_002_ba", "urbandryfrnds_01", "urbandrygrass_01", "urbangrnfrnds_01", "urbangrngrass_01", "urbanweeds01", "urbanweeds01_l1", "urbanweeds02", "urbanweeds02_l1" };
+            string archetype = archetypes[rnd.Next(0, archetypes.Count()-1)];
+
+            Vector3 batchSize = new Vector3(100, 100, 75);
+            Vector3 bbmax = new Vector3(posXmax, posYmax, posZmax);
+            Vector3 bbmin = new Vector3(posXmin, posYmin, posZmin);
+
+            Vector3 numblocks = (bbmax - bbmin) / batchSize;
+            //Console.WriteLine("{0},{1},{2}",numblocks.X,numblocks.Y,numblocks.Z);
+            int blockX = (int)(numblocks.X + 1);
+            int blockY = (int)(numblocks.Y + 1);
+            int blockZ = (int)(numblocks.Z + 1);
+
+            Ymap map = new Ymap("instancedData");
+            map.CMapData.contentFlags = 1088;
+            map.CMapData.physicsDictionaries.Add("v_proc1");
+
+            for (int x = -blockX; x <= blockX; x++)
+            {
+                for (int y = -blockY; y <= blockY; y++)
+                {
+                    for (int z = -blockZ; z <= blockZ; z++)
+                    {
+                        IEnumerable<float[]> currentBatch = Enumerable.Empty<float[]>();
+
+                        float maxX = (x + 1) * batchSize.X;
+                        float minX = x * batchSize.X;
+                        float maxY = (y + 1) * batchSize.Y;
+                        float minY = y * batchSize.Y;
+                        float maxZ = (z + 1) * batchSize.Z;
+                        float minZ = z * batchSize.Z;
+
+                        ///Console.WriteLine("maxX:{0},minX{1},maxY{2},minY{3},maxZ{4},minZ{5}",maxX,minX,maxY,minY,maxZ,minZ);
+
+                        currentBatch = particlesInfo.Where(a => a[0] < maxX && a[0] >= minX && a[1] < maxY && a[1] >= minY && a[2] < maxZ && a[2] >= minZ).ToList();
+                       // Console.WriteLine(currentBatch.Count());
+
+                        if (currentBatch?.Any() ?? false)
+                        {
+                            BatchAABB aabb = new BatchAABB(new Vector4(minX,minY,minZ,0),new Vector4(maxX,maxY,maxZ,0));
+                            GrassInstance grassBatch = new GrassInstance(archetype);
+                            grassBatch.BatchAABB = aabb;
+
+                            foreach(float[] inst in currentBatch)
+                            {
+                                Vector4 worldPos = new Vector4(inst[0],inst[1],inst[2],0);
+                                Vector4 batchPos = (worldPos - aabb.min) / (aabb.max - aabb.min) * 65535;
+                                byte NormalX = (byte)((inst[3] + 1) * 0.5 * 255);
+                                byte NormalY = (byte)((inst[4] + 1) * 0.5 * 255);
+                                byte[] color = new byte[3] { 150, 150, 150 };
+                                byte scale = (byte)rnd.Next(0,255); ;
+
+                                Instance i = new Instance(new ushort[] { (ushort)batchPos.X, (ushort)batchPos.Y, (ushort)batchPos.Z}, NormalX,NormalY, color, scale);
+                                grassBatch.InstanceList.Add(i);
+                            }
+                            map.CMapData.instancedData.GrassInstanceList.Add(grassBatch);
+                        }
+                    }
+                }
+            }
+            Console.WriteLine("Total batches: {0}", map.CMapData.instancedData.GrassInstanceList.Count);
+            Console.WriteLine("Total instances: {0}", particlesInfo.Count);
+            map.WriteXML().Save("grass.ymap.xml");
+            Console.WriteLine("Exported grass.ymap.xml");
         }
     }
 }

@@ -961,6 +961,18 @@ namespace MapTools.XML
                 InstanceList.Add(new Instance(item));
         }
 
+        public GrassInstance(string name)
+        {
+            BatchAABB = new BatchAABB(Vector4.Zero, Vector4.Zero);
+            ScaleRange = new Vector3 ( 0.6f, 2.3f, 0.2f );
+            archetypeName = name;
+            lodDist = 50.0f;
+            LodFadeStartDist = 20.0f;
+            LodInstFadeRange = 0.75f;
+            OrientToTerrain = 1.0f;
+            InstanceList = new List<Instance>();
+        }
+
         public XElement WriteXML()
         {
             //Item
@@ -1033,6 +1045,17 @@ namespace MapTools.XML
                 byte.Parse(node.Element("Pad").Value.Split('\n')[1]),
                 byte.Parse(node.Element("Pad").Value.Split('\n')[2]),
                 byte.Parse(node.Element("Pad").Value.Split('\n')[3])};
+        }
+
+        public Instance(ushort[] pos, byte normX,byte normY, byte[] col, byte size)
+        {
+            Position = pos;
+            NormalX = normX;
+            NormalY = normY;
+            Color = col;
+            Scale = size;
+            Ao = 255;
+            Pad = new byte[3] { 0, 0, 0 };
         }
 
         public XElement WriteXML()
