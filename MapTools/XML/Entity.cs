@@ -86,7 +86,10 @@ namespace MapTools.XML
             return CEntityDefNode;
         }
 
-        public CEntityDef(XElement node)
+        public CEntityDef()
+        { }
+
+            public CEntityDef(XElement node)
         {
             archetypeName = node.Element("archetypeName").Value.ToLower();
             flags = uint.Parse(node.Element("flags").Attribute("value").Value);

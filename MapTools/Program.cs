@@ -7,6 +7,7 @@ using System.Numerics;
 using System.Globalization;
 using System.Threading;
 using System.Linq;
+using MapTools.Other;
 
 namespace MapTools
 {
@@ -30,6 +31,7 @@ namespace MapTools
                 Console.WriteLine("overlapping\nRemoves all the overlapping entities in each .ymap.xml rounding their position by a given precision.\n");
                 Console.WriteLine("grasscolor\nReplaces the color of all the instances of all the batches of grass.\n");
                 Console.WriteLine("particles\nGenerates batches of grass from particles exported in 3ds.\n");
+                Console.WriteLine("convertjson\nConverts each json file into a pair of ytyp-ymap");
                 args = Console.ReadLine().Split();
             }
             if (args.Length != 0)
@@ -78,6 +80,10 @@ namespace MapTools
                             break;
                         case "grasscolor":
                             ReplaceColorInstancedGrass(ymapfiles);
+                            break;
+                        case "convertjson":
+                            FivemJson[] jsonfiles = CollectJson(dir);
+                            ConvertJson(jsonfiles);
                             break;
 
                         //TEMP
@@ -284,6 +290,108 @@ namespace MapTools
                     ytyps[i] = new Ytyp(XDocument.Load(files[i].Name), files[i].Name);
             }
             return ytyps;
+        }
+
+        public static FivemJson[] CollectJson(DirectoryInfo dir)
+        {
+            FivemJson[] fivemjsons = null;
+            FileInfo[] files = dir.GetFiles("*.json");
+            if (files.Length == 0)
+                Console.WriteLine("No .json file found.");
+            else
+            {
+                fivemjsons = new FivemJson[files.Length];
+                for (int i = 0; i < files.Length; i++)
+                {
+                    string jsonstring = File.ReadAllText(files[i].Name);
+                    fivemjsons[i] = new FivemJson(jsonstring, files[i].Name);
+                }    
+            }
+            return fivemjsons;
+        }
+
+        public static void ConvertJson(FivemJson[] jsonfiles)
+        {
+            if (jsonfiles == null || jsonfiles.Length <= 0)
+                return;
+
+            Ytyp[] ytypfiles = new Ytyp[jsonfiles.Length];
+            Ymap[] ymapfiles = new Ymap[jsonfiles.Length];
+
+            for (int i = 0; i < jsonfiles.Length; i++)
+            {
+                ytypfiles[i] = new Ytyp(jsonfiles[i].filename.Replace(".json",".ytyp.xml"));
+                ytypfiles[i].CMapTypes.name = jsonfiles[i].filename.Replace(".json", "");
+
+                foreach (FivemArchetype a in jsonfiles[i].archetypes)
+                {
+                    CBaseArchetypeDef arc = new CBaseArchetypeDef();
+
+                    //arc.lodDist = 0;
+                    arc.flags = 0;
+                    arc.specialAttribute = 0;
+                    arc.bbMin = a.aabbMin;
+                    arc.bbMax = a.aabbMax;
+                    arc.bsCentre = a.centroid;
+                    arc.bsRadius = a.radius;
+                    //arc.hdTextureDist = 0;
+                    arc.name = a.archetypeName;
+                    arc.textureDictionary = a.txdName;
+                    arc.clipDictionary = null;
+                    arc.drawableDictionary = null;
+                    arc.physicsDictionary = a.archetypeName;
+                    arc.assetType = assetType.ASSET_TYPE_DRAWABLE;
+                    arc.assetName = a.archetypeName;
+                    arc.extensions = null;
+
+                    arc.lodDist = 100 + (1.5f * arc.bsRadius);
+                    arc.hdTextureDist = 0.75f * arc.lodDist;
+
+                    ytypfiles[i].CMapTypes.archetypes.Add(arc);
+                }
+
+                ymapfiles[i] = new Ymap(jsonfiles[i].filename.Replace(".json", ".ymap.xml"));
+                ymapfiles[i].CMapData.name = jsonfiles[i].filename.Replace(".json", "");
+                Random rnd = new Random();
+
+                foreach (FivemEntity e in jsonfiles[i].entities)
+                {
+                    CEntityDef ent = new CEntityDef();
+
+                    ent.archetypeName = e.archetypeName;
+                    ent.flags = 0;
+                    ent.guid = (uint)rnd.Next();
+                    ent.position = e.position;
+                    ent.rotation = e.rotation;
+                    ent.scaleXY = 1;
+                    ent.scaleZ = 1;
+                    ent.parentIndex = -1;
+                    ent.lodDist = 100;
+                    ent.childLodDist = 0;
+                    ent.lodLevel = lodLevel.LODTYPES_DEPTH_ORPHANHD;
+                    ent.numChildren = 0;
+                    ent.priorityLevel = priorityLevel.PRI_REQUIRED;
+                    ent.extensions = null;
+                    ent.ambientOcclusionMultiplier = 255;
+                    ent.artificialAmbientOcclusion = 255;
+                    ent.tintValue = 0;
+
+                    ymapfiles[i].CMapData.entities.Add(ent);
+
+                    ymapfiles[i].UpdatelodDist(ytypfiles[i].CMapTypes.archetypes);
+                    ymapfiles[i].UpdateExtents(ytypfiles[i].CMapTypes.archetypes);
+                }
+
+                /*foreach (uint h in jsonfiles[i].hashes.Keys)
+                {
+                    Console.WriteLine("{0} : {1}", h, jsonfiles[i].hashes[h]);
+                }*/
+
+                ytypfiles[i].WriteXML().Save(ytypfiles[i].filename);
+                Console.WriteLine("Saved " + ytypfiles[i].filename);
+                ymapfiles[i].WriteXML().Save(ymapfiles[i].filename);
+                Console.WriteLine("Saved " + ymapfiles[i].filename);
+            }
         }
 
         public static Vector3 ReadVector3()
@@ -595,6 +703,7 @@ namespace MapTools
                     }
                 }
             }
+            map.UpdateExtents(new List<CBaseArchetypeDef>());
             Console.WriteLine("Total batches: {0}", map.CMapData.instancedData.GrassInstanceList.Count);
             Console.WriteLine("Total instances: {0}", particlesInfo.Count);
             map.WriteXML().Save("grass.ymap.xml");

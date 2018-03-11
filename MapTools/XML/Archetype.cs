@@ -113,7 +113,10 @@ namespace MapTools.XML
             extensions = node.Element("extensions");
         }
 
-        public CBaseArchetypeDef(string archetypename) //TEST EMPTY ARCHETYPE
+        public CBaseArchetypeDef()
+        { }
+
+            public CBaseArchetypeDef(string archetypename) //TEST EMPTY ARCHETYPE
         {
             lodDist = 0;
             flags = 0;
