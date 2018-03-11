@@ -137,20 +137,28 @@ namespace MapTools.Other
                     if(name != null)
                     {
                         string namestring = name.ToString();
-                        archetype.archetypeName = namestring;
 
                         if (!namestring.StartsWith("hash:", StringComparison.Ordinal))
                             hashes[Jenkin.GenHash(namestring)] = namestring;
+                        else
+                            namestring = "0x" + namestring.Remove(0, 5); //SHOULDN'T HAPPEN
+
+                        archetype.archetypeName = namestring;
+
                     }
 
                     var txd = a["txdName"];
                     if (txd != null)
                     {
                         string txdstring = txd.ToString();
-                        archetype.txdName = txdstring;
+                        
 
                         if (!txdstring.StartsWith("hash:", StringComparison.Ordinal))
                             hashes[Jenkin.GenHash(txdstring)] =  txdstring;
+                        else
+                            txdstring = "0x" + txdstring.Remove(0, 5); //SHOULDN'T HAPPEN
+
+                        archetype.txdName = txdstring;
                     }
 
                     archetypes.Add(archetype);
