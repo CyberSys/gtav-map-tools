@@ -392,11 +392,15 @@ namespace MapTools
                 ymapfiles[i].WriteXML().Save(ymapfiles[i].filename);
                 Console.WriteLine("Saved " + ymapfiles[i].filename);
 
-                string unresolvedname = ymapfiles[i].CMapData.name + "_unresolved";
-                ymapfiles[i].CMapData.entities = unresolved;
-                ymapfiles[i].CMapData.name = unresolvedname;
-                ymapfiles[i].WriteXML().Save(unresolvedname + ".ymap.xml");
-                Console.WriteLine("Saved " + unresolvedname + ".ymap.xml");
+                if(unresolved?.Any() ?? false)
+                {
+                    string unresolvedname = ymapfiles[i].CMapData.name + "_unresolved";
+                    ymapfiles[i].CMapData.entities = unresolved;
+                    ymapfiles[i].CMapData.name = unresolvedname;
+                    ymapfiles[i].WriteXML().Save(unresolvedname + ".ymap.xml");
+                    Console.WriteLine("Saved " + unresolvedname + ".ymap.xml");
+                }
+                
             }
         }
 
