@@ -14,6 +14,8 @@ namespace MapTools.Other
         public List<FivemEntity> entities;
         public Dictionary<uint, string> hashes;
 
+        public HashSet<uint> unresolved = new HashSet<uint>();
+
         public FivemJson(string jsonstring,string name)
         {
             filename = name;
@@ -25,12 +27,62 @@ namespace MapTools.Other
 
             ReadArchetypes(json);
             ReadEntities(json);
+            ResolveHashes();
+        }
+
+        public string TryResolveHash(string s)
+        {
+            //if (s.StartsWith("hash:"))
+            {
+                uint hash = uint.Parse(s.Remove(0, 5));
+
+                string value;
+                bool success = hashes.TryGetValue(hash, out value);
+
+                if (success)
+                    s = value;
+                else
+                {
+                    s = "0x" + hash.ToString("X");
+
+                    if (!unresolved.Contains(hash))
+                        unresolved.Add(hash);
+                }
+            }
+            return s;
+        }
+
+        public void ResolveHashes()
+        {
+
+            for (int i = 0; i < archetypes.Count; i++)
+            {
+                string archetypeName = archetypes[i].archetypeName;
+                if (archetypeName.StartsWith("hash:"))
+                    archetypes[i].archetypeName = TryResolveHash(archetypeName);
+
+                string txdName = archetypes[i].txdName;
+                if (txdName.StartsWith("hash:"))
+                    archetypes[i].txdName = TryResolveHash(txdName);
+            }
+
+            for (int i = 0; i < entities.Count; i++)
+            {
+                string archetypeName = entities[i].archetypeName;
+                if (archetypeName.StartsWith("hash:"))
+                    entities[i].archetypeName = TryResolveHash(archetypeName);
+            }
+
+            foreach (uint h in unresolved)
+            {
+                string hex = "0x" + h.ToString("X");
+                Console.WriteLine("Can't resolve hash {0} : {1}", h, hex);
+            }
         }
 
         public void ReadEntities(JObject json)
         {
-            Dictionary<uint, int> unresolved = new Dictionary<uint, int>();
-
+            
             if (json["entities"] != null && json["entities"].Any())
             {
                 foreach (JToken e in json["entities"])
@@ -60,36 +112,13 @@ namespace MapTools.Other
                     if (name != null)
                     {
                         string namestring = name.ToString();
-                        
-                        if (namestring.StartsWith("hash:"))
-                        {
-                            uint hash = uint.Parse(namestring.Remove(0,5));
 
-                            string value;
+                        if (!namestring.StartsWith("hash:", StringComparison.Ordinal))
+                            hashes[Jenkin.GenHash(namestring)] = namestring;
 
-                            bool success = hashes.TryGetValue(hash, out value);
-
-                            if (success)
-                                namestring = value;
-                            else
-                            {
-                                namestring = "0x" + hash.ToString("X");
-
-                                if (unresolved.ContainsKey(hash))
-                                    unresolved[hash] = unresolved[hash] + 1;
-                                else
-                                    unresolved[hash] = 1;
-                            }
-                        }
                         entity.archetypeName = namestring;
                     }
                     entities.Add(entity);
-                }
-
-                foreach(uint h in unresolved.Keys)
-                {
-                    string hex = "0x" + h.ToString("X");
-                    Console.WriteLine("Can't resolve archetypeName for entity {0} : {1} ({2} times)", h, hex, unresolved[h]);
                 }
             }
         }
@@ -140,8 +169,6 @@ namespace MapTools.Other
 
                         if (!namestring.StartsWith("hash:", StringComparison.Ordinal))
                             hashes[Jenkin.GenHash(namestring)] = namestring;
-                        else
-                            namestring = "0x" + namestring.Remove(0, 5); //SHOULDN'T HAPPEN
 
                         archetype.archetypeName = namestring;
 
@@ -151,12 +178,9 @@ namespace MapTools.Other
                     if (txd != null)
                     {
                         string txdstring = txd.ToString();
-                        
-
+                       
                         if (!txdstring.StartsWith("hash:", StringComparison.Ordinal))
                             hashes[Jenkin.GenHash(txdstring)] =  txdstring;
-                        else
-                            txdstring = "0x" + txdstring.Remove(0, 5); //SHOULDN'T HAPPEN
 
                         archetype.txdName = txdstring;
                     }

@@ -323,6 +323,8 @@ namespace MapTools
                 ytypfiles[i] = new Ytyp(jsonfiles[i].filename.Replace(".json",".ytyp.xml"));
                 ytypfiles[i].CMapTypes.name = jsonfiles[i].filename.Replace(".json", "");
 
+                List<CBaseArchetypeDef> unresolved_arc = new List<CBaseArchetypeDef>();
+
                 foreach (FivemArchetype a in jsonfiles[i].archetypes)
                 {
                     CBaseArchetypeDef arc = new CBaseArchetypeDef();
@@ -347,14 +349,17 @@ namespace MapTools
                     arc.lodDist = 100 + (1.5f * arc.bsRadius);
                     arc.hdTextureDist = 0.75f * arc.lodDist;
 
-                    ytypfiles[i].CMapTypes.archetypes.Add(arc);
+                    if (a.archetypeName.StartsWith("0x") || a.txdName.StartsWith("0x"))
+                        unresolved_arc.Add(arc);
+                    else
+                        ytypfiles[i].CMapTypes.archetypes.Add(arc);
                 }
 
                 ymapfiles[i] = new Ymap(jsonfiles[i].filename.Replace(".json", ".ymap.xml"));
                 ymapfiles[i].CMapData.name = jsonfiles[i].filename.Replace(".json", "");
 
                 Random rnd = new Random();
-                List<CEntityDef> unresolved = new List<CEntityDef>();
+                List<CEntityDef> unresolved_ent = new List<CEntityDef>();
 
                 foreach (FivemEntity e in jsonfiles[i].entities)
                 {
@@ -379,7 +384,7 @@ namespace MapTools
                     ent.tintValue = 0;
 
                     if (e.archetypeName.StartsWith("0x"))
-                        unresolved.Add(ent);
+                        unresolved_ent.Add(ent);
                     else
                         ymapfiles[i].CMapData.entities.Add(ent);
                 }
@@ -392,10 +397,19 @@ namespace MapTools
                 ymapfiles[i].WriteXML().Save(ymapfiles[i].filename);
                 Console.WriteLine("Saved " + ymapfiles[i].filename);
 
-                if(unresolved?.Any() ?? false)
+                if (unresolved_arc?.Any() ?? false)
+                {
+                    string unresolvedname = ytypfiles[i].CMapTypes.name + "_unresolved";
+                    ytypfiles[i].CMapTypes.archetypes = unresolved_arc;
+                    ytypfiles[i].CMapTypes.name = unresolvedname;
+                    ytypfiles[i].WriteXML().Save(unresolvedname + ".ymap.xml");
+                    Console.WriteLine("Saved " + unresolvedname + ".ymap.xml");
+                }
+
+                if (unresolved_ent?.Any() ?? false)
                 {
                     string unresolvedname = ymapfiles[i].CMapData.name + "_unresolved";
-                    ymapfiles[i].CMapData.entities = unresolved;
+                    ymapfiles[i].CMapData.entities = unresolved_ent;
                     ymapfiles[i].CMapData.name = unresolvedname;
                     ymapfiles[i].WriteXML().Save(unresolvedname + ".ymap.xml");
                     Console.WriteLine("Saved " + unresolvedname + ".ymap.xml");
