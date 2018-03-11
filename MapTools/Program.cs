@@ -352,7 +352,9 @@ namespace MapTools
 
                 ymapfiles[i] = new Ymap(jsonfiles[i].filename.Replace(".json", ".ymap.xml"));
                 ymapfiles[i].CMapData.name = jsonfiles[i].filename.Replace(".json", "");
+
                 Random rnd = new Random();
+                List<CEntityDef> unresolved = new List<CEntityDef>();
 
                 foreach (FivemEntity e in jsonfiles[i].entities)
                 {
@@ -376,21 +378,25 @@ namespace MapTools
                     ent.artificialAmbientOcclusion = 255;
                     ent.tintValue = 0;
 
-                    ymapfiles[i].CMapData.entities.Add(ent);
-
-                    ymapfiles[i].UpdatelodDist(ytypfiles[i].CMapTypes.archetypes);
-                    ymapfiles[i].UpdateExtents(ytypfiles[i].CMapTypes.archetypes);
+                    if (e.archetypeName.StartsWith("0x"))
+                        unresolved.Add(ent);
+                    else
+                        ymapfiles[i].CMapData.entities.Add(ent);
                 }
 
-                /*foreach (uint h in jsonfiles[i].hashes.Keys)
-                {
-                    Console.WriteLine("{0} : {1}", h, jsonfiles[i].hashes[h]);
-                }*/
+                ymapfiles[i].UpdatelodDist(ytypfiles[i].CMapTypes.archetypes);
+                ymapfiles[i].UpdateExtents(ytypfiles[i].CMapTypes.archetypes);
 
                 ytypfiles[i].WriteXML().Save(ytypfiles[i].filename);
                 Console.WriteLine("Saved " + ytypfiles[i].filename);
                 ymapfiles[i].WriteXML().Save(ymapfiles[i].filename);
                 Console.WriteLine("Saved " + ymapfiles[i].filename);
+
+                string unresolvedname = ymapfiles[i].CMapData.name + "_unresolved";
+                ymapfiles[i].CMapData.entities = unresolved;
+                ymapfiles[i].CMapData.name = unresolvedname;
+                ymapfiles[i].WriteXML().Save(unresolvedname + ".ymap.xml");
+                Console.WriteLine("Saved " + unresolvedname + ".ymap.xml");
             }
         }
 

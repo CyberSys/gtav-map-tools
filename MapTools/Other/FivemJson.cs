@@ -29,6 +29,8 @@ namespace MapTools.Other
 
         public void ReadEntities(JObject json)
         {
+            Dictionary<uint, int> unresolved = new Dictionary<uint, int>();
+
             if (json["entities"] != null && json["entities"].Any())
             {
                 foreach (JToken e in json["entities"])
@@ -64,6 +66,7 @@ namespace MapTools.Other
                             uint hash = uint.Parse(namestring.Remove(0,5));
 
                             string value;
+
                             bool success = hashes.TryGetValue(hash, out value);
 
                             if (success)
@@ -71,13 +74,22 @@ namespace MapTools.Other
                             else
                             {
                                 namestring = "0x" + hash.ToString("X");
-                                Console.WriteLine("Can't resolve archetypeName for entity {0}", namestring);
-                            }
 
+                                if (unresolved.ContainsKey(hash))
+                                    unresolved[hash] = unresolved[hash] + 1;
+                                else
+                                    unresolved[hash] = 1;
+                            }
                         }
                         entity.archetypeName = namestring;
                     }
                     entities.Add(entity);
+                }
+
+                foreach(uint h in unresolved.Keys)
+                {
+                    string hex = "0x" + h.ToString("X");
+                    Console.WriteLine("Can't resolve archetypeName for entity {0} : {1} ({2} times)", h, hex, unresolved[h]);
                 }
             }
         }
